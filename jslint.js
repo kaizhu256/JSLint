@@ -6221,45 +6221,83 @@ function jslint(
 // usually true. Some options will also predefine some number of global
 // variables.
 
-        bitwise: true,
-        browser: [
-            "caches", "CharacterData", "clearInterval", "clearTimeout",
-            "document",
-            "DocumentType", "DOMException", "Element", "Event", "event",
-            "fetch",
-            "FileReader", "FontFace", "FormData", "history",
+        bitwise: true,  // Allow bitwise-operators.
+        browser: [      // Assume browser-environment.
+            "CharacterData",
+            "DOMException",
+            "DocumentType",
+            "Element",
+            "Event",
+            "FileReader",
+            "FontFace",
+            "FormData",
             "IntersectionObserver",
-            "localStorage", "location", "MutationObserver", "name", "navigator",
-            "screen", "sessionStorage", "setInterval", "setTimeout", "Storage",
-            "TextDecoder", "TextEncoder", "URL", "window", "Worker",
-            "XMLHttpRequest"
+            "MutationObserver",
+            "Storage",
+            "TextDecoder",
+            "TextEncoder",
+            "URL",
+            "Worker",
+            "XMLHttpRequest",
+            "caches",
+            "clearInterval",
+            "clearTimeout",
+            "document",
+            "event",
+            "fetch",
+            "history",
+            "localStorage",
+            "location",
+            "name",
+            "navigator",
+            "screen",
+            "sessionStorage",
+            "setInterval",
+            "setTimeout",
+            "window"
         ],
-        convert: true,
-        couch: [
+        convert: true,          // Allow conversion-operators.
+        couch: [                // Assume couchdb-environment.
             "emit", "getRow", "isArray", "log", "provides", "registerType",
             "require", "send", "start", "sum", "toJSON"
         ],
-        debug: true,
-        declare: true,
-        devel: [
+        debug: true,            // Include jslint stack-trace in warning.
+        declare: true,          // Allow const, let, var declarations not at top
+                                // of function-scope.
+        devel: [                // Allow logging-functions.
             "alert", "confirm", "console", "prompt"
         ],
-        eval: true,
-        for: true,
-        getset: true,
-        long: true,
-        name: true,
-        node: [
-            "Buffer", "clearImmediate", "clearInterval", "clearTimeout",
-            "console", "exports", "module", "process", "require",
-            "setImmediate", "setInterval", "setTimeout", "TextDecoder",
-            "TextEncoder", "URL", "URLSearchParams", "__dirname", "__filename"
+        eval: true,             // Allow Function() and eval().
+        for: true,              // Allow for-statement.
+        getset: true,           // Allow get() and set().
+        long: true,             // Allow long lines.
+        name: true,             // Allow bad property names.
+        node: [                 // Assume node-environment.
+            "Buffer",
+            "TextDecoder",
+            "TextEncoder",
+            "URL",
+            "URLSearchParams",
+            "__dirname",
+            "__filename",
+            "clearImmediate",
+            "clearInterval",
+            "clearTimeout",
+            "console",
+            "exports",
+            "module",
+            "process",
+            "require",
+            "setImmediate",
+            "setInterval",
+            "setTimeout"
         ],
-        single: true,
-        test_internal_error: true,
-        this: true,
-        unordered: true,
-        white: true
+        single: true,           // Allow single-quote strings.
+        test_internal_error: true,      // Test jslint's internal-error
+                                        // handling-ability.
+        this: true,             // Allow this.
+        unordered: true,        // Allow unordered cases, params, properties.
+        white: true             // Allow whitespace mess.
     };
     const directive_list = [];          // The directive comments.
     const export_dict = empty();        // The exported names and values.
@@ -6281,16 +6319,53 @@ function jslint(
                                         // property names.
     const standard = [          // These are the globals that are provided by
                                 // the language standard.
-        "Array", "ArrayBuffer", "Boolean", "DataView", "Date", "Error",
+        "Array",
+        "ArrayBuffer",
+        "Boolean",
+        "DataView",
+        "Date",
+        "Error",
         "EvalError",
-        "Float32Array", "Float64Array", "Generator", "GeneratorFunction",
-        "Int16Array", "Int32Array", "Int8Array", "Intl", "JSON", "Map", "Math",
-        "Number", "Object", "Promise", "Proxy", "RangeError", "ReferenceError",
-        "Reflect", "RegExp", "Set", "String", "Symbol", "SyntaxError", "System",
-        "TypeError", "URIError", "Uint16Array", "Uint32Array", "Uint8Array",
-        "Uint8ClampedArray", "WeakMap", "WeakSet", "decodeURI",
-        "decodeURIComponent", "encodeURI", "encodeURIComponent", "globalThis",
-        "import", "parseFloat", "parseInt"
+        "Float32Array",
+        "Float64Array",
+        "Generator",
+        "GeneratorFunction",
+        "Int16Array",
+        "Int32Array",
+        "Int8Array",
+        "Intl",
+        "JSON",
+        "Map",
+        "Math",
+        "Number",
+        "Object",
+        "Promise",
+        "Proxy",
+        "RangeError",
+        "ReferenceError",
+        "Reflect",
+        "RegExp",
+        "Set",
+        "String",
+        "Symbol",
+        "SyntaxError",
+        "System",
+        "TypeError",
+        "URIError",
+        "Uint16Array",
+        "Uint32Array",
+        "Uint8Array",
+        "Uint8ClampedArray",
+        "WeakMap",
+        "WeakSet",
+        "decodeURI",
+        "decodeURIComponent",
+        "encodeURI",
+        "encodeURIComponent",
+        "globalThis",
+        "import",
+        "parseFloat",
+        "parseInt"
     ];
     const state = empty();      // jslint state-object to be passed between
                                 // jslint functions.
@@ -6724,7 +6799,7 @@ function jslint(
             mm = `Don't declare variables in a loop.`;
             break;
         case "var_on_top":
-            mm = `Move const/let/var declarations to top of function-scope.`;
+            mm = `Move const, let, var declarations to top of function-scope.`;
             break;
         case "var_switch":
             mm = `Don't declare variables in a switch.`;
