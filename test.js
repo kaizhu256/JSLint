@@ -84,6 +84,15 @@ function noop() {
         [
             "let aa = aa | 0;", {bitwise: true}, []
         ], [
+            (
+                "function aa() {\n"
+                + "    if (aa) {\n"
+                + "        let bb = 0;\n"
+                + "        return bb;\n"
+                + "    }\n"
+                + "}\n"
+            ), {block: true}, []
+        ], [
             ";\naa(new XMLHttpRequest());", {browser: true}, ["aa"]
         ], [
             "let aa = \"aa\" + 0;", {convert: true}, []

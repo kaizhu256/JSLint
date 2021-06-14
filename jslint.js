@@ -88,7 +88,7 @@
 /*jslint node*/
 
 /*property
-    global_dict,
+    global_dict, last_statement,
     execArgv, fileURLToPath, filter, meta, order, reduce, stringify, token, url,
     JSLINT_CLI, a, all, allowed_option, argv, arity, artifact, assign, async, b,
     bind, bitwise, block, body, browser, c, calls, catch, closer, closure, code,
@@ -1693,6 +1693,7 @@ function jslint_phase3_parse(state) {
 // because it causes confusion.
 
         const id = name.id;
+        let earlier;
 
 // Reserved words may not be enrolled.
 
@@ -1705,7 +1706,7 @@ function jslint_phase3_parse(state) {
 
 // Has the name been enrolled in this context?
 
-            let earlier = functionage.context[id];
+            earlier = functionage.context[id];
             if (earlier) {
 
 // cause: "let aa;let aa"
@@ -1730,14 +1731,7 @@ function jslint_phase3_parse(state) {
                             warn("unexpected_a", name);
                         }
                     } else {
-                        if (
-                            (
-                                role !== "exception"
-                                || earlier.role !== "exception"
-                            )
-                            && role !== "parameter"
-                            && role !== "function"
-                        ) {
+                        if (role !== "parameter" && role !== "function") {
 
 // cause: "function aa(){try{aa();}catch(aa){aa();}}"
 // cause: "function aa(){var aa;}"
@@ -1971,6 +1965,7 @@ function jslint_phase3_parse(state) {
                 the_label.init = true;
                 the_label.dead = false;
                 the_statement = parse_statement();
+                functionage.last_statement = the_statement;
                 the_statement.label = the_label;
                 the_statement.statement = true;
                 return the_statement;
@@ -1998,11 +1993,13 @@ function jslint_phase3_parse(state) {
             the_symbol.disrupt = false;
             the_symbol.statement = true;
             the_statement = the_symbol.fud();
+            functionage.last_statement = the_statement;
         } else {
 
 // It is an expression statement.
 
             the_statement = parse_expression(0, true);
+            functionage.last_statement = the_statement;
             if (the_statement.wrapped && the_statement.id !== "(") {
 
 // cause: "(0)"
@@ -2086,6 +2083,9 @@ function jslint_phase3_parse(state) {
             advance("{");
         }
         the_block = token_now;
+        if (special !== "body") {
+            functionage.last_statement = the_block;
+        }
         the_block.arity = "statement";
         the_block.body = special === "body";
 
@@ -2716,8 +2716,9 @@ function jslint_phase3_parse(state) {
     infix("[", 170, function (left) {
         const the_token = token_now;
         const the_subscript = parse_expression(0);
+        let name;
         if (the_subscript.id === "(string)" || the_subscript.id === "`") {
-            const name = survey(the_subscript);
+            name = survey(the_subscript);
             if (rx_identifier.test(name)) {
 
 // cause: "aa[`aa`]"
@@ -3314,17 +3315,19 @@ function jslint_phase3_parse(state) {
     prefix("{", function () {
         const seen = empty();
         const the_brace = token_now;
+        let extra;
+        let full;
+        let id;
+        let name;
+        let value;
+        let the_colon;
         the_brace.expression = [];
         if (token_nxt.id !== "}") {
 
 // Parse/loop through each property in {...}.
 
             while (true) {
-                let extra;
-                let full;
-                let id;
-                let name = token_nxt;
-                let value;
+                name = token_nxt;
                 advance();
                 if (
                     (name.id === "get" || name.id === "set")
@@ -3394,7 +3397,7 @@ function jslint_phase3_parse(state) {
 
                             advance("(");
                         }
-                        let the_colon = token_nxt;
+                        the_colon = token_nxt;
                         advance(":");
                         value = parse_expression(0);
                         if (
@@ -3506,6 +3509,40 @@ function jslint_phase3_parse(state) {
     function do_var() {
         const the_statement = token_now;
         const mode_const = the_statement.id === "const";
+        switch (
+            Boolean(
+                !option_dict.block
+                && functionage.id !== "(global)"
+                && functionage.last_statement
+            )
+            && functionage.last_statement.id
+        ) {
+        case "const":
+
+// cause: "function aa(){const aa=0;const bb=0;}"
+
+            break;
+        case "let":
+
+// cause: "function aa(){let aa=0;let bb=0;}"
+
+            break;
+        case "var":
+
+// cause: "function aa(){var aa=0;var bb=0;}"
+
+            break;
+        case false:
+
+// cause: "function aa(){var aa=0;var bb=0;}"
+
+            break;
+        default:
+
+// cause: "function aa(){aa();let aa=0;}"
+
+            warn("var_on_top", token_now);
+        }
         the_statement.names = [];
 
 // A program may use var or let, but not both.
@@ -3536,17 +3573,20 @@ function jslint_phase3_parse(state) {
             warn("var_loop", the_statement);
         }
         (function next() {
+            let name;
+            let the_brace;
+            let the_bracket;
             if (token_nxt.id === "{" && the_statement.id !== "var") {
-                const the_brace = token_nxt;
+                the_brace = token_nxt;
                 advance("{");
                 (function pair() {
-                    if (!token_nxt.identifier) {
+                    name = token_nxt;
+                    if (!name.identifier) {
 
 // cause: "let {0}"
 
                         return stop("expected_identifier_a");
                     }
-                    const name = token_nxt;
                     survey(name);
                     advance();
                     if (token_nxt.id === ":") {
@@ -3590,7 +3630,7 @@ function jslint_phase3_parse(state) {
                 advance("=");
                 the_statement.expression = parse_expression(0);
             } else if (token_nxt.id === "[" && the_statement.id !== "var") {
-                const the_bracket = token_nxt;
+                the_bracket = token_nxt;
                 advance("[");
                 (function element() {
                     let ellipsis;
@@ -3604,7 +3644,7 @@ function jslint_phase3_parse(state) {
 
                         return stop("expected_identifier_a");
                     }
-                    const name = token_nxt;
+                    name = token_nxt;
                     advance();
                     the_statement.names.push(name);
                     enroll(name, "variable", mode_const);
@@ -3628,7 +3668,7 @@ function jslint_phase3_parse(state) {
                 advance("=");
                 the_statement.expression = parse_expression(0);
             } else if (token_nxt.identifier) {
-                const name = token_nxt;
+                name = token_nxt;
                 advance();
                 if (name.id === "ignore") {
 
@@ -3943,6 +3983,7 @@ function jslint_phase3_parse(state) {
     stmt("import", function () {
         const the_import = token_now;
         let name;
+        let names;
         if (typeof state.mode_module === "object") {
 
 // cause: "/*global aa*/\nimport aa from \"aa\""
@@ -3966,7 +4007,7 @@ function jslint_phase3_parse(state) {
             enroll(name, "variable", true);
             the_import.name = name;
         } else {
-            const names = [];
+            names = [];
             advance("{");
             if (token_nxt.id !== "}") {
                 while (true) {
@@ -4034,7 +4075,9 @@ function jslint_phase3_parse(state) {
         let dups = [];
         let last;
         let stmts;
+        let the_default;
         let the_disrupt = true;
+        let the_last;
         not_top_level(the_switch);
         if (functionage.finally > 0) {
 
@@ -4054,12 +4097,13 @@ function jslint_phase3_parse(state) {
         advance("{");
         (function major() {
             const the_case = token_nxt;
+            let exp;
             the_case.arity = "statement";
             the_case.expression = [];
             (function minor() {
                 advance("case");
                 token_now.switch = true;
-                const exp = parse_expression(0);
+                exp = parse_expression(0);
                 if (dups.some(function (thing) {
                     return is_equal(thing, exp);
                 })) {
@@ -4119,7 +4163,7 @@ function jslint_phase3_parse(state) {
         }));
         dups = undefined;
         if (token_nxt.id === "default") {
-            const the_default = token_nxt;
+            the_default = token_nxt;
             advance("default");
             token_now.switch = true;
             advance(":");
@@ -4131,7 +4175,7 @@ function jslint_phase3_parse(state) {
                 warn("unexpected_a", the_default);
                 the_disrupt = false;
             } else {
-                const the_last = the_switch.else[
+                the_last = the_switch.else[
                     the_switch.else.length - 1
                 ];
                 if (
@@ -4185,6 +4229,10 @@ function jslint_phase3_parse(state) {
             advance("catch");
             the_catch = token_nxt;
             the_catch.context = empty();
+
+// bugfix - fix try-catch-block complaining about "Unexpected await" inside
+// async-function.
+
             the_catch.async = functionage.async;
             the_try.catch = the_catch;
 
@@ -4217,6 +4265,10 @@ function jslint_phase3_parse(state) {
 // Restore previous function-scope after catch-block.
 
             functionage = function_stack.pop();
+
+// bugfix - fix await expression/statement inside catch-statement not
+// registered by functionage.await.
+
             functionage.async = Math.max(
                 functionage.async,
                 the_catch.async
@@ -4349,6 +4401,8 @@ function jslint_phase3_parse(state) {
 
                     const object = empty();
                     const properties = [];
+                    let name;
+                    let value;
                     brace.expression = properties;
                     advance("{");
                     if (token_nxt.id !== "}") {
@@ -4357,8 +4411,6 @@ function jslint_phase3_parse(state) {
 // Parse/loop through each property in {...}.
 
                         while (true) {
-                            let name;
-                            let value;
                             if (token_nxt.quote !== "\"") {
 
 // cause: "{0:0}"
@@ -4633,11 +4685,12 @@ function jslint_phase4_walk(state) {
     }
 
     function lookup(thing) {
+        let the_variable;
         if (thing.arity === "variable") {
 
 // Look up the variable in the current context.
 
-            let the_variable = functionage.context[thing.id];
+            the_variable = functionage.context[thing.id];
 
 // If it isn't local, search all the other contexts. If there are name
 // collisions, take the most recent.
@@ -4662,6 +4715,7 @@ function jslint_phase4_walk(state) {
 // cause: "aa"
 // cause: "class aa{}"
 // cause: "let aa=0;try{aa();}catch(bb){bb();}bb();"
+// cause: "let aa=0;try{aa();}catch(ignore){bb();}"
 
                         warn("undeclared_a", thing);
                         return;
@@ -4900,9 +4954,12 @@ function jslint_phase4_walk(state) {
     preaction("assignment", bitwise_check);
     preaction("binary", bitwise_check);
     preaction("binary", function (thing) {
+        let left;
+        let right;
+        let value;
         if (relationop[thing.id] === true) {
-            const left = thing.expression[0];
-            const right = thing.expression[1];
+            left = thing.expression[0];
+            right = thing.expression[1];
             if (left.id === "NaN" || right.id === "NaN") {
 
 // cause: "NaN===NaN"
@@ -4917,7 +4974,7 @@ function jslint_phase4_walk(state) {
                         warn("expected_string_a", right);
                     }
                 } else {
-                    const value = right.value;
+                    value = right.value;
                     if (value === "null" || value === "undefined") {
 
 // cause: "typeof aa===\"undefined\""
@@ -4965,14 +5022,16 @@ function jslint_phase4_walk(state) {
     });
     preaction("binary", "(", function (thing) {
         const left = thing.expression[0];
+        let left_variable;
+        let parent;
         if (
             left.identifier
             && functionage.context[left.id] === undefined
             && typeof functionage.name === "object"
         ) {
-            const parent = functionage.name.parent;
+            parent = functionage.name.parent;
             if (parent) {
-                const left_variable = parent.context[left.id];
+                left_variable = parent.context[left.id];
                 if (
                     left_variable !== undefined
                     && left_variable.dead
@@ -5004,8 +5063,9 @@ function jslint_phase4_walk(state) {
         thing.live = [];
     });
     preaction("statement", "for", function (thing) {
+        let the_variable;
         if (thing.name !== undefined) {
-            const the_variable = lookup(thing.name);
+            the_variable = lookup(thing.name);
             if (the_variable !== undefined) {
                 the_variable.init = true;
                 if (!the_variable.writable) {
@@ -5060,6 +5120,7 @@ function jslint_phase4_walk(state) {
 // in case of destructuring) in its name property.
 
         const lvalue = thing.expression[0];
+        let right;
         if (thing.id === "=") {
             if (thing.names !== undefined) {
 
@@ -5106,7 +5167,7 @@ function jslint_phase4_walk(state) {
                     warn("bad_assignment_a", lvalue);
                 }
             }
-            const right = syntax_dict[thing.expression[1].id];
+            right = syntax_dict[thing.expression[1].id];
             if (
                 right !== undefined
                 && (
@@ -5234,9 +5295,13 @@ function jslint_phase4_walk(state) {
     });
     postaction("binary", "=>", postaction_function);
     postaction("binary", "(", function (thing) {
-        let left = thing.expression[0];
-        let the_new;
         let arg;
+        let array;
+        let cack;
+        let left = thing.expression[0];
+        let new_date;
+        let paren;
+        let the_new;
         if (left.id === "new") {
             the_new = left;
             left = left.expression;
@@ -5307,7 +5372,7 @@ function jslint_phase4_walk(state) {
                 }
             }
         } else if (left.id === ".") {
-            let cack = the_new !== undefined;
+            cack = the_new !== undefined;
             if (left.expression.id === "Date" && left.name.id === "UTC") {
 
 // cause: "new Date.UTC()"
@@ -5336,11 +5401,11 @@ function jslint_phase4_walk(state) {
                 }
             }
             if (left.name.id === "getTime") {
-                const paren = left.expression;
+                paren = left.expression;
                 if (paren.id === "(") {
-                    const array = paren.expression;
+                    array = paren.expression;
                     if (array.length === 1) {
-                        const new_date = array[0];
+                        new_date = array[0];
                         if (
                             new_date.id === "new"
                             && new_date.expression.id === "Date"
@@ -5400,12 +5465,12 @@ function jslint_phase4_walk(state) {
     });
     postaction("statement", "let", action_var);
     postaction("statement", "try", function (thing) {
-        if (thing.catch !== undefined) {
-            const the_name = thing.catch.name;
-            if (the_name !== undefined) {
-                const the_variable = functionage.context[the_name.id];
-                the_variable.dead = false;
-                the_variable.init = true;
+        if (thing.catch) {
+            if (thing.catch.name) {
+                Object.assign(functionage.context[thing.catch.name.id], {
+                    dead: false,
+                    init: true
+                });
             }
             walk_statement(thing.catch.block);
 
@@ -5593,18 +5658,17 @@ function jslint_phase5_whitage(state) {
 
     function delve(the_function) {
         Object.keys(the_function.context).forEach(function (id) {
-            if (id !== "ignore") {
-                const name = the_function.context[id];
-                if (name.parent === the_function) {
+            const name = the_function.context[id];
+            if (id !== "ignore" && name.parent === the_function) {
 
 // cause: "let aa=function bb(){return;};"
 
-                    if (
-                        name.used === 0
-                        && assert_or_throw(
-                            name.role !== "function",
-                            `Expected name.role !== "function".`
-                        )
+                if (
+                    name.used === 0
+                    && assert_or_throw(
+                        name.role !== "function",
+                        `Expected name.role !== "function".`
+                    )
 
 // Probably deadcode.
 // && (
@@ -5612,18 +5676,17 @@ function jslint_phase5_whitage(state) {
 //     || name.parent.arity !== "unary"
 // )
 
-                    ) {
+                ) {
 
 // cause: "/*jslint node*/\nlet aa;"
 // cause: "function aa(aa){return;}"
 
-                        warn("unused_a", name);
-                    } else if (!name.init) {
+                    warn("unused_a", name);
+                } else if (!name.init) {
 
 // cause: "/*jslint node*/\nlet aa;aa();"
 
-                        warn("uninitialized_a", name);
-                    }
+                    warn("uninitialized_a", name);
                 }
             }
 
@@ -6159,6 +6222,7 @@ function jslint(
 // variables.
 
         bitwise: true,
+        block: true,
         browser: [
             "caches", "CharacterData", "clearInterval", "clearTimeout",
             "document",
@@ -6659,6 +6723,9 @@ function jslint(
         case "var_loop":
             mm = `Don't declare variables in a loop.`;
             break;
+        case "var_on_top":
+            mm = `Move const/let/var declarations to top of function-scope.`;
+            break;
         case "var_switch":
             mm = `Don't declare variables in a switch.`;
             break;
@@ -6763,11 +6830,9 @@ function jslint(
         populate(global_list, global_dict, false);
         populate(standard, global_dict, false);
         Object.keys(option_dict).forEach(function (name) {
-            if (option_dict[name] === true) {
-                const allowed = allowed_option[name];
-                if (Array.isArray(allowed)) {
-                    populate(allowed, global_dict, false);
-                }
+            const allowed = allowed_option[name];
+            if (option_dict[name] === true && Array.isArray(allowed)) {
+                populate(allowed, global_dict, false);
             }
         });
 

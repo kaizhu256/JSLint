@@ -109,15 +109,15 @@ function function_report(data) {
 //     <dt>DETAIL</dt><dd>NAMES</dd>
 // </dl>
 
-    let exports;
-    let froms;
-    let global;
     let mode = (
         data.module
         ? "module"
         : "global"
     );
     let output = [];
+    let global;
+    let froms;
+    let exports;
 
     if (data.json) {
         return (
@@ -240,9 +240,9 @@ function property_directive(data) {
 
 // Produce the /*property*/ directive.
 
-    let length = 1111;
     let not_first = false;
     let output = ["/*property"];
+    let length = 1111;
     let properties = Object.keys(data.property);
 
     properties.sort().forEach(function (key) {
