@@ -88,7 +88,7 @@
 /*jslint node*/
 
 /*property
-    global_dict, last_statement,
+    declare, global_dict, last_statement,
     execArgv, fileURLToPath, filter, meta, order, reduce, stringify, token, url,
     JSLINT_CLI, a, all, allowed_option, argv, arity, artifact, assign, async, b,
     bind, bitwise, block, body, browser, c, calls, catch, closer, closure, code,
@@ -3511,7 +3511,7 @@ function jslint_phase3_parse(state) {
         const mode_const = the_statement.id === "const";
         switch (
             Boolean(
-                !option_dict.block
+                !option_dict.declare
                 && functionage.id !== "(global)"
                 && functionage.last_statement
             )
@@ -6222,7 +6222,6 @@ function jslint(
 // variables.
 
         bitwise: true,
-        block: true,
         browser: [
             "caches", "CharacterData", "clearInterval", "clearTimeout",
             "document",
@@ -6241,6 +6240,7 @@ function jslint(
             "require", "send", "start", "sum", "toJSON"
         ],
         debug: true,
+        declare: true,
         devel: [
             "alert", "confirm", "console", "prompt"
         ],

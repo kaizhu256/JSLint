@@ -9,7 +9,6 @@
 - jslint - remove directive "eval" (use line-specific ignore-directive "//jslint-quiet" instead).
 - jslint - simplify comments/docs by removing unnecessary grammar-article "the".
 - jslint-refactor - migrate recursive-loops to for/while loops.
-    - inline functions number(), string().
 - node - after node-v12 is deprecated, change `require("fs").promises` to `require("fs/promises")`.
 - node - after node-v14 is deprecated, remove shell-code `export "NODE_OPTIONS=--unhandled-rejections=strict"`.
 - tests - update function warn_at() with assertion-check matching column with artifact.

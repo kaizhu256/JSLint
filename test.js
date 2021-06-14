@@ -62,36 +62,9 @@ function noop() {
 /*
  * this function will test jslint's option handling-behavior
  */
-    assertOrThrow(jslint("", {
-        bitwise: true,
-        browser: true,
-        convert: true,
-        couch: true,
-        debug: true,
-        devel: true,
-        eval: true,
-        for: true,
-        getset: true,
-        long: true,
-        name: true,
-        node: true,
-        single: true,
-        this: true,
-        unordered: true,
-        white: true
-    }).warnings.length === 0);
     [
         [
             "let aa = aa | 0;", {bitwise: true}, []
-        ], [
-            (
-                "function aa() {\n"
-                + "    if (aa) {\n"
-                + "        let bb = 0;\n"
-                + "        return bb;\n"
-                + "    }\n"
-                + "}\n"
-            ), {block: true}, []
         ], [
             ";\naa(new XMLHttpRequest());", {browser: true}, ["aa"]
         ], [
@@ -100,6 +73,15 @@ function noop() {
             "registerType();", {couch: true}, []
         ], [
             "", {debug: true}, []
+        ], [
+            (
+                "function aa() {\n"
+                + "    if (aa) {\n"
+                + "        let bb = 0;\n"
+                + "        return bb;\n"
+                + "    }\n"
+                + "}\n"
+            ), {declare: true}, []
         ], [
             "debugger;", {devel: true}, []
         ], [
