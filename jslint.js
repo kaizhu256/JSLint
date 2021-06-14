@@ -3507,8 +3507,8 @@ function jslint_phase3_parse(state) {
     });
 
     function do_var() {
-        const the_statement = token_now;
-        const mode_const = the_statement.id === "const";
+        const the_variable = token_now;
+        const mode_const = the_variable.id === "const";
         switch (
             Boolean(
                 !option_dict.declare
@@ -3543,18 +3543,18 @@ function jslint_phase3_parse(state) {
 
             warn("var_on_top", token_now);
         }
-        the_statement.names = [];
+        the_variable.names = [];
 
 // A program may use var or let, but not both.
 
         if (!mode_const) {
             if (mode_var === undefined) {
-                mode_var = the_statement.id;
-            } else if (the_statement.id !== mode_var) {
+                mode_var = the_variable.id;
+            } else if (the_variable.id !== mode_var) {
 
 // cause: "let aa;var aa"
 
-                warn("expected_a_b", the_statement, mode_var, the_statement.id);
+                warn("expected_a_b", the_variable, mode_var, the_variable.id);
             }
         }
 
@@ -3564,19 +3564,19 @@ function jslint_phase3_parse(state) {
 
 // cause: "switch(0){case 0:var aa}"
 
-            warn("var_switch", the_statement);
+            warn("var_switch", the_variable);
         }
-        if (functionage.loop > 0 && the_statement.id === "var") {
+        if (functionage.loop > 0 && the_variable.id === "var") {
 
 // cause: "while(0){var aa;}"
 
-            warn("var_loop", the_statement);
+            warn("var_loop", the_variable);
         }
         (function next() {
             let name;
             let the_brace;
             let the_bracket;
-            if (token_nxt.id === "{" && the_statement.id !== "var") {
+            if (token_nxt.id === "{" && the_variable.id !== "var") {
                 the_brace = token_nxt;
                 advance("{");
                 (function pair() {
@@ -3599,12 +3599,12 @@ function jslint_phase3_parse(state) {
                             return stop("expected_identifier_a");
                         }
                         token_nxt.label = name;
-                        the_statement.names.push(token_nxt);
+                        the_variable.names.push(token_nxt);
                         enroll(token_nxt, "variable", mode_const);
                         advance();
                         the_brace.open = true;
                     } else {
-                        the_statement.names.push(name);
+                        the_variable.names.push(name);
                         enroll(name, "variable", mode_const);
                     }
                     name.dead = false;
@@ -3625,11 +3625,11 @@ function jslint_phase3_parse(state) {
 
 // cause: "let{bb,aa}"
 
-                warn_if_unordered("variable", the_statement.names);
+                warn_if_unordered("variable", the_variable.names);
                 advance("}");
                 advance("=");
-                the_statement.expression = parse_expression(0);
-            } else if (token_nxt.id === "[" && the_statement.id !== "var") {
+                the_variable.expression = parse_expression(0);
+            } else if (token_nxt.id === "[" && the_variable.id !== "var") {
                 the_bracket = token_nxt;
                 advance("[");
                 (function element() {
@@ -3646,7 +3646,7 @@ function jslint_phase3_parse(state) {
                     }
                     name = token_nxt;
                     advance();
-                    the_statement.names.push(name);
+                    the_variable.names.push(name);
                     enroll(name, "variable", mode_const);
                     name.dead = false;
                     name.init = true;
@@ -3666,7 +3666,7 @@ function jslint_phase3_parse(state) {
                 }());
                 advance("]");
                 advance("=");
-                the_statement.expression = parse_expression(0);
+                the_variable.expression = parse_expression(0);
             } else if (token_nxt.identifier) {
                 name = token_nxt;
                 advance();
@@ -3683,7 +3683,7 @@ function jslint_phase3_parse(state) {
                     name.init = true;
                     name.expression = parse_expression(0);
                 }
-                the_statement.names.push(name);
+                the_variable.names.push(name);
             } else {
 
 // cause: "let 0"
@@ -3693,7 +3693,7 @@ function jslint_phase3_parse(state) {
             }
         }());
         semicolon();
-        return the_statement;
+        return the_variable;
     }
 
     stmt("const", do_var);
