@@ -88,7 +88,7 @@
 /*jslint node*/
 
 /*property
-    catch_list, global_dict, last_statement, variable,
+    global_dict, last_statement, variable,
     execArgv, fileURLToPath, filter, meta, order, reduce, stringify, token, url,
     JSLINT_CLI, a, all, allowed_option, argv, arity, artifact, assign, async, b,
     bind, bitwise, block, body, browser, c, calls, catch, closer, closure, code,
@@ -1511,7 +1511,6 @@ function jslint_phase3_parse(state) {
 
     const {
         artifact,
-        catch_list,
         export_dict,
         function_list,
         import_list,
@@ -1526,7 +1525,6 @@ function jslint_phase3_parse(state) {
         warn,
         warn_at
     } = state;
-    const catch_stack = [];     // The stack of catch-blocks.
     const function_stack = [];  // The stack of functions.
     const rx_identifier = (
         /^([a-zA-Z_$][a-zA-Z0-9_$]*)$/
@@ -1535,9 +1533,6 @@ function jslint_phase3_parse(state) {
         /^-?(?:0|[1-9]\d*)(?:\.\d*)?(?:[eE][\-+]?\d+)?$/
     );
     let anon = "anonymous";     // The guessed name for anonymous functions.
-    let catchage = {            // The current catch-block.
-        context: empty()
-    };
     let functionage = token_global;     // The current function.
     let mode_var;               // "var" if using var; "let" if using let.
     let token_ii = 0;           // The number of the next token.
@@ -1711,7 +1706,7 @@ function jslint_phase3_parse(state) {
 
 // Has the name been enrolled in this context?
 
-            earlier = functionage.context[id] || catchage.context[id];
+            earlier = functionage.context[id];
             if (earlier) {
 
 // cause: "let aa;let aa"
@@ -1759,14 +1754,9 @@ function jslint_phase3_parse(state) {
 
 // Enroll it.
 
-                if (role === "exception") {
-                    catchage.context[id] = name;
-                    name.parent = catchage;
-                } else {
-                    functionage.context[id] = name;
-                    name.parent = functionage;
-                }
+                functionage.context[id] = name;
                 name.dead = true;
+                name.parent = functionage;
                 name.init = false;
                 name.role = role;
                 name.used = 0;
@@ -4247,12 +4237,16 @@ function jslint_phase3_parse(state) {
             the_try.catch = the_catch;
             advance("catch");
 
-// Create new catch-scope for catch-parameter.
+// bugfix - fix try-catch-block complaining about "Unexpected await" inside
+// async-function.
 
-            catch_list.push(catchage);
-            catch_stack.push(catchage);
-            catchage = the_catch;
-            the_catch.context = empty();
+            //!! the_catch.async = functionage.async;
+
+// Create new function-scope for catch-parameter.
+
+            //!! function_stack.push(functionage);
+            //!! functionage = the_catch;
+            //!! the_catch.context = empty();
             if (token_nxt.id === "(") {
                 advance("(");
                 if (!token_nxt.identifier) {
@@ -4274,9 +4268,17 @@ function jslint_phase3_parse(state) {
                 the_disrupt = false;
             }
 
-// Restore previous catch-scope after catch-block.
+//!! // Restore previous function-scope after catch-block.
 
-            catchage = catch_stack.pop();
+            //!! functionage = function_stack.pop();
+
+//!! // bugfix - fix await expression/statement inside catch-statement not
+//!! // registered by functionage.await.
+
+            //!! functionage.async = Math.max(
+                //!! functionage.async,
+                //!! the_catch.async
+            //!! );
         } else {
 
 // cause: "try{}finally{break;}"
@@ -4496,7 +4498,6 @@ function jslint_phase4_walk(state) {
 
     const {
         artifact,
-        catch_list,
         global_dict,
         is_equal,
         is_weird,
@@ -4506,7 +4507,6 @@ function jslint_phase4_walk(state) {
         warn
     } = state;
     const block_stack = [];     // The stack of blocks.
-    const catch_stack = [];     // The stack of catch-blocks.
     const function_stack = [];  // The stack of functions.
     const posts = empty();
     const pres = empty();
@@ -4514,9 +4514,6 @@ function jslint_phase4_walk(state) {
         "!=", "!==", "==", "===", "<", "<=", ">", ">="
     ]);
     let blockage = token_global;        // The current block.
-    let catchage = {            // The current catch-block.
-        context: empty()
-    };
     let functionage = token_global;     // The current function.
     let postaction;
     let postamble;
@@ -4699,9 +4696,7 @@ function jslint_phase4_walk(state) {
 
 // Look up the variable in the current context.
 
-            the_variable = (
-                functionage.context[thing.id] || catchage.context[thing.id]
-            );
+            the_variable = functionage.context[thing.id];
 
 // If it isn't local, search all the other contexts. If there are name
 // collisions, take the most recent.
@@ -5090,16 +5085,15 @@ function jslint_phase4_walk(state) {
         walk_statement(thing.initial);
     });
     preaction("statement", "function", preaction_function);
-    preaction("statement", "try", function (thing) {
-        if (thing.catch !== undefined) {
+    //!! preaction("statement", "try", function (thing) {
+        //!! if (thing.catch !== undefined) {
 
-// Create new catch-scope for catch-parameter.
+//!! // Create new function-scope for catch-parameter.
 
-            catch_list.push(catchage);
-            catch_stack.push(catchage);
-            catchage = thing.catch;
-        }
-    });
+            //!! function_stack.push(functionage);
+            //!! functionage = thing.catch;
+        //!! }
+    //!! });
     preaction("unary", "~", bitwise_check);
     preaction("unary", "function", preaction_function);
     preaction("variable", function (thing) {
@@ -5479,16 +5473,16 @@ function jslint_phase4_walk(state) {
     postaction("statement", "try", function (thing) {
         if (thing.catch) {
             if (thing.catch.name) {
-                Object.assign(catchage.context[thing.catch.name.id], {
+                Object.assign(functionage.context[thing.catch.name.id], {
                     dead: false,
                     init: true
                 });
             }
             walk_statement(thing.catch.block);
 
-// Restore previous catch-scope after catch-block.
+//!! // Restore previous function-scope after catch-block.
 
-            catchage = catch_stack.pop();
+            //!! functionage = function_stack.pop();
         }
     });
     postaction("statement", "var", action_var);
@@ -5596,7 +5590,6 @@ function jslint_phase5_whitage(state) {
 
     const {
         artifact,
-        catch_list,
         function_list,
         option_dict,
         token_global,
@@ -5838,7 +5831,6 @@ function jslint_phase5_whitage(state) {
     if (state.mode_module === true || option_dict.node) {
         delve(token_global);
     }
-    catch_list.forEach(delve);
     function_list.forEach(delve);
 
     if (option_dict.white) {
@@ -6313,7 +6305,6 @@ function jslint(
                                 // of function-scope.
         white: true             // Allow whitespace mess.
     };
-    const catch_list = [];      // The array containing all of the catch-blocks.
     const directive_list = [];          // The directive comments.
     const export_dict = empty();        // The exported names and values.
     const function_list = [];   // The array containing all of the functions.
@@ -6929,7 +6920,6 @@ function jslint(
         Object.assign(state, {
             allowed_option,
             artifact,
-            catch_list,
             directive_list,
             export_dict,
             function_list,
