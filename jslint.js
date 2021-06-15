@@ -4244,9 +4244,9 @@ function jslint_phase3_parse(state) {
 
 // Create new function-scope for catch-parameter.
 
-            //!! function_stack.push(functionage);
-            //!! functionage = the_catch;
-            //!! the_catch.context = empty();
+            function_stack.push(functionage);
+            functionage = the_catch;
+            the_catch.context = empty();
             if (token_nxt.id === "(") {
                 advance("(");
                 if (!token_nxt.identifier) {
@@ -4268,9 +4268,9 @@ function jslint_phase3_parse(state) {
                 the_disrupt = false;
             }
 
-//!! // Restore previous function-scope after catch-block.
+// Restore previous function-scope after catch-block.
 
-            //!! functionage = function_stack.pop();
+            functionage = function_stack.pop();
 
 //!! // bugfix - fix await expression/statement inside catch-statement not
 //!! // registered by functionage.await.
@@ -5085,15 +5085,15 @@ function jslint_phase4_walk(state) {
         walk_statement(thing.initial);
     });
     preaction("statement", "function", preaction_function);
-    //!! preaction("statement", "try", function (thing) {
-        //!! if (thing.catch !== undefined) {
+    preaction("statement", "try", function (thing) {
+        if (thing.catch !== undefined) {
 
-//!! // Create new function-scope for catch-parameter.
+// Create new function-scope for catch-parameter.
 
-            //!! function_stack.push(functionage);
-            //!! functionage = thing.catch;
-        //!! }
-    //!! });
+            function_stack.push(functionage);
+            functionage = thing.catch;
+        }
+    });
     preaction("unary", "~", bitwise_check);
     preaction("unary", "function", preaction_function);
     preaction("variable", function (thing) {
@@ -5480,9 +5480,9 @@ function jslint_phase4_walk(state) {
             }
             walk_statement(thing.catch.block);
 
-//!! // Restore previous function-scope after catch-block.
+// Restore previous function-scope after catch-block.
 
-            //!! functionage = function_stack.pop();
+            functionage = function_stack.pop();
         }
     });
     postaction("statement", "var", action_var);
