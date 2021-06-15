@@ -4246,11 +4246,6 @@ function jslint_phase3_parse(state) {
             the_try.catch = the_catch;
             advance("catch");
 
-// bugfix - fix try-catch-block complaining about "Unexpected await" inside
-// async-function.
-
-            //!! the_catch.async = functionage.async;
-
 // Create new catch-scope for catch-parameter.
 
             catch_stack.push(catchage);
@@ -4280,14 +4275,6 @@ function jslint_phase3_parse(state) {
 // Restore previous catch-scope after catch-block.
 
             catchage = catch_stack.pop();
-
-//!! // bugfix - fix await expression/statement inside catch-statement not
-//!! // registered by functionage.await.
-
-            //!! functionage.async = Math.max(
-                //!! functionage.async,
-                //!! the_catch.async
-            //!! );
         } else {
 
 // cause: "try{}finally{break;}"
