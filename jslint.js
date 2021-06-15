@@ -1731,7 +1731,13 @@ function jslint_phase3_parse(state) {
                             warn("unexpected_a", name);
                         }
                     } else {
-                        if (role !== "parameter" && role !== "function") {
+                        if (
+                            (
+                                role !== "exception"
+                                || earlier.role !== "exception"
+                            )
+                            && role !== "parameter" && role !== "function"
+                        ) {
 
 // cause: "function aa(){try{aa();}catch(aa){aa();}}"
 // cause: "function aa(){var aa;}"
@@ -4234,13 +4240,13 @@ function jslint_phase3_parse(state) {
 // bugfix - fix try-catch-block complaining about "Unexpected await" inside
 // async-function.
 
-            the_catch.context = empty();
-            the_catch.async = functionage.async;
+            //!! the_catch.context = empty();
+            //!! the_catch.async = functionage.async;
 
 // Create new function-scope for catch-parameter.
 
-            function_stack.push(functionage);
-            functionage = the_catch;
+            //!! function_stack.push(functionage);
+            //!! functionage = the_catch;
             if (token_nxt.id === "(") {
                 advance("(");
                 if (!token_nxt.identifier) {
@@ -4262,17 +4268,17 @@ function jslint_phase3_parse(state) {
                 the_disrupt = false;
             }
 
-// Restore previous function-scope after catch-block.
+//!! // Restore previous function-scope after catch-block.
 
-            functionage = function_stack.pop();
+            //!! functionage = function_stack.pop();
 
-// bugfix - fix await expression/statement inside catch-statement not
-// registered by functionage.await.
+//!! // bugfix - fix await expression/statement inside catch-statement not
+//!! // registered by functionage.await.
 
-            functionage.async = Math.max(
-                functionage.async,
-                the_catch.async
-            );
+            //!! functionage.async = Math.max(
+                //!! functionage.async,
+                //!! the_catch.async
+            //!! );
         } else {
 
 // cause: "try{}finally{break;}"
@@ -5079,15 +5085,15 @@ function jslint_phase4_walk(state) {
         walk_statement(thing.initial);
     });
     preaction("statement", "function", preaction_function);
-    preaction("statement", "try", function (thing) {
-        if (thing.catch !== undefined) {
+    //!! preaction("statement", "try", function (thing) {
+        //!! if (thing.catch !== undefined) {
 
-// Create new function-scope for catch-parameter.
+//!! // Create new function-scope for catch-parameter.
 
-            function_stack.push(functionage);
-            functionage = thing.catch;
-        }
-    });
+            //!! function_stack.push(functionage);
+            //!! functionage = thing.catch;
+        //!! }
+    //!! });
     preaction("unary", "~", bitwise_check);
     preaction("unary", "function", preaction_function);
     preaction("variable", function (thing) {
@@ -5474,9 +5480,9 @@ function jslint_phase4_walk(state) {
             }
             walk_statement(thing.catch.block);
 
-// Restore previous function-scope after catch-block.
+//!! // Restore previous function-scope after catch-block.
 
-            functionage = function_stack.pop();
+            //!! functionage = function_stack.pop();
         }
     });
     postaction("statement", "var", action_var);
