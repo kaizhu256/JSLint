@@ -88,7 +88,7 @@
 /*jslint node*/
 
 /*property
-    global_dict, last_statement, variable,
+    catch_list, global_dict, last_statement, variable,
     execArgv, fileURLToPath, filter, meta, order, reduce, stringify, token, url,
     JSLINT_CLI, a, all, allowed_option, argv, arity, artifact, assign, async, b,
     bind, bitwise, block, body, browser, c, calls, catch, closer, closure, code,
@@ -1511,6 +1511,7 @@ function jslint_phase3_parse(state) {
 
     const {
         artifact,
+        catch_list,
         export_dict,
         function_list,
         import_list,
@@ -4248,6 +4249,7 @@ function jslint_phase3_parse(state) {
 
 // Create new catch-scope for catch-parameter.
 
+            catch_list.push(catchage);
             catch_stack.push(catchage);
             catchage = the_catch;
             the_catch.context = empty();
@@ -4494,6 +4496,7 @@ function jslint_phase4_walk(state) {
 
     const {
         artifact,
+        catch_list,
         global_dict,
         is_equal,
         is_weird,
@@ -5092,6 +5095,7 @@ function jslint_phase4_walk(state) {
 
 // Create new catch-scope for catch-parameter.
 
+            catch_list.push(catchage);
             catch_stack.push(catchage);
             catchage = thing.catch;
         }
@@ -5592,6 +5596,7 @@ function jslint_phase5_whitage(state) {
 
     const {
         artifact,
+        catch_list,
         function_list,
         option_dict,
         token_global,
@@ -5833,6 +5838,7 @@ function jslint_phase5_whitage(state) {
     if (state.mode_module === true || option_dict.node) {
         delve(token_global);
     }
+    catch_list.forEach(delve);
     function_list.forEach(delve);
 
     if (option_dict.white) {
@@ -6307,6 +6313,7 @@ function jslint(
                                 // of function-scope.
         white: true             // Allow whitespace mess.
     };
+    const catch_list = [];      // The array containing all of the catch-blocks.
     const directive_list = [];          // The directive comments.
     const export_dict = empty();        // The exported names and values.
     const function_list = [];   // The array containing all of the functions.
@@ -6922,6 +6929,7 @@ function jslint(
         Object.assign(state, {
             allowed_option,
             artifact,
+            catch_list,
             directive_list,
             export_dict,
             function_list,
