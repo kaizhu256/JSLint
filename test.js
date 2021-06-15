@@ -74,15 +74,6 @@ function noop() {
         ], [
             "", {debug: true}, []
         ], [
-            (
-                "function aa() {\n"
-                + "    if (aa) {\n"
-                + "        let bb = 0;\n"
-                + "        return bb;\n"
-                + "    }\n"
-                + "}\n"
-            ), {declare: true}, []
-        ], [
             "debugger;", {devel: true}, []
         ], [
             "new Function();\neval();", {eval: true}, []
@@ -123,6 +114,15 @@ function noop() {
             ), {unordered: true}, []
         ], [
             "let {bb, aa} = 0;", {unordered: true}, []
+        ], [
+            (
+                "function aa() {\n"
+                + "    if (aa) {\n"
+                + "        let bb = 0;\n"
+                + "        return bb;\n"
+                + "    }\n"
+                + "}\n"
+            ), {variable: true}, []
         ], [
             "\t", {white: true}, []
         ]

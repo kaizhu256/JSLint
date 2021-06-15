@@ -88,7 +88,7 @@
 /*jslint node*/
 
 /*property
-    declare, global_dict, last_statement,
+    global_dict, last_statement, variable,
     execArgv, fileURLToPath, filter, meta, order, reduce, stringify, token, url,
     JSLINT_CLI, a, all, allowed_option, argv, arity, artifact, assign, async, b,
     bind, bitwise, block, body, browser, c, calls, catch, closer, closure, code,
@@ -3511,7 +3511,7 @@ function jslint_phase3_parse(state) {
         const mode_const = the_variable.id === "const";
         switch (
             Boolean(
-                !option_dict.declare
+                !option_dict.variable
                 && functionage.id !== "(global)"
                 && functionage.last_statement
             )
@@ -6262,8 +6262,6 @@ function jslint(
             "require", "send", "start", "sum", "toJSON"
         ],
         debug: true,            // Include jslint stack-trace in warning.
-        declare: true,          // Allow const, let, var declarations not at top
-                                // of function-scope.
         devel: [                // Allow logging-functions.
             "alert", "confirm", "console", "prompt"
         ],
@@ -6297,6 +6295,8 @@ function jslint(
                                         // handling-ability.
         this: true,             // Allow this.
         unordered: true,        // Allow unordered cases, params, properties.
+        variable: true,         // Allow const, let, var declarations not at top
+                                // of function-scope.
         white: true             // Allow whitespace mess.
     };
     const directive_list = [];          // The directive comments.
