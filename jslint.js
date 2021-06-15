@@ -4240,13 +4240,13 @@ function jslint_phase3_parse(state) {
 // bugfix - fix try-catch-block complaining about "Unexpected await" inside
 // async-function.
 
-            //!! the_catch.context = empty();
             //!! the_catch.async = functionage.async;
 
 // Create new function-scope for catch-parameter.
 
             //!! function_stack.push(functionage);
             //!! functionage = the_catch;
+            //!! the_catch.context = empty();
             if (token_nxt.id === "(") {
                 advance("(");
                 if (!token_nxt.identifier) {
