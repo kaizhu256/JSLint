@@ -1525,6 +1525,7 @@ function jslint_phase3_parse(state) {
         warn,
         warn_at
     } = state;
+    const catch_stack = [];     // The stack of catch-blocks.
     const function_stack = [];  // The stack of functions.
     const rx_identifier = (
         /^([a-zA-Z_$][a-zA-Z0-9_$]*)$/
@@ -1533,6 +1534,9 @@ function jslint_phase3_parse(state) {
         /^-?(?:0|[1-9]\d*)(?:\.\d*)?(?:[eE][\-+]?\d+)?$/
     );
     let anon = "anonymous";     // The guessed name for anonymous functions.
+    let catchage = {            // The current catch-block.
+        context: empty()
+    };
     let functionage = token_global;     // The current function.
     let mode_var;               // "var" if using var; "let" if using let.
     let token_ii = 0;           // The number of the next token.
@@ -1706,7 +1710,7 @@ function jslint_phase3_parse(state) {
 
 // Has the name been enrolled in this context?
 
-            earlier = functionage.context[id];
+            earlier = functionage.context[id] || catchage.context[id];
             if (earlier) {
 
 // cause: "let aa;let aa"
@@ -1754,9 +1758,14 @@ function jslint_phase3_parse(state) {
 
 // Enroll it.
 
-                functionage.context[id] = name;
+                if (role === "exception") {
+                    catchage.context[id] = name;
+                    name.parent = catchage;
+                } else {
+                    functionage.context[id] = name;
+                    name.parent = functionage;
+                }
                 name.dead = true;
-                name.parent = functionage;
                 name.init = false;
                 name.role = role;
                 name.used = 0;
@@ -4242,11 +4251,11 @@ function jslint_phase3_parse(state) {
 
             //!! the_catch.async = functionage.async;
 
-// Create new function-scope for catch-parameter.
+// Create new catch-scope for catch-parameter.
 
-            //!! function_stack.push(functionage);
-            //!! functionage = the_catch;
-            //!! the_catch.context = empty();
+            catch_stack.push(catchage);
+            catchage = the_catch;
+            the_catch.context = empty();
             if (token_nxt.id === "(") {
                 advance("(");
                 if (!token_nxt.identifier) {
@@ -4268,9 +4277,9 @@ function jslint_phase3_parse(state) {
                 the_disrupt = false;
             }
 
-//!! // Restore previous function-scope after catch-block.
+// Restore previous catch-scope after catch-block.
 
-            //!! functionage = function_stack.pop();
+            catchage = catch_stack.pop();
 
 //!! // bugfix - fix await expression/statement inside catch-statement not
 //!! // registered by functionage.await.
@@ -5472,12 +5481,12 @@ function jslint_phase4_walk(state) {
     postaction("statement", "let", action_var);
     postaction("statement", "try", function (thing) {
         if (thing.catch) {
-            if (thing.catch.name) {
-                Object.assign(functionage.context[thing.catch.name.id], {
-                    dead: false,
-                    init: true
-                });
-            }
+            //!! if (thing.catch.name) {
+                //!! Object.assign(functionage.context[thing.catch.name.id], {
+                    //!! dead: false,
+                    //!! init: true
+                //!! });
+            //!! }
             walk_statement(thing.catch.block);
 
 //!! // Restore previous function-scope after catch-block.
