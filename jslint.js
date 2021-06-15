@@ -4503,6 +4503,7 @@ function jslint_phase4_walk(state) {
         warn
     } = state;
     const block_stack = [];     // The stack of blocks.
+    const catch_stack = [];     // The stack of catch-blocks.
     const function_stack = [];  // The stack of functions.
     const posts = empty();
     const pres = empty();
@@ -4510,6 +4511,9 @@ function jslint_phase4_walk(state) {
         "!=", "!==", "==", "===", "<", "<=", ">", ">="
     ]);
     let blockage = token_global;        // The current block.
+    let catchage = {            // The current catch-block.
+        context: empty()
+    };
     let functionage = token_global;     // The current function.
     let postaction;
     let postamble;
@@ -5081,15 +5085,15 @@ function jslint_phase4_walk(state) {
         walk_statement(thing.initial);
     });
     preaction("statement", "function", preaction_function);
-    //!! preaction("statement", "try", function (thing) {
-        //!! if (thing.catch !== undefined) {
+    preaction("statement", "try", function (thing) {
+        if (thing.catch !== undefined) {
 
-//!! // Create new function-scope for catch-parameter.
+// Create new catch-scope for catch-parameter.
 
-            //!! function_stack.push(functionage);
-            //!! functionage = thing.catch;
-        //!! }
-    //!! });
+            catch_stack.push(catchage);
+            catchage = thing.catch;
+        }
+    });
     preaction("unary", "~", bitwise_check);
     preaction("unary", "function", preaction_function);
     preaction("variable", function (thing) {
@@ -5468,17 +5472,17 @@ function jslint_phase4_walk(state) {
     postaction("statement", "let", action_var);
     postaction("statement", "try", function (thing) {
         if (thing.catch) {
-            //!! if (thing.catch.name) {
-                //!! Object.assign(functionage.context[thing.catch.name.id], {
-                    //!! dead: false,
-                    //!! init: true
-                //!! });
-            //!! }
+            if (thing.catch.name) {
+                Object.assign(catchage.context[thing.catch.name.id], {
+                    dead: false,
+                    init: true
+                });
+            }
             walk_statement(thing.catch.block);
 
-//!! // Restore previous function-scope after catch-block.
+// Restore previous catch-scope after catch-block.
 
-            //!! functionage = function_stack.pop();
+            catchage = catch_stack.pop();
         }
     });
     postaction("statement", "var", action_var);
