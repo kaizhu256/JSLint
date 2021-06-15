@@ -88,7 +88,7 @@
 /*jslint node*/
 
 /*property
-    global_dict, last_statement, variable,
+    global_dict, last_statement, reverse, variable,
     execArgv, fileURLToPath, filter, meta, order, reduce, stringify, token, url,
     JSLINT_CLI, a, all, allowed_option, argv, arity, artifact, assign, async, b,
     bind, bitwise, block, body, browser, c, calls, catch, closer, closure, code,
@@ -3189,7 +3189,14 @@ function jslint_phase3_parse(state) {
 
     function do_await() {
         const the_await = token_now;
-        if (functionage.async === 0) {
+        let the_function;
+        [].concat(function_stack, functionage).reverse().some(function (elem) {
+            if (elem.id !== "catch") {
+                the_function = elem;
+                return true;
+            }
+        });
+        if (the_function.async === 0) {
 
 // cause: "await"
 // cause: "function aa(){aa=await 0;}"
@@ -3197,7 +3204,7 @@ function jslint_phase3_parse(state) {
 
             warn("unexpected_a", the_await);
         } else {
-            functionage.async += 1;
+            the_function.async += 1;
         }
         if (the_await.arity === "statement") {
             the_await.block = parse_expression();
