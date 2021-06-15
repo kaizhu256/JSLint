@@ -4226,21 +4226,21 @@ function jslint_phase3_parse(state) {
         the_try.block = block();
         the_disrupt = the_try.block.disrupt;
         if (token_nxt.id === "catch") {
-            advance("catch");
+            ignored = "ignore";
             the_catch = token_nxt;
-            the_catch.context = empty();
+            the_try.catch = the_catch;
+            advance("catch");
 
 // bugfix - fix try-catch-block complaining about "Unexpected await" inside
 // async-function.
 
+            the_catch.context = empty();
             the_catch.async = functionage.async;
-            the_try.catch = the_catch;
 
 // Create new function-scope for catch-parameter.
 
             function_stack.push(functionage);
             functionage = the_catch;
-            ignored = "ignore";
             if (token_nxt.id === "(") {
                 advance("(");
                 if (!token_nxt.identifier) {
