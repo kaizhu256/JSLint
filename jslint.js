@@ -4696,7 +4696,9 @@ function jslint_phase4_walk(state) {
 
 // Look up the variable in the current context.
 
-            the_variable = functionage.context[thing.id];
+            the_variable = (
+                functionage.context[thing.id] || catchage.context[thing.id]
+            );
 
 // If it isn't local, search all the other contexts. If there are name
 // collisions, take the most recent.
