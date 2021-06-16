@@ -368,9 +368,9 @@ import https from "https";
 // .... /*jslint couch*/ ......... Assume CouchDb environment.
 // .... /*jslint debug*/ ......... Include jslint stack-trace in warnings.
 // .... /*jslint devel*/ ......... Allow console.log() and friends.
-// .... /*jslint eval*/ .......... Allow eval().
 // .... /*jslint for*/ ........... Allow for-statement.
 // .... /*jslint getset*/ ........ Allow get() and set().
+// .... /*jslint indent2*/ ....... Allow 2-space indent.
 // .... /*jslint long*/ .......... Allow long-lines.
 // .... /*jslint name*/ .......... Allow weird property-names.
 // .... /*jslint node*/ .......... Assume Node.js environment.

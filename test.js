@@ -76,8 +76,6 @@ function noop() {
         ], [
             "debugger;", {devel: true}, []
         ], [
-            "new Function();\neval();", {eval: true}, []
-        ], [
             (
                 "function aa(aa) {\n"
                 + "    for (aa = 0; aa < 0; aa += 1) {\n"
@@ -89,6 +87,8 @@ function noop() {
             "let aa = {get aa() {\n    return;\n}};", {getset: true}, []
         ], [
             "let aa = {set aa(aa) {\n    return aa;\n}};", {getset: true}, []
+        ], [
+            "function aa() {\n  return;\n}", {indent2: true}, []
         ], [
             "/".repeat(100), {long: true}, []
         ], [

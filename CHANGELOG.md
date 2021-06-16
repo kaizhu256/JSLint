@@ -6,8 +6,6 @@
 - jslint - add html and css linting back into jslint.
 - jslint - add new warning if const/let/var statements are not sorted.
 - jslint - include explicit commonjs (jslint.cjs) and es-module (jslint.mjs) variants of jslint.
-- jslint - reintroduce directive `/*jslint indent2*/` - allow 2-space indent.
-- jslint - remove directive "eval" (use line-specific ignore-directive "//jslint-quiet" instead).
 - jslint - simplify comments/docs by removing unnecessary grammar-article "the".
 - jslint-refactor - migrate recursive-loops to for/while loops.
 - node - after node-v12 is deprecated, change `require("fs").promises` to `require("fs/promises")`.
@@ -15,12 +13,14 @@
 - tests - update function warn_at() with assertion-check matching column with artifact.
 
 ## v2021.6.14-beta
+- breaking-change - remove directive `/*jslint eval*/` (use line-specific ignore-directive "//jslint-quiet" instead).
 - bugfix - fix global_list being ignored by jslint.
 - bugfix - fix no-warning when exception in catch-block is unused.
 - ci - migrate ci-scripts from cjs to esm.
 - jslint - add new directive `/*jslint beta*/` - enable features currently in beta.
 - jslint - add new directive `/*jslint variable*/` - allow unordered variable-declarations that are not at top of function-scope.
 - jslint - add new warning if const/let/var statements are not declared at top of function-scope.
+- jslint - reintroduce directive `/*jslint indent2*/` - allow 2-space indent.
 - website - invalidate url-cache with each deployment.
 - website - replace .png logo with .svg logo.
 - website - replace current-editor with CodeMirror-editor and change programming-font-family from `Programma` to `consolas, menlo, monospace`.

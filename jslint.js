@@ -92,6 +92,7 @@
     catch_list, catch_stack,
     function_stack,
     global_dict,
+    indent2,
     last_statement,
     variable,
     execArgv, fileURLToPath, filter, meta, order, reduce, stringify, token, url,
@@ -100,7 +101,7 @@
     column, concat, console_error, constant, context, convert, couch, create,
     cwd, d, dead, debug, default, devel, directive, directive_list,
     directive_quiet, directives, disrupt, dot, edition, ellipsis, else,
-    endsWith, env, error, eval, every, exec, exit, export_dict, exports,
+    endsWith, env, error, every, exec, exit, export_dict, exports,
     expression, extra, file, finally, flag, for, forEach, formatted_message,
     free, freeze, from, froms, fud, function_list, functions, getset, global,
     global_list, id, identifier, import, import_list, inc, index, indexOf, init,
@@ -2481,32 +2482,18 @@ function jslint_phase3_parse(state) {
         return token_now;
     });
     constant("eval", "function", function () {
-        if (!option_dict.eval) {
 
 // cause: "eval"
 
-            warn("unexpected_a", token_now);
-        } else if (token_nxt.id !== "(") {
-
-// cause: "/*jslint eval*/\neval"
-
-            warn("expected_a_before_b", token_nxt, "(", artifact());
-        }
+        warn("unexpected_a", token_now);
         return token_now;
     });
     constant("false", "boolean", false);
     constant("Function", "function", function () {
-        if (!option_dict.eval) {
 
-// cause: "Function()"
+// cause: "Function"
 
-            warn("unexpected_a", token_now);
-        } else if (token_nxt.id !== "(") {
-
-// cause: "/*jslint eval*/\nFunction"
-
-            warn("expected_a_before_b", token_nxt, "(", artifact());
-        }
+        warn("unexpected_a", token_now);
         return token_now;
     });
     constant("ignore", "undefined", function () {
@@ -5339,12 +5326,10 @@ function jslint_phase4_walk(state) {
 
                     warn("unexpected_a", the_new);
                 } else if (left.id === "Function") {
-                    if (!option_dict.eval) {
 
 // cause: "new Function()"
 
-                        warn("unexpected_a", left, "new Function");
-                    }
+                    warn("unexpected_a", left, "new Function");
                 } else if (left.id === "Array") {
                     arg = thing.expression;
                     if (arg.length !== 2 || arg[1].id === "(string)") {
@@ -5600,6 +5585,11 @@ function jslint_phase5_whitage(state) {
         token_list,
         warn
     } = state;
+    const indent = (
+        option_dict.indent2
+        ? 2
+        : 4
+    );
     const spaceop = populate([  // This is the set of infix operators that
                                 //     require a space on each side.
         "!=", "!==", "%", "%=", "&", "&=", "&&", "*", "*=", "+=", "-=", "/",
@@ -5935,7 +5925,7 @@ function jslint_phase5_whitage(state) {
 
                         free = closer === ")" && left.free;
                         open = true;
-                        margin += 4;
+                        margin += indent;
                         if (right.role === "label") {
                             if (right.from !== 0) {
 
@@ -5952,7 +5942,7 @@ function jslint_phase5_whitage(state) {
                                 expected_at(0);
                             }
                         } else if (right.switch) {
-                            at_margin(-4);
+                            at_margin(-indent);
                         } else {
                             at_margin(0);
                         }
@@ -6026,7 +6016,7 @@ function jslint_phase5_whitage(state) {
 // right must go at the margin, or if closed, a space between.
 
                     if (right.switch) {
-                        at_margin(-4);
+                        at_margin(-indent);
                     } else if (right.role === "label") {
                         if (right.from !== 0) {
 
@@ -6277,9 +6267,9 @@ function jslint(
         devel: [                // Allow console.log() and friends.
             "alert", "confirm", "console", "prompt"
         ],
-        eval: true,             // Allow eval().
         for: true,              // Allow for-statement.
         getset: true,           // Allow get() and set().
+        indent2: true,          // Allow 2-space indent.
         long: true,             // Allow long-lines.
         name: true,             // Allow weird property-names.
         node: [                 // Assume Node.js environment.
