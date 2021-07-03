@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+<title>coverage-report</title>
+<style>
+/* jslint utility2:true */
+/* csslint ignore:start */
+* {
+box-sizing: border-box;
+    font-family: consolas, menlo, monospace;
+}
+/* csslint ignore:end */
+body {
+    margin: 0;
+}
+.coverage pre {
+    margin: 5px 0;
+}
+.coverage table {
+    border-collapse: collapse;
+}
+.coverage td,
+.coverage th {
+    border: 1px solid #777;
+    margin: 0;
+    padding: 5px;
+}
+.coverage td span {
+    display: inline-block;
+    width: 100%;
+}
+.coverage .content {
+    padding: 0 5px;
+}
+.coverage .content a {
+    text-decoration: none;
+}
+.coverage .count {
+    margin: 0 5px;
+    padding: 0 5px;
+}
+.coverage .footer,
+.coverage .header {
+    padding: 20px;
+}
+.coverage .percentbar {
+    height: 12px;
+    margin: 2px 0;
+    min-width: 200px;
+    position: relative;
+    width: 100%;
+}
+.coverage .percentbar div {
+    height: 100%;
+    position: absolute;
+}
+.coverage .title {
+    font-size: large;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.coverage td,
+.coverage th {
+    background: #fff;
+}
+.coverage .count {
+    background: #9d9;
+    color: #777;
+}
+.coverage .coverageHigh{
+    background: #9d9;
+}
+.coverage .coverageLow{
+    background: #ebb;
+}
+.coverage .coverageMedium{
+    background: #fd7;
+}
+.coverage .header {
+    background: #ddd;
+}
+.coverage .lineno {
+    background: #ddd;
+}
+.coverage .percentbar {
+    background: #999;
+}
+.coverage .percentbar div {
+    background: #666;
+}
+.coverage .uncovered {
+    background: #dbb;
+}
+
+.coverage pre:hover span,
+.coverage tr:hover td {
+    background: #bbe;
+}
+</style>
+</head>
+<body class="coverage">
+<div class="header">
+<div class="title">coverage-report</div>
+<table>
+<thead>
+<tr>
+<th>files covered</th>
+<th>lines</th>
+</tr>
+</thead>
+<tbody><tr>
+<td class="coverageMedium">
+            <a href="index.html">./ </a><br>
+<div class="percentbar">
+    <div style="width: 60.15%;"></div>
+</div>
+</td>
+<td style="text-align: right;">
+    60.15 %<br>
+    3019 / 5019
+</td>
+</tr><tr>
+<td class="coverageMedium">
+            <a href="jslint.js.html">./ jslint.js</a><br>
+<div class="percentbar">
+    <div style="width: 60.15%;"></div>
+</div>
+</td>
+<td style="text-align: right;">
+    60.15 %<br>
+    3019 / 5019
+</td>
+</tr>
+</div>
+<div class="coverageFooter">
+</div>
+</body>
+</html>
