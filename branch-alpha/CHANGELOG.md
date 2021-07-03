@@ -4,6 +4,7 @@
 - app - deploy jslint as chrome-extension.
 - ci - use badge to indicate release-version so README.md doesnt have to to be updated every release.
 - cli - add command `report`.
+- compatibility - align with eslint and jshint with new warning that operators should be place at end-of-line.
 - jslint - add `for...of` syntax support.
 - jslint - add html and css linting back into jslint.
 - jslint - add new warning against using do-statment.

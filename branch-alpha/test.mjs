@@ -396,14 +396,16 @@ function noop() {
             tmp = jslint(cause[0], {
                 test_cause: true
             }).causes;
-            //!! // Validate cause.
-            //!! assertOrThrow(
-                //!! tmp[JSON.stringify(cause.slice(1))],
-                //!! (
-                    //!! JSON.stringify(cause) + "\n"
-                    //!! + Object.keys(tmp).sort().join("\n")
-                //!! )
-            //!! );
+            // Validate cause.
+            /*
+            assertOrThrow(
+                tmp[JSON.stringify(cause.slice(1))],
+                (
+                    "\n" + JSON.stringify(cause) + "\n\n"
+                    + Object.keys(tmp).sort().join("\n")
+                )
+            );
+            */
         });
         return "";
     });

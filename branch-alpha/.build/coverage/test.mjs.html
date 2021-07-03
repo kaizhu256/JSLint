@@ -121,7 +121,7 @@ body {
 </td>
 <td style="text-align: right;">
     100.00 %<br>
-    411 / 411
+    413 / 413
 </td>
 </tr></tbody>
 </table>
@@ -525,19 +525,21 @@ body {
 <pre><span class="lineno"><a href="#line_396" id="line_396">  396.</a></span><span class="count                ">    498</span><span>            tmp = jslint(cause[0], {</span></pre>
 <pre><span class="lineno"><a href="#line_397" id="line_397">  397.</a></span><span class="count                ">    498</span><span>                test_cause: true</span></pre>
 <pre><span class="lineno"><a href="#line_398" id="line_398">  398.</a></span><span class="count                ">    498</span><span>            }).causes;</span></pre>
-<pre><span class="lineno"><a href="#line_399" id="line_399">  399.</a></span><span class="count                ">    498</span><span>            //!! // Validate cause.</span></pre>
-<pre><span class="lineno"><a href="#line_400" id="line_400">  400.</a></span><span class="count                ">    498</span><span>            //!! assertOrThrow(</span></pre>
-<pre><span class="lineno"><a href="#line_401" id="line_401">  401.</a></span><span class="count                ">    498</span><span>                //!! tmp[JSON.stringify(cause.slice(1))],</span></pre>
-<pre><span class="lineno"><a href="#line_402" id="line_402">  402.</a></span><span class="count                ">    498</span><span>                //!! (</span></pre>
-<pre><span class="lineno"><a href="#line_403" id="line_403">  403.</a></span><span class="count                ">    498</span><span>                    //!! JSON.stringify(cause) + &quot;\n&quot;</span></pre>
-<pre><span class="lineno"><a href="#line_404" id="line_404">  404.</a></span><span class="count                ">    498</span><span>                    //!! + Object.keys(tmp).sort().join(&quot;\n&quot;)</span></pre>
-<pre><span class="lineno"><a href="#line_405" id="line_405">  405.</a></span><span class="count                ">    498</span><span>                //!! )</span></pre>
-<pre><span class="lineno"><a href="#line_406" id="line_406">  406.</a></span><span class="count                ">    498</span><span>            //!! );</span></pre>
-<pre><span class="lineno"><a href="#line_407" id="line_407">  407.</a></span><span class="count                ">    498</span><span>        });</span></pre>
-<pre><span class="lineno"><a href="#line_408" id="line_408">  408.</a></span><span class="count                ">    339</span><span>        return &quot;&quot;;</span></pre>
-<pre><span class="lineno"><a href="#line_409" id="line_409">  409.</a></span><span class="count                ">    339</span><span>    });</span></pre>
-<pre><span class="lineno"><a href="#line_410" id="line_410">  410.</a></span><span class="count                ">      1</span><span>}());</span></pre>
-<pre><span class="lineno"><a href="#line_411" id="line_411">  411.</a></span><span class="count                ">      1</span><span></span></pre>
+<pre><span class="lineno"><a href="#line_399" id="line_399">  399.</a></span><span class="count                ">    498</span><span>            // Validate cause.</span></pre>
+<pre><span class="lineno"><a href="#line_400" id="line_400">  400.</a></span><span class="count                ">    498</span><span>            /*</span></pre>
+<pre><span class="lineno"><a href="#line_401" id="line_401">  401.</a></span><span class="count                ">    498</span><span>            assertOrThrow(</span></pre>
+<pre><span class="lineno"><a href="#line_402" id="line_402">  402.</a></span><span class="count                ">    498</span><span>                tmp[JSON.stringify(cause.slice(1))],</span></pre>
+<pre><span class="lineno"><a href="#line_403" id="line_403">  403.</a></span><span class="count                ">    498</span><span>                (</span></pre>
+<pre><span class="lineno"><a href="#line_404" id="line_404">  404.</a></span><span class="count                ">    498</span><span>                    &quot;\n&quot; + JSON.stringify(cause) + &quot;\n\n&quot;</span></pre>
+<pre><span class="lineno"><a href="#line_405" id="line_405">  405.</a></span><span class="count                ">    498</span><span>                    + Object.keys(tmp).sort().join(&quot;\n&quot;)</span></pre>
+<pre><span class="lineno"><a href="#line_406" id="line_406">  406.</a></span><span class="count                ">    498</span><span>                )</span></pre>
+<pre><span class="lineno"><a href="#line_407" id="line_407">  407.</a></span><span class="count                ">    498</span><span>            );</span></pre>
+<pre><span class="lineno"><a href="#line_408" id="line_408">  408.</a></span><span class="count                ">    498</span><span>            */</span></pre>
+<pre><span class="lineno"><a href="#line_409" id="line_409">  409.</a></span><span class="count                ">    498</span><span>        });</span></pre>
+<pre><span class="lineno"><a href="#line_410" id="line_410">  410.</a></span><span class="count                ">    339</span><span>        return &quot;&quot;;</span></pre>
+<pre><span class="lineno"><a href="#line_411" id="line_411">  411.</a></span><span class="count                ">    339</span><span>    });</span></pre>
+<pre><span class="lineno"><a href="#line_412" id="line_412">  412.</a></span><span class="count                ">      1</span><span>}());</span></pre>
+<pre><span class="lineno"><a href="#line_413" id="line_413">  413.</a></span><span class="count                ">      1</span><span></span></pre>
 
 </div>
 <div class="coverageFooter">
