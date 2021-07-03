@@ -597,7 +597,7 @@ function jslint_phase2_lex(state) {
             if (mode_mega) {
 
 // test_cause:
-// ["`${//}`", "77f", "77c", "77a", 77]
+// ["`${//}`", "lex_comment", "unexpected_comment", "77a", 77]
 
                 warn("unexpected_comment", the_comment, "`");
             }
@@ -609,7 +609,7 @@ function jslint_phase2_lex(state) {
             if (line_source[0] === "/") {
 
 // test_cause:
-// ["/*/", "77f", "77c", "77a", 77]
+// ["/*/", "lex_comment", "unexpected_a", "77a", 77]
 
                 warn_at("unexpected_a", line, column + ii, "/");
             }
@@ -628,7 +628,7 @@ function jslint_phase2_lex(state) {
                     if (jj >= 0) {
 
 // test_cause:
-// ["/*/*", "77f", "77c", "77a", 77]
+// ["/*/*", "lex_comment", "nested_comment", "77a", 77]
 
                         warn_at("nested_comment", line, column + jj);
                     }
@@ -638,7 +638,7 @@ function jslint_phase2_lex(state) {
                 if (line_source === undefined) {
 
 // test_cause:
-// ["/*", "77f", "77c", "77a", 77]
+// ["/*", "lex_comment", "unclosed_comment", "77a", 77]
 
                     return stop_at("unclosed_comment", line, column);
                 }
@@ -650,7 +650,7 @@ function jslint_phase2_lex(state) {
             if (jj >= 0) {
 
 // test_cause:
-// ["/*/**/", "77f", "77c", "77a", 77]
+// ["/*/**/", "lex_comment", "nested_comment", "77a", 77]
 
                 warn_at("nested_comment", line, column + jj);
             }
@@ -672,7 +672,7 @@ function jslint_phase2_lex(state) {
         ) {
 
 // test_cause:
-// ["//todo", "77f", "77c", "77a", 77] //jslint-quiet
+// ["//todo", "lex_comment", "todo_comment", "77a", 77] //jslint-quiet
 
             warn("todo_comment", the_comment);
         }
@@ -690,7 +690,7 @@ function jslint_phase2_lex(state) {
         if (!mode_directive) {
 
 // test_cause:
-// ["0\n/*global aa*/", "77f", "77c", "77a", 77]
+// ["0\n/*global aa*/", "lex_comment", "misplaced_directive_a", "77a", 77]
 
             warn_at("misplaced_directive_a", line, from, match[1]);
             return the_comment;
@@ -714,7 +714,7 @@ function jslint_phase2_lex(state) {
                 if (body) {
 
 // test_cause:
-// ["/*jslint !*/", "77f", "77c", "77a", 77]
+// ["/*jslint !*/", "lex_comment", "bad_directive_a", "77a", 77]
 
                     return stop("bad_directive_a", the_comment, body);
                 }
@@ -751,7 +751,7 @@ function jslint_phase2_lex(state) {
                 } else {
 
 // test_cause:
-// ["/*jslint undefined*/", "77f", "77c", "77a", 77]
+// ["/*jslint undefined*/", "lex_comment", "bad_option_a", "77a", 77]
 
                     warn("bad_option_a", the_comment, name);
                 }
@@ -762,7 +762,7 @@ function jslint_phase2_lex(state) {
                 if (value) {
 
 // test_cause:
-// ["/*global aa:false*/", "77f", "77c", "77a", 77]
+// ["/*global aa:false*/", "lex_comment", "bad_option_a", "77a", 77]
 
                     warn("bad_option_a", the_comment, name + ":" + value);
                 }
@@ -782,7 +782,7 @@ function jslint_phase2_lex(state) {
         if (mode_mega) {
 
 // test_cause:
-// ["`${`", "77f", "77c", "77a", 77]
+// ["`${`", "lex_megastring", "expected_a_b", "77a", 77]
 
             return stop_at("expected_a_b", line, column, "}", "`");
         }
@@ -835,7 +835,7 @@ function jslint_phase2_lex(state) {
                     if (id === "{") {
 
 // test_cause:
-// ["`${{", "77f", "77c", "77a", 77]
+// ["`${{", "lex_megastring", "expected_a_b", "77a", 77]
 
                         return stop_at("expected_a_b", line, column, "}", "{");
                     }
@@ -871,7 +871,7 @@ function jslint_phase2_lex(state) {
                 if (read_line() === undefined) {
 
 // test_cause:
-// ["`", "77f", "77c", "77a", 77]
+// ["`", "lex_megastring", "unclosed_mega", "77a", 77]
 
                     return stop_at("unclosed_mega", line_mega, from_mega);
                 }
@@ -921,7 +921,7 @@ function jslint_phase2_lex(state) {
         ) {
 
 // test_cause:
-// ["0a", "77f", "77c", "77a", 77]
+// ["0a", "lex_number", "unexpected_a_after_b", "77a", 77]
 
             return stop_at(
                 "unexpected_a_after_b",

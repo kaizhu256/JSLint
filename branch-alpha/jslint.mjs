@@ -782,7 +782,7 @@ function jslint_phase2_lex(state) {
         if (mode_mega) {
 
 // test_cause:
-// ["`${`", "77f", "77c", "77a", 77]
+// ["`${`", "lex_megastring", "expected_a_b", "77a", 77]
 
             return stop_at("expected_a_b", line, column, "}", "`");
         }
@@ -835,7 +835,7 @@ function jslint_phase2_lex(state) {
                     if (id === "{") {
 
 // test_cause:
-// ["`${{", "77f", "77c", "77a", 77]
+// ["`${{", "lex_megastring", "expected_a_b", "77a", 77]
 
                         return stop_at("expected_a_b", line, column, "}", "{");
                     }
@@ -871,7 +871,7 @@ function jslint_phase2_lex(state) {
                 if (read_line() === undefined) {
 
 // test_cause:
-// ["`", "77f", "77c", "77a", 77]
+// ["`", "lex_megastring", "unclosed_mega", "77a", 77]
 
                     return stop_at("unclosed_mega", line_mega, from_mega);
                 }
@@ -921,7 +921,7 @@ function jslint_phase2_lex(state) {
         ) {
 
 // test_cause:
-// ["0a", "77f", "77c", "77a", 77]
+// ["0a", "lex_number", "unexpected_a_after_b", "77a", 77]
 
             return stop_at(
                 "unexpected_a_after_b",
