@@ -375,6 +375,10 @@ function noop() {
         causeList = causeList.replace((
             /^\/\/\u0020/gm
         ), "").replace((
+            /^\[`\n([\S\s]*?)\n`,/gm
+        ), function (ignore, source) {
+            return "[" + JSON.stringify(source) + ",";
+        }).replace((
             /\u0020\/\/jslint-quiet$/gm
         ), "");
         tmp = causeList.split("\n").map(function (cause) {
