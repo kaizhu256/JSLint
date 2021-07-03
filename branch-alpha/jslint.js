@@ -6486,13 +6486,14 @@ function jslint_phase5_whitage(state) {
                             one_space();
                         } else {
 
-// test_cause6:
-// cause:
+// test_cause:
+// [`
 // function aa() {
 //     aa(
 //         0,0
 //     );
 // }
+// `, "77f", "77c", "77a", 77]
 
                             at_margin(0);
                         }
@@ -6502,13 +6503,14 @@ function jslint_phase5_whitage(state) {
                     } else if (right.arity === "ternary") {
                         if (open) {
 
-// test_cause7:
-// cause:
+// test_cause:
+// [`
 // let aa = (
 //     aa
 //     ? 0
 // : 1
 // );
+// `, "77f", "77c", "77a", 77]
 
                             at_margin(0);
                         } else {
@@ -6524,12 +6526,13 @@ function jslint_phase5_whitage(state) {
                         && free
                     ) {
 
-// test_cause8:
-// cause:
+// test_cause:
+// [`
 // let aa = aa(
 //     aa
 // ()
 // );
+// `, "77f", "77c", "77a", 77]
 
                         no_space();
                     } else if (
@@ -6561,8 +6564,8 @@ function jslint_phase5_whitage(state) {
                         no_space_only();
                     } else if (left.id === ";") {
 
-// test_cause9:
-// cause:
+// test_cause:
+// [`
 // /*jslint for*/
 // function aa() {
 //     for (
@@ -6573,6 +6576,7 @@ function jslint_phase5_whitage(state) {
 //         aa();
 //     }
 // }
+// `, "77f", "77c", "77a", 77]
 
                         if (open) {
                             at_margin(0);
@@ -6592,13 +6596,14 @@ function jslint_phase5_whitage(state) {
                         || (left.id === ")" && right.id === "{")
                     ) {
 
-// test_causea:
-// cause:
+// test_cause:
+// [`
 // function aa() {
 //     do {
 //         aa();
 //     } while(aa());
 // }
+// `, "77f", "77c", "77a", 77]
 
                         one_space_only();
                     } else if (
@@ -6632,13 +6637,14 @@ function jslint_phase5_whitage(state) {
                         || (left.arity === "statement" && right.id !== ";")
                     ) {
 
-// test_causeb:
+// test_cause:
 // ["let aa=0;", "77f", "77c", "77a", 77]
-// cause:
+// [`
 // let aa={
 //     aa:
 // 0
 // };
+// `, "77f", "77c", "77a", 77]
 
                         one_space();
                     } else if (left.arity === "unary" && left.id !== "`") {
