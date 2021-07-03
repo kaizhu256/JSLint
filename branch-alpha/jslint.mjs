@@ -4017,13 +4017,15 @@ function jslint_phase3_parse(state) {
     }
 
     stmt("const", parse_var);
-    stmt("continue", function () {
+    stmt("continue", function parse_continue() {
         const the_continue = token_now;
         if (functionage.loop < 1 || functionage.finally > 0) {
 
 // test_cause:
-// ["continue", "77f", "77c", "7", 77]
-// ["function aa(){while(0){try{}finally{continue}}}", "77f", "77c", "7", 77]
+// ["continue", "parse_continue", "unexpected_a", "7", 77]
+// [`
+// function aa(){while(0){try{}finally{continue}}}
+// `, "parse_continue", "unexpected_a", "7", 77]
 
             warn("unexpected_a", the_continue);
         }
