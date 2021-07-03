@@ -4962,14 +4962,16 @@ function jslint_phase4_walk(state) {
         };
     }
 
-    function top_level_only(the_thing) {
+    function warn_if_not_top_level(the_thing) {
 
 // Some features must be at the most outermost level.
 
         if (blockage !== token_global) {
 
 // test_cause:
-// ["if(0){import aa from \"aa\";}", "77f", "77c", "7", 77]
+// [`
+// if(0){import aa from "aa";}
+// `, "warn_if_not_top_level", "misplaced_a", "7", 77]
 
             warn("misplaced_a", the_thing);
         }
@@ -5867,7 +5869,7 @@ function jslint_phase4_walk(state) {
     });
     postaction("statement", "{", pop_block);
     postaction("statement", "const", action_var);
-    postaction("statement", "export", top_level_only);
+    postaction("statement", "export", warn_if_not_top_level);
     postaction("statement", "for", function (thing) {
         walk_statement(thing.inc);
     });
@@ -5886,7 +5888,7 @@ function jslint_phase4_walk(state) {
                 name.init = true;
                 blockage.live.push(name);
             }
-            return top_level_only(the_thing);
+            return warn_if_not_top_level(the_thing);
         }
     });
     postaction("statement", "let", action_var);
