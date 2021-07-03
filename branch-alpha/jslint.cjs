@@ -3260,8 +3260,8 @@ function jslint_phase3_parse(state) {
                 if (!token_nxt.identifier) {
 
 // test_cause:
-// ["function(){}", "77f", "77c", "7", 77]
-// ["function*aa(){}", "77f", "77c", "7", 77]
+// ["function(){}", "parse_function", "expected_identifier_a", "7", 77]
+// ["function*aa(){}", "parse_function", "expected_identifier_a", "7", 77]
 
                     return stop("expected_identifier_a");
                 }
@@ -3302,7 +3302,7 @@ function jslint_phase3_parse(state) {
         if (functionage.loop > 0) {
 
 // test_cause:
-// ["while(0){aa.map(function(){});}", "77f", "77c", "7", 77]
+// ["while(0){aa.map(function(){});}", "parse_function", "function_in_loop", "7", 77] //jslint-quiet
 
             warn("function_in_loop", the_function);
         }
@@ -3327,8 +3327,9 @@ function jslint_phase3_parse(state) {
         if (the_function.arity !== "statement" && typeof name === "object") {
 
 // test_cause:
-// ["let aa=function bb(){return;};", "77f", "77c", "7", 77]
+// ["let aa=function bb(){return;};", "parse_function", "expression", "7", 77]
 
+            test_cause("expression");
             enroll(name, "function", true);
             name.dead = false;
             name.init = true;
@@ -3339,9 +3340,10 @@ function jslint_phase3_parse(state) {
 
         advance("(");
 
-// test_cause:
-// ["function(){}", "77f", "77c", "7", 77]
+//!! // test_cause:
+//!! // ["function(){}", "parse_function", "opener", "7", 77]
 
+        test_cause("opener");
         token_now.free = false;
         token_now.arity = "function";
         [functionage.parameters, functionage.signature] = parse_function_arg();
@@ -3362,7 +3364,7 @@ function jslint_phase3_parse(state) {
         ) {
 
 // test_cause:
-// ["function aa(){}0", "77f", "77c", "7", 77]
+// ["function aa(){}0", "parse_function", "unexpected_a", "7", 77]
 
             return stop("unexpected_a");
         }
@@ -3373,7 +3375,7 @@ function jslint_phase3_parse(state) {
         ) {
 
 // test_cause:
-// ["function aa(){}\n[]", "77f", "77c", "7", 77]
+// ["function aa(){}\n[]", "parse_function", "unexpected_a", "7", 77]
 
             warn("unexpected_a");
         }
