@@ -5030,8 +5030,9 @@ function jslint_phase4_walk(state) {
             if (Array.isArray(thing)) {
 
 // test_cause:
-// ["+[]", "77f", "77c", "7", 77]
+// ["+[]", "walk_statement", "isArray", "7", 77]
 
+                test_cause("isArray");
                 thing.forEach(walk_statement);
             } else {
                 preamble(thing);
@@ -5040,7 +5041,7 @@ function jslint_phase4_walk(state) {
                     if (thing.id !== "(") {
 
 // test_cause:
-// ["0&&0", "77f", "77c", "7", 77]
+// ["0&&0", "walk_statement", "unexpected_expression_a", "7", 77]
 
                         warn("unexpected_expression_a", thing);
                     }
@@ -5051,12 +5052,12 @@ function jslint_phase4_walk(state) {
                 ) {
 
 // test_cause:
-// ["!0", "77f", "77c", "7", 77]
-// ["+[]", "77f", "77c", "7", 77]
-// ["+new aa()", "77f", "77c", "7", 77]
-// ["0", "77f", "77c", "7", 77]
-// ["async function aa(){await 0;}", "77f", "77c", "7", 77]
-// ["typeof 0", "77f", "77c", "7", 77]
+// ["!0", "walk_statement", "unexpected_expression_a", "7", 77]
+// ["+[]", "walk_statement", "unexpected_expression_a", "7", 77]
+// ["+new aa()", "walk_statement", "unexpected_expression_a", "7", 77]
+// ["0", "walk_statement", "unexpected_expression_a", "7", 77]
+// ["async function aa(){await 0;}", "walk_statement", "unexpected_expression_a", "7", 77] //jslint-quiet
+// ["typeof 0", "walk_statement", "unexpected_expression_a", "7", 77]
 
                     warn("unexpected_expression_a", thing);
                 }
@@ -5098,10 +5099,10 @@ function jslint_phase4_walk(state) {
                     if (global_dict[thing.id] === undefined) {
 
 // test_cause:
-// ["aa", "77f", "77c", "7", 77]
-// ["class aa{}", "77f", "77c", "7", 77]
-// ["let aa=0;try{aa();}catch(bb){bb();}bb();", "77f", "77c", "7", 77]
-// ["let aa=0;try{aa();}catch(ignore){bb();}", "77f", "77c", "7", 77]
+// ["aa", "lookup", "undeclared_a", "7", 77]
+// ["class aa{}", "lookup", "undeclared_a", "7", 77]
+// ["let aa=0;try{aa();}catch(bb){bb();}bb();", "lookup", "undeclared_a", "7", 77] //jslint-quiet
+// ["let aa=0;try{aa();}catch(ignore){bb();}", "lookup", "undeclared_a", "7", 77] //jslint-quiet
 
                         warn("undeclared_a", thing);
                         return;
@@ -5122,7 +5123,7 @@ function jslint_phase4_walk(state) {
             } else if (the_variable.role === "label") {
 
 // test_cause:
-// ["aa:while(0){aa;}", "77f", "77c", "7", 77]
+// ["aa:while(0){aa;}", "lookup", "label_a", "7", 77]
 
                 warn("label_a", thing);
             }
@@ -5136,7 +5137,7 @@ function jslint_phase4_walk(state) {
             ) {
 
 // test_cause:
-// ["let aa;if(aa){let bb;}bb;", "77f", "77c", "7", 77]
+// ["let aa;if(aa){let bb;}bb;", "lookup", "out_of_scope_a", "7", 77]
 
                 warn("out_of_scope_a", thing);
             }
