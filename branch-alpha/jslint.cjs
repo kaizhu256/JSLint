@@ -211,6 +211,7 @@ function jslint_phase2_lex(state) {
         stop,
         stop_at,
         tenure,
+        test_cause,
         token_global,
         token_list,
         warn,
@@ -282,8 +283,8 @@ function jslint_phase2_lex(state) {
         if (match !== undefined && char !== match) {
 
 // test_cause:
-// ["aa=/[", "char_after", "expected_a", "]", 77]
-// ["aa=/aa{/", "char_after", "expected_a_b", "/", 77]
+// ["aa=/[", "char_after", "expected_a", "77a", 77]
+// ["aa=/aa{/", "char_after", "expected_a_b", "77a", 77]
 
             return (
                 char === ""
@@ -319,7 +320,7 @@ function jslint_phase2_lex(state) {
         if (!quiet && length === 0) {
 
 // test_cause:
-// ["0x", "77f", "77c", "77a", 77]
+// ["0x", "read_digits", "expected_digits_after_a", "77a", 77]
 
             warn_at("expected_digits_after_a", line, column, snippet);
         }
@@ -346,7 +347,7 @@ function jslint_phase2_lex(state) {
         ) {
 
 // test_cause:
-// ["too_long", "77f", "77c", "77a", 77]
+// ["/////////////////////////////////////////////////////////////////////////////////", "read_line", "too_long", "77a", 77] //jslint-quiet
 
             warn_at("too_long", line);
         }
@@ -369,14 +370,15 @@ function jslint_phase2_lex(state) {
         if (line_source === "/*jslint-disable*/") {
 
 // test_cause:
-// ["/*jslint-disable*/", "77f", "77c", "77a", 77]
+// ["/*jslint-disable*/", "read_line", "jslint_disable", "77a", 77]
 
+            test_cause("jslint_disable");
             line_disable = line;
         } else if (line_source === "/*jslint-enable*/") {
             if (line_disable === undefined) {
 
 // test_cause:
-// ["/*jslint-enable*/", "77f", "77c", "77a", 77]
+// ["/*jslint-enable*/", "read_line", "unopened_enable", "77a", 77]
 
                 stop_at("unopened_enable", line);
             }
@@ -384,22 +386,24 @@ function jslint_phase2_lex(state) {
         } else if (line_source.endsWith(" //jslint-quiet")) {
 
 // test_cause:
-// ["0 //jslint-quiet", "77f", "77c", "77a", 77]
+// ["0 //jslint-quiet", "read_line", "jslint_quiet", "77a", 77]
 
+            test_cause("jslint_quiet");
             line_list[line].directive_quiet = true;
         }
         if (line_disable !== undefined) {
 
 // test_cause:
-// ["/*jslint-disable*/\n0", "77f", "77c", "77a", 77]
+// ["/*jslint-disable*/\n0", "read_line", "line_disable", "77a", 77]
 
+            test_cause("line_disable");
             line_source = "";
         }
         if (line_source.indexOf("\t") >= 0) {
             if (!option_dict.white) {
 
 // test_cause:
-// ["\t", "77f", "77c", "77a", 77]
+// ["\t", "read_line", "use_spaces", "77a", 77]
 
                 warn_at("use_spaces", line, line_source.indexOf("\t") + 1);
             }
@@ -411,7 +415,7 @@ function jslint_phase2_lex(state) {
         if (!option_dict.white && line_source.endsWith(" ")) {
 
 // test_cause:
-// [" ", "77f", "77c", "77a", 77]
+// [" ", "read_line", "unexpected_trailing_space", "77a", 77]
 
             warn_at("unexpected_trailing_space", line, line_source.length - 1);
         }
@@ -457,7 +461,7 @@ function jslint_phase2_lex(state) {
         ) {
 
 // test_cause:
-// ["/**//**/", "77f", "77c", "77a", 77]
+// ["/**//**/", "token_create", "expected_space_a_b", "77a", 77]
 
             warn(
                 "expected_space_a_b",
@@ -469,7 +473,7 @@ function jslint_phase2_lex(state) {
         if (token_prv.id === "." && id === "(number)") {
 
 // test_cause:
-// [".0", "77f", "77c", "77a", 77]
+// [".0", "token_create", "expected_a_before_b", "77a", 77]
 
             warn("expected_a_before_b", token_prv, "0", ".");
         }
@@ -501,7 +505,7 @@ function jslint_phase2_lex(state) {
         case "":
 
 // test_cause:
-// ["\"\\", "77f", "77c", "77a", 77]
+// ["\"\\", "char_after_escape", "unclosed_string", "77a", 77]
 
             return stop_at("unclosed_string", line, column);
         case "/":
@@ -521,29 +525,30 @@ function jslint_phase2_lex(state) {
         case "t":
 
 // test_cause:
-// ["\"\\/\\\\\\`\\b\\f\\n\\r\\t\"", "77f", "77c", "77a", 77]
+// ["\"\\/\\\\\\`\\b\\f\\n\\r\\t\"", "char_after_escape", "char_after", "77a", 77] //jslint-quiet
 
+            test_cause("char_after");
             return char_after();
         case "u":
             if (char_after("u") === "{") {
                 if (state.mode_json) {
 
 // test_cause:
-// ["[\"\\u{12345}\"]", "77f", "77c", "77a", 77]
+// ["[\"\\u{12345}\"]", "char_after_escape", "unexpected_a", "77a", 77]
 
                     warn_at("unexpected_a", line, column, char);
                 }
                 if (read_digits(rx_hexs) > 5) {
 
 // test_cause:
-// ["\"\\u{123456}\"", "77f", "77c", "77a", 77]
+// ["\"\\u{123456}\"", "char_after_escape", "too_many_digits", "77a", 77]
 
                     warn_at("too_many_digits", line, column);
                 }
                 if (char !== "}") {
 
 // test_cause:
-// ["\"\\u{12345\"", "77f", "77c", "77a", 77]
+// ["\"\\u{12345\"", "char_after_escape", "expected_a_before_b", "77a", 77]
 
                     stop_at("expected_a_before_b", line, column, "}", char);
                 }
@@ -553,7 +558,7 @@ function jslint_phase2_lex(state) {
             if (read_digits(rx_hexs, true) < 4) {
 
 // test_cause:
-// ["\"\\u0\"", "77f", "77c", "77a", 77]
+// ["\"\\u0\"", "char_after_escape", "expected_four_digits", "77a", 77]
 
                 warn_at("expected_four_digits", line, column);
             }
@@ -564,7 +569,7 @@ function jslint_phase2_lex(state) {
             }
 
 // test_cause:
-// ["\"\\0\"", "77f", "77c", "77a", 77]
+// ["\"\\0\"", "char_after_escape", "unexpected_a_before_b", "77a", 77]
 
             warn_at("unexpected_a_before_b", line, column, "\\", char);
         }
@@ -7062,6 +7067,29 @@ function jslint(
         return false;
     }
 
+    function test_cause(code) {
+
+// This function will instrument <cause> to <cause_dict> for test-purposes.
+
+        if (option_dict.test_cause) {
+            cause_dict[JSON.stringify([
+                String(new Error().stack).replace((
+                    /^\u0020{4}at\u0020(?:file|stop|stop_at|test_cause|warn|warn_at|\w+?\.\w+?)\b.*?\n/gm
+                ), "").match(
+                    /^\u0020{4}at\u0020(\w+?)\b/m
+                )[1],
+                code,
+                //!! (
+                    //!! (aa === undefined || (typeof aa === "object" && aa))
+                    //!! ? artifact(aa)
+                    //!! : aa
+                //!! ),
+                "77a",
+                77
+            ])] = true;
+        }
+    }
+
     function warn_at(code, line, column, a, b, c, d) {
 
 // Report an error at some line and column of the program. The warning object
@@ -7086,19 +7114,7 @@ function jslint(
             Math.min(warning.column, warning.line_source.length),
             jslint_fudge
         );
-        if (option_dict.test_cause) {
-            cause_dict[JSON.stringify([
-                String(new Error().stack).replace((
-                    /^\u0020{4}at\u0020(?:file|stop|stop_at|test_cause|warn|warn_at|\w+?\.\w+?)\b.*?\n/gm
-                ), "").match(
-                    /^\u0020{4}at\u0020(\w+?)\b/m
-                )[1],
-                code,
-                b || a,
-                // column
-                77
-            ])] = true;
-        }
+        test_cause(code);
         switch (code) {
 
 // The bundle contains the raw text messages that are generated by jslint. It
@@ -7490,6 +7506,7 @@ function jslint(
             stop_at,
             syntax_dict,
             tenure,
+            test_cause,
             token_global,
             token_list,
             token_nxt: token_global,
