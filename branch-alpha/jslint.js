@@ -3121,7 +3121,9 @@ function jslint_phase3_parse(state) {
                     list.push(param);
 
 // test_cause:
-// ["function aa({bb,aa}){}", "warn_if_unordered", "expected_a_b_ordered_before_c_d", "7", 77] //jslint-quiet
+// ["
+// function aa({bb,aa}){}
+// ", "warn_if_unordered", "expected_a_b_ordered_before_c_d", "7", 77]
 
                     warn_if_unordered("parameter", param.names);
                     advance("}");
@@ -3189,7 +3191,7 @@ function jslint_phase3_parse(state) {
                         if (optional !== undefined) {
 
 // test_cause:
-// ["function aa(aa=0,...){}", "parameter", "required_a_optional_b", "7", 77] //jslint-quiet
+// ["function aa(aa=0,...){}", "parameter", "required_a_optional_b", "7", 77]
 
                             warn(
                                 "required_a_optional_b",
@@ -3221,7 +3223,7 @@ function jslint_phase3_parse(state) {
                             if (optional !== undefined) {
 
 // test_cause:
-// ["function aa(aa=0,bb){}", "parameter", "required_a_optional_b", "7", 77] //jslint-quiet
+// ["function aa(aa=0,bb){}", "parameter", "required_a_optional_b", "7", 77]
 
                                 warn(
                                     "required_a_optional_b",
@@ -3298,7 +3300,9 @@ function jslint_phase3_parse(state) {
         if (functionage.loop > 0) {
 
 // test_cause:
-// ["while(0){aa.map(function(){});}", "parse_function", "function_in_loop", "7", 77] //jslint-quiet
+// ["
+// while(0){aa.map(function(){});}
+// ", "parse_function", "function_in_loop", "7", 77]
 
             warn("function_in_loop", the_function);
         }
@@ -3828,7 +3832,10 @@ function jslint_phase3_parse(state) {
             ) {
 
 // test_cause:
-// ["/*jslint beta*/\nconsole.log();let aa=0;", "parse_var", "var_on_top", "7", 77] //jslint-quiet
+// ["
+// /*jslint beta*/
+// console.log();let aa=0;
+// ", "parse_var", "var_on_top", "7", 77]
 // ["console.log();var aa=0;", "parse_var", "var_on_top", "7", 77]
 // ["try{aa();}catch(aa){var aa=0;}", "parse_var", "var_on_top", "7", 77]
 // ["while(0){var aa;}", "parse_var", "var_on_top", "7", 77]
@@ -3896,7 +3903,9 @@ function jslint_phase3_parse(state) {
                 }
 
 // test_cause:
-// ["let{bb,aa}", "warn_if_unordered", "expected_a_b_ordered_before_c_d", "7", 77] //jslint-quiet
+// ["
+// let{bb,aa}
+// ", "warn_if_unordered", "expected_a_b_ordered_before_c_d", "7", 77]
 
                 warn_if_unordered(the_variable.id, the_variable.names);
                 advance("}");
@@ -3999,9 +4008,18 @@ function jslint_phase3_parse(state) {
         ) {
 
 // test_cause:
-// ["/*jslint beta*/\nconst bb=0;const aa=0;", "parse_var", "expected_a_b_ordered_before_c_d", "7", 77] //jslint-quiet
-// ["/*jslint beta*/\nlet bb;let aa;", "parse_var", "expected_a_b_ordered_before_c_d", "7", 77] //jslint-quiet
-// ["/*jslint beta*/\nvar bb;var aa;", "parse_var", "expected_a_b_ordered_before_c_d", "7", 77] //jslint-quiet
+// ["
+// /*jslint beta*/
+// const bb=0;const aa=0;
+// ", "parse_var", "expected_a_b_ordered_before_c_d", "7", 77]
+// ["
+// /*jslint beta*/
+// let bb;let aa;
+// ", "parse_var", "expected_a_b_ordered_before_c_d", "7", 77]
+// ["
+// /*jslint beta*/
+// var bb;var aa;
+// ", "parse_var", "expected_a_b_ordered_before_c_d", "7", 77]
 
             warn(
                 "expected_a_b_ordered_before_c_d",
@@ -4281,7 +4299,10 @@ function jslint_phase3_parse(state) {
         if (the_for.block.disrupt === true) {
 
 // test_cause:
-// ["/*jslint for*/\nfunction aa(bb,cc){for(0;0;0){break;}}", "77f", "77c", "7", 77] //jslint-quiet
+// ["
+// /*jslint for*/
+// function aa(bb,cc){for(0;0;0){break;}}
+// ", "77f", "77c", "7", 77]
 
             warn("weird_loop", the_for);
         }
@@ -5056,7 +5077,9 @@ function jslint_phase4_walk(state) {
 // ["+[]", "walk_statement", "unexpected_expression_a", "7", 77]
 // ["+new aa()", "walk_statement", "unexpected_expression_a", "7", 77]
 // ["0", "walk_statement", "unexpected_expression_a", "7", 77]
-// ["async function aa(){await 0;}", "walk_statement", "unexpected_expression_a", "7", 77] //jslint-quiet
+// ["
+// async function aa(){await 0;}
+// ", "walk_statement", "unexpected_expression_a", "7", 77]
 // ["typeof 0", "walk_statement", "unexpected_expression_a", "7", 77]
 
                     warn("unexpected_expression_a", thing);
@@ -5101,8 +5124,12 @@ function jslint_phase4_walk(state) {
 // test_cause:
 // ["aa", "lookup", "undeclared_a", "7", 77]
 // ["class aa{}", "lookup", "undeclared_a", "7", 77]
-// ["let aa=0;try{aa();}catch(bb){bb();}bb();", "lookup", "undeclared_a", "7", 77] //jslint-quiet
-// ["let aa=0;try{aa();}catch(ignore){bb();}", "lookup", "undeclared_a", "7", 77] //jslint-quiet
+// ["
+// let aa=0;try{aa();}catch(bb){bb();}bb();
+// ", "lookup", "undeclared_a", "7", 77]
+// ["
+// let aa=0;try{aa();}catch(ignore){bb();}
+// ", "lookup", "undeclared_a", "7", 77]
 
                         warn("undeclared_a", thing);
                         return;
