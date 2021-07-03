@@ -94,10 +94,6 @@
 /*jslint beta, node*/
 
 /*property
-    causes,
-    max, min,
-    stringify,
-    test_cause,
     JSLINT_BETA, a, all, allowed_option, argv, arity, artifact, assign, async,
     b, beta, bind, bitwise, block, body, browser, c, calls, catch, catch_list,
     catch_stack, cjs_module, cjs_require, cli, closer, closure, code, column,
@@ -150,7 +146,7 @@ function assert_or_throw(passed, message) {
 Please open an issue with this stack-trace (and possible example-code) at
 https://github.com/jslint-org/jslint/issues.
 edition = "${jslint_edition}";
-${String(message).slice(0, 2000)}`
+${String(message).slice(0, 1000)}`
     );
 }
 
@@ -211,7 +207,6 @@ function jslint_phase2_lex(state) {
         stop,
         stop_at,
         tenure,
-        test_cause,
         token_global,
         token_list,
         warn,
@@ -281,14 +276,17 @@ function jslint_phase2_lex(state) {
 // matched an expected value.
 
         if (match !== undefined && char !== match) {
-
-// test_cause:
-// [" aa=/[", "char_after", "expected_a", "]", 6]
-// [" aa=/aa{/", "char_after", "expected_a_b", "/", 9]
-
             return (
                 char === ""
+
+// test_cause:
+// ["aa=/[", "77f", "77c", "7a", 77]
+
                 ? stop_at("expected_a", line, column - 1, match)
+
+// test_cause:
+// ["aa=/aa{/", "77f", "77c", "7a", 77]
+
                 : stop_at("expected_a_b", line, column, match, char)
             );
         }
@@ -316,18 +314,19 @@ function jslint_phase2_lex(state) {
 
     function read_digits(rx, quiet) {
         let digits = line_source.match(rx)[0];
-        if (!quiet && digits.length === 0) {
+        let length = digits.length;
+        if (!quiet && length === 0) {
 
 // test_cause:
-// [" 0x", "read_digits", "expected_digits_after_a", "0x", 3]
+// ["0x", "77f", "77c", "7a", 77]
 
             warn_at("expected_digits_after_a", line, column, snippet);
         }
-        column += digits.length;
-        line_source = line_source.slice(digits.length);
+        column += length;
+        line_source = line_source.slice(length);
         snippet += digits;
         char_after();
-        return digits.length;
+        return length;
     }
 
     function read_line() {
@@ -346,7 +345,7 @@ function jslint_phase2_lex(state) {
         ) {
 
 // test_cause:
-// [" ////////////////////////////////////////////////////////////////////////////////", "read_line", "too_long", null, null] //jslint-quiet
+// ["too_long", "77f", "77c", "7a", 77]
 
             warn_at("too_long", line);
         }
@@ -369,15 +368,14 @@ function jslint_phase2_lex(state) {
         if (line_source === "/*jslint-disable*/") {
 
 // test_cause:
-// ["/*jslint-disable*/", "read_line", "line_disable", "(global)", 0]
+// ["/*jslint-disable*/", "77f", "77c", "7a", 77]
 
-            test_cause("line_disable");
             line_disable = line;
         } else if (line_source === "/*jslint-enable*/") {
             if (line_disable === undefined) {
 
 // test_cause:
-// ["/*jslint-enable*/", "read_line", "unopened_enable", null, null]
+// ["/*jslint-enable*/", "77f", "77c", "7a", 77]
 
                 stop_at("unopened_enable", line);
             }
@@ -385,24 +383,22 @@ function jslint_phase2_lex(state) {
         } else if (line_source.endsWith(" //jslint-quiet")) {
 
 // test_cause:
-// [" 0 //jslint-quiet", "read_line", "directive_quiet", "(global)", 0]
+// ["0 //jslint-quiet", "77f", "77c", "7a", 77]
 
-            test_cause("directive_quiet");
             line_list[line].directive_quiet = true;
         }
         if (line_disable !== undefined) {
 
 // test_cause:
-// ["/*jslint-disable*/\n0", "read_line", "line_source", "(global)", 0]
+// ["/*jslint-disable*/\n0", "77f", "77c", "7a", 77]
 
-            test_cause("line_source");
             line_source = "";
         }
         if (line_source.indexOf("\t") >= 0) {
             if (!option_dict.white) {
 
 // test_cause:
-// [" \t", "read_line", "use_spaces", null, 2]
+// ["\t", "77f", "77c", "7a", 77]
 
                 warn_at("use_spaces", line, line_source.indexOf("\t") + 1);
             }
@@ -414,9 +410,9 @@ function jslint_phase2_lex(state) {
         if (!option_dict.white && line_source.endsWith(" ")) {
 
 // test_cause:
-// [" 0 ", "read_line", "unexpected_trailing_space", null, 3]
+// [" ", "77f", "77c", "7a", 77]
 
-            warn_at("unexpected_trailing_space", line, line_source.length);
+            warn_at("unexpected_trailing_space", line, line_source.length - 1);
         }
         return line_source;
     }
@@ -460,8 +456,7 @@ function jslint_phase2_lex(state) {
         ) {
 
 // test_cause:
-// [" /**//**/", "token_create", "expected_space_a_b", "(comment)", 6]
-// [" /**//./", "token_create", "expected_space_a_b", "/", 6]
+// ["/**//**/", "77f", "77c", "7a", 77]
 
             warn(
                 "expected_space_a_b",
@@ -473,7 +468,7 @@ function jslint_phase2_lex(state) {
         if (token_prv.id === "." && id === "(number)") {
 
 // test_cause:
-// [" .0", "token_create", "expected_a_before_b", ".", 2]
+// [".0", "77f", "77c", "7a", 77]
 
             warn("expected_a_before_b", token_prv, "0", ".");
         }
@@ -505,50 +500,49 @@ function jslint_phase2_lex(state) {
         case "":
 
 // test_cause:
-// [" \"\\", "char_after_escape", "unclosed_string", null, 3]
+// ["\"\\", "77f", "77c", "7a", 77]
 
-            return stop_at("unclosed_string", line, column - 1);
+            return stop_at("unclosed_string", line, column);
         case "/":
+            return char_after();
         case "\\":
+            return char_after();
         case "`":
+            return char_after();
         case "b":
+            return char_after();
         case "f":
+            return char_after();
         case "n":
+            return char_after();
         case "r":
+            return char_after();
         case "t":
 
 // test_cause:
-// [" \"\\/\"", "char_after_escape", "char_after", "/", 0]
-// [" \"\\\\\"", "char_after_escape", "char_after", "\\", 0]
-// [" \"\\`\"", "char_after_escape", "char_after", "`", 0]
-// [" \"\\b\"", "char_after_escape", "char_after", "b", 0]
-// [" \"\\f\"", "char_after_escape", "char_after", "f", 0]
-// [" \"\\n\"", "char_after_escape", "char_after", "n", 0]
-// [" \"\\r\"", "char_after_escape", "char_after", "r", 0]
-// [" \"\\t\"", "char_after_escape", "char_after", "t", 0]
+// ["\"\\/\\\\\\`\\b\\f\\n\\r\\t\"", "77f", "77c", "7a", 77]
 
-            test_cause("char_after", char);
             return char_after();
         case "u":
             if (char_after("u") === "{") {
                 if (state.mode_json) {
 
 // test_cause:
-// [" [\"\\u{12345}\"]", "char_after_escape", "unexpected_a", "{", 6]
+// ["[\"\\u{12345}\"]", "77f", "77c", "7a", 77]
 
                     warn_at("unexpected_a", line, column, char);
                 }
                 if (read_digits(rx_hexs) > 5) {
 
 // test_cause:
-// [" \"\\u{123456}\"", "char_after_escape", "too_many_digits", null, 11]
+// ["\"\\u{123456}\"", "77f", "77c", "7a", 77]
 
-                    warn_at("too_many_digits", line, column - 1);
+                    warn_at("too_many_digits", line, column);
                 }
                 if (char !== "}") {
 
 // test_cause:
-// [" \"\\u{12345\"", "char_after_escape", "expected_a_before_b", "\"", 11]
+// ["\"\\u{12345\"", "77f", "77c", "7a", 77]
 
                     stop_at("expected_a_before_b", line, column, "}", char);
                 }
@@ -558,9 +552,9 @@ function jslint_phase2_lex(state) {
             if (read_digits(rx_hexs, true) < 4) {
 
 // test_cause:
-// [" \"\\u0\"", "char_after_escape", "expected_four_digits", null, 5]
+// ["\"\\u0\"", "77f", "77c", "7a", 77]
 
-                warn_at("expected_four_digits", line, column - 1);
+                warn_at("expected_four_digits", line, column);
             }
             return;
         default:
@@ -569,9 +563,9 @@ function jslint_phase2_lex(state) {
             }
 
 // test_cause:
-// [" \"\\0\"", "char_after_escape", "unexpected_a_before_b", "0", 3]
+// ["\"\\0\"", "77f", "77c", "7a", 77]
 
-            warn_at("unexpected_a_before_b", line, column - 1, "\\", char);
+            warn_at("unexpected_a_before_b", line, column, "\\", char);
         }
     }
 
@@ -597,7 +591,7 @@ function jslint_phase2_lex(state) {
             if (mode_mega) {
 
 // test_cause:
-// [" `${//}`", "lex_comment", "unexpected_comment", "`", 5]
+// ["`${//}`", "77f", "77c", "7a", 77]
 
                 warn("unexpected_comment", the_comment, "`");
             }
@@ -609,9 +603,9 @@ function jslint_phase2_lex(state) {
             if (line_source[0] === "/") {
 
 // test_cause:
-// [" /*/", "lex_comment", "unexpected_a", "/", 4]
+// ["/*/", "77f", "77c", "7a", 77]
 
-                warn_at("unexpected_a", line, column + ii + 1, "/");
+                warn_at("unexpected_a", line, column + ii, "/");
             }
 
 // Lex/loop through each line until "*/".
@@ -628,9 +622,9 @@ function jslint_phase2_lex(state) {
                     if (jj >= 0) {
 
 // test_cause:
-// [" /*/*", "lex_comment", "nested_comment", null, 4]
+// ["/*/*", "77f", "77c", "7a", 77]
 
-                        warn_at("nested_comment", line, column + jj + 1);
+                        warn_at("nested_comment", line, column + jj);
                     }
                 }
                 snippet.push(line_source);
@@ -638,7 +632,7 @@ function jslint_phase2_lex(state) {
                 if (line_source === undefined) {
 
 // test_cause:
-// [" 0/*", "lex_comment", "unclosed_comment", null, 0]
+// ["/*", "77f", "77c", "7a", 77]
 
                     return stop_at("unclosed_comment", line, column);
                 }
@@ -650,9 +644,9 @@ function jslint_phase2_lex(state) {
             if (jj >= 0) {
 
 // test_cause:
-// [" /*/**/", "lex_comment", "nested_comment", null, 4]
+// ["/*/**/", "77f", "77c", "7a", 77]
 
-                warn_at("nested_comment", line, column + jj + 1);
+                warn_at("nested_comment", line, column + jj);
             }
             snippet.push(line_source.slice(0, ii));
             snippet = snippet.join(" ");
@@ -672,7 +666,7 @@ function jslint_phase2_lex(state) {
         ) {
 
 // test_cause:
-// [" //t0d0", "lex_comment", "todo_comment", "(comment)", 2]
+// ["//todo", "77f", "77c", "7a", 77] //jslint-quiet
 
             warn("todo_comment", the_comment);
         }
@@ -690,9 +684,9 @@ function jslint_phase2_lex(state) {
         if (!mode_directive) {
 
 // test_cause:
-// [" 0\n /*global aa*/", "lex_comment", "misplaced_directive_a", "global", 2]
+// ["0\n/*global aa*/", "77f", "77c", "7a", 77]
 
-            warn_at("misplaced_directive_a", line, from + 1, match[1]);
+            warn_at("misplaced_directive_a", line, from, match[1]);
             return the_comment;
         }
         the_comment.directive = match[1];
@@ -714,7 +708,7 @@ function jslint_phase2_lex(state) {
                 if (body) {
 
 // test_cause:
-// [" /*jslint !*/", "lex_comment", "bad_directive_a", "!", 2]
+// ["/*jslint !*/", "77f", "77c", "7a", 77]
 
                     return stop("bad_directive_a", the_comment, body);
                 }
@@ -751,7 +745,7 @@ function jslint_phase2_lex(state) {
                 } else {
 
 // test_cause:
-// [" /*jslint undefined*/", "lex_comment", "bad_option_a", "undefined", 2]
+// ["/*jslint undefined*/", "77f", "77c", "7a", 77]
 
                     warn("bad_option_a", the_comment, name);
                 }
@@ -762,7 +756,7 @@ function jslint_phase2_lex(state) {
                 if (value) {
 
 // test_cause:
-// [" /*global aa:false*/", "lex_comment", "bad_option_a", "aa:false", 2]
+// ["/*global aa:false*/", "77f", "77c", "7a", 77]
 
                     warn("bad_option_a", the_comment, name + ":" + value);
                 }
@@ -782,7 +776,7 @@ function jslint_phase2_lex(state) {
         if (mode_mega) {
 
 // test_cause:
-// [" `${`", "lex_megastring", "expected_a_b", "`", 5]
+// ["`${`", "77f", "77c", "7a", 77]
 
             return stop_at("expected_a_b", line, column, "}", "`");
         }
@@ -835,7 +829,7 @@ function jslint_phase2_lex(state) {
                     if (id === "{") {
 
 // test_cause:
-// [" `${{", "lex_megastring", "expected_a_b", "{", 5]
+// ["`${{", "77f", "77c", "7a", 77]
 
                         return stop_at("expected_a_b", line, column, "}", "{");
                     }
@@ -871,9 +865,9 @@ function jslint_phase2_lex(state) {
                 if (read_line() === undefined) {
 
 // test_cause:
-// [" `", "lex_megastring", "unclosed_mega", null, 2]
+// ["`", "77f", "77c", "7a", 77]
 
-                    return stop_at("unclosed_mega", line_mega, from_mega + 1);
+                    return stop_at("unclosed_mega", line_mega, from_mega);
                 }
             }
         }
@@ -921,7 +915,7 @@ function jslint_phase2_lex(state) {
         ) {
 
 // test_cause:
-// [" 0a", "lex_number", "unexpected_a_after_b", "0", 3]
+// ["0a", "77f", "77c", "7a", 77]
 
             return stop_at(
                 "unexpected_a_after_b",
@@ -964,11 +958,15 @@ function jslint_phase2_lex(state) {
                 switch (char) {
                 case "":
                 case "]":
+
+// test_cause:
+// ["aa=/[", "77f", "77c", "7a", 77]
+// ["aa=/[]/", "77f", "77c", "7a", 77]
+
                     if (mode_regexp_range) {
 
 // test_cause:
-// [" aa=/[0-", "lex_regexp_bracket", "unexpected_a", "-", 8]
-// [" aa=/[0-]/", "lex_regexp_bracket", "unexpected_a", "-", 8]
+// ["aa=/[0-]/", "77f", "77c", "7a", 77]
 
                         warn_at("unexpected_a", line, column - 1, "-");
                     }
@@ -976,7 +974,7 @@ function jslint_phase2_lex(state) {
                 case " ":
 
 // test_cause:
-// [" aa=/[ ]/", "lex_regexp_bracket", "expected_a_b", " ", 7]
+// ["aa=/[ ]/", "77f", "77c", "7a", 77]
 
                     warn_at("expected_a_b", line, column, "\\u0020", " ");
                     break;
@@ -986,11 +984,11 @@ function jslint_phase2_lex(state) {
                 case "^":
 
 // test_cause:
-// [" aa=/[-]/", "lex_regexp_bracket", "expected_a_before_b", "-", 7]
-// [" aa=/[.^]/", "lex_regexp_bracket", "expected_a_before_b", "^", 8]
-// [" aa=/[/", "lex_regexp_bracket", "expected_a_before_b", "/", 7]
-// [" aa=/[\\\\/]/", "lex_regexp_bracket", "expected_a_before_b", "/", 9]
-// [" aa=/[\\\\[]/", "lex_regexp_bracket", "expected_a_before_b", "[", 9]
+// ["aa=/[-]/", "77f", "77c", "7a", 77]
+// ["aa=/[.^]/", "77f", "77c", "7a", 77]
+// ["aa=/[/", "77f", "77c", "7a", 77]
+// ["aa=/[\\\\/]/", "77f", "77c", "7a", 77]
+// ["aa=/[\\\\[]/", "77f", "77c", "7a", 77]
 
                     warn_at("expected_a_before_b", line, column, "\\", char);
                     break;
@@ -1002,7 +1000,7 @@ function jslint_phase2_lex(state) {
                     if (mode_mega) {
 
 // test_cause:
-// [" `${/[`]/}`", "lex_regexp_bracket", "unexpected_a", "`", 7]
+// ["`${/[`]/}`", "77f", "77c", "7a", 77]
 
                         warn_at("unexpected_a", line, column, "`");
                     }
@@ -1028,13 +1026,17 @@ function jslint_phase2_lex(state) {
 
             switch (char) {
             case "":
+                warn_at("expected_regexp_factor_a", line, column, char);
+                break;
             case ")":
+                warn_at("expected_regexp_factor_a", line, column, char);
+                break;
             case "]":
 
 // test_cause:
-// [" / /", "lex_regexp_group", "expected_regexp_factor_a", "", 5]
-// [" aa=/)", "lex_regexp_group", "expected_regexp_factor_a", ")", 6]
-// [" aa=/]", "lex_regexp_group", "expected_regexp_factor_a", "]", 6]
+// ["/ /", "77f", "77c", "7a", 77]
+// ["aa=/)", "77f", "77c", "7a", 77]
+// ["aa=/]", "77f", "77c", "7a", 77]
 
                 warn_at("expected_regexp_factor_a", line, column, char);
                 break;
@@ -1049,7 +1051,7 @@ function jslint_phase2_lex(state) {
                 case " ":
 
 // test_cause:
-// [" aa=/ /", "lex_regexp_group", "expected_a_b", " ", 6]
+// ["aa=/ /", "77f", "77c", "7a", 77]
 
                     warn_at("expected_a_b", line, column, "\\s", " ");
                     char_after();
@@ -1076,7 +1078,8 @@ function jslint_phase2_lex(state) {
                     } else if (char === ":") {
 
 // test_cause:
-// [" aa=/(:)/", "lex_regexp_group", "expected_a_before_b", ":", 7]
+// ["aa=/(:)/", "77f", "77c", "7a", 77]
+// ["aa=/?/", "77f", "77c", "7a", 77]
 
                         warn_at("expected_a_before_b", line, column, "?", ":");
                     }
@@ -1088,17 +1091,25 @@ function jslint_phase2_lex(state) {
                     char_after(")");
                     break;
                 case "*":
-                case "+":
-                case "?":
-                case "{":
-                case "}":
 
 // test_cause:
-// [" aa=/+/", "lex_regexp_group", "expected_a_before_b", "+", 6]
-// [" aa=/.**/", "lex_regexp_group", "expected_a_before_b", "*", 8]
-// [" aa=/?/", "lex_regexp_group", "expected_a_before_b", "?", 6]
-// [" aa=/{/", "lex_regexp_group", "expected_a_before_b", "{", 6]
-// [" aa=/}/", "lex_regexp_group", "expected_a_before_b", "}", 6]
+// ["aa=/.**/", "77f", "77c", "7a", 77]
+
+                    warn_at("expected_a_before_b", line, column, "\\", char);
+                    char_after();
+                    break;
+                case "+":
+
+// test_cause:
+// ["aa=/+/", "77f", "77c", "7a", 77]
+
+                    warn_at("expected_a_before_b", line, column, "\\", char);
+                    char_after();
+                    break;
+                case "?":
+
+// test_cause:
+// ["aa=/?/", "77f", "77c", "7a", 77]
 
                     warn_at("expected_a_before_b", line, column, "\\", char);
                     char_after();
@@ -1109,7 +1120,7 @@ function jslint_phase2_lex(state) {
                 case "\\":
 
 // test_cause:
-// [" aa=/\\/", "char_after_escape", "char_after", "/", 0]
+// ["aa=/\\/", "77f", "77c", "7a", 77]
 
                     char_after_escape("BbDdSsWw^${}[]():=!.|*+?");
                     break;
@@ -1123,10 +1134,26 @@ function jslint_phase2_lex(state) {
                     if (mode_mega) {
 
 // test_cause:
-// [" `${/`/}`", "lex_regexp_group", "unexpected_a", "`", 6]
+// ["`${/`/}`", "77f", "77c", "7a", 77]
 
                         warn_at("unexpected_a", line, column, "`");
                     }
+                    char_after();
+                    break;
+                case "{":
+
+// test_cause:
+// ["aa=/{/", "77f", "77c", "7a", 77]
+
+                    warn_at("expected_a_before_b", line, column, "\\", char);
+                    char_after();
+                    break;
+                case "}":
+
+// test_cause:
+// ["aa=/}/", "77f", "77c", "7a", 77]
+
+                    warn_at("expected_a_before_b", line, column, "\\", char);
                     char_after();
                     break;
                 default:
@@ -1151,7 +1178,7 @@ function jslint_phase2_lex(state) {
                     if (char_after("?") === "?") {
 
 // test_cause:
-// [" aa=/.??/", "lex_regexp_group", "unexpected_a", "?", 8]
+// ["aa=/.??/", "77f", "77c", "7a", 77]
 
                         warn_at("unexpected_a", line, column, char);
                         char_after("?");
@@ -1161,21 +1188,21 @@ function jslint_phase2_lex(state) {
                     if (read_digits(rx_digits, true) === 0) {
 
 // test_cause:
-// [" aa=/aa{/", "lex_regexp_group", "expected_a_before_b", 9, ","]
+// ["aa=/aa{/", "77f", "77c", "7a", 77]
 
                         warn_at("expected_a_before_b", line, column, "0", ",");
                     }
                     if (char === ",") {
 
 // test_cause:
-// [" aa=/aa{,/", "lex_regexp_group", "expected_a_before_b", 9, ","]
+// ["aa=/.{,/", "77f", "77c", "7a", 77]
 
                         read_digits(rx_digits, true);
                     }
                     if (char_after("}") === "?") {
 
 // test_cause:
-// [" aa=/.{0}?/", "lex_regexp_group", "unexpected_a", "?", 10]
+// ["aa=/.{0}?/", "77f", "77c", "7a", 77]
 
                         warn_at("unexpected_a", line, column, char);
                         char_after("?");
@@ -1194,7 +1221,7 @@ function jslint_phase2_lex(state) {
         if (char === "=") {
 
 // test_cause:
-// [" aa=/=/", "lex_regexp", "expected_a_before_b", "=", 6]
+// ["aa=/=/", "77f", "77c", "7a", 77]
 
             warn_at("expected_a_before_b", line, column, "\\", "=");
         }
@@ -1229,25 +1256,24 @@ function jslint_phase2_lex(state) {
 
             switch (!flag[char] && char) {
             case "g":
+                break;
             case "i":
+                break;
             case "m":
+                break;
             case "u":
+                break;
             case "y":
 
 // test_cause:
-// [" aa=/./g", "lex_regexp", "regexp_flag", "g", 0]
-// [" aa=/./i", "lex_regexp", "regexp_flag", "i", 0]
-// [" aa=/./m", "lex_regexp", "regexp_flag", "m", 0]
-// [" aa=/./u", "lex_regexp", "regexp_flag", "u", 0]
-// [" aa=/./y", "lex_regexp", "regexp_flag", "y", 0]
+// ["aa=/./gimuy", "77f", "77c", "7a", 77]
 
-                test_cause("regexp_flag", char);
                 break;
             default:
 
 // test_cause:
-// [" aa=/./gg", "lex_regexp", "unexpected_a", "g", 9]
-// [" aa=/./z", "lex_regexp", "unexpected_a", "z", 8]
+// ["aa=/./gg", "77f", "77c", "7a", 77]
+// ["aa=/./z", "77f", "77c", "7a", 77]
 
                 warn_at("unexpected_a", line, column, char);
             }
@@ -1258,9 +1284,9 @@ function jslint_phase2_lex(state) {
         if (char === "/" || char === "*") {
 
 // test_cause:
-// [" aa=/.//", "lex_regexp", "unexpected_a", "/", 5]
+// ["aa=/.//", "77f", "77c", "7a", 77]
 
-            return stop_at("unexpected_a", line, from + 1, char);
+            return stop_at("unexpected_a", line, from, char);
         }
         result = token_create("(regexp)", char);
         result.flag = flag;
@@ -1268,9 +1294,9 @@ function jslint_phase2_lex(state) {
         if (mode_regexp_multiline && !flag.m) {
 
 // test_cause:
-// [" aa=/$^/;", "lex_regexp", "missing_m", null, 9]
+// ["aa=/$^/", "77f", "77c", "7a", 77]
 
-            warn_at("missing_m", line, column + 1);
+            warn_at("missing_m", line, column);
         }
         return result;
     }
@@ -1293,28 +1319,42 @@ function jslint_phase2_lex(state) {
             && token_prv_expr.id
         ) {
         case "case":
+            the_token = lex_regexp();
+            return stop("unexpected_a", the_token);
         case "delete":
+            the_token = lex_regexp();
+            return stop("unexpected_a", the_token);
         case "in":
+            the_token = lex_regexp();
+            return stop("unexpected_a", the_token);
         case "instanceof":
+            the_token = lex_regexp();
+            return stop("unexpected_a", the_token);
         case "new":
-        case "typeof":
-        case "void":
-        case "yield":
-
-// test_cause:
-// [" case /./", "lex_slash_or_regexp", "unexpected_a", "(regexp)", 7]
-// [" delete /./", "lex_slash_or_regexp", "unexpected_a", "(regexp)", 9]
-// [" in /./", "lex_slash_or_regexp", "unexpected_a", "(regexp)", 5]
-// [" instanceof /./", "lex_slash_or_regexp", "unexpected_a", "(regexp)", 13]
-// [" new /./", "lex_slash_or_regexp", "unexpected_a", "(regexp)", 6]
-// [" typeof /./", "lex_slash_or_regexp", "unexpected_a", "(regexp)", 9]
-// [" void /./", "lex_slash_or_regexp", "unexpected_a", "(regexp)", 7]
-// [" yield /./", "lex_slash_or_regexp", "unexpected_a", "(regexp)", 8]
-
             the_token = lex_regexp();
             return stop("unexpected_a", the_token);
         case "return":
             return lex_regexp();
+        case "typeof":
+            the_token = lex_regexp();
+            return stop("unexpected_a", the_token);
+        case "void":
+            the_token = lex_regexp();
+            return stop("unexpected_a", the_token);
+        case "yield":
+            the_token = lex_regexp();
+
+// test_cause:
+// ["case /./", "77f", "77c", "7a", 77]
+// ["delete /./", "77f", "77c", "7a", 77]
+// ["in /./", "77f", "77c", "7a", 77]
+// ["instanceof /./", "77f", "77c", "7a", 77]
+// ["new /./", "77f", "77c", "7a", 77]
+// ["typeof /./", "77f", "77c", "7a", 77]
+// ["void /./", "77f", "77c", "7a", 77]
+// ["yield /./", "77f", "77c", "7a", 77]
+
+            return stop("unexpected_a", the_token);
         }
         switch (!token_prv_expr.identifier && token_prv_expr.id.slice(-1)) {
         case "!":
@@ -1332,25 +1372,25 @@ function jslint_phase2_lex(state) {
         case "|":
         case "}":
         case "~":
+            the_token = lex_regexp();
 
 // test_cause:
-// [" !/./", "lex_slash_or_regexp", "wrap_regexp", "(regexp)", 3]
-// [" %/./", "lex_slash_or_regexp", "wrap_regexp", "(regexp)", 3]
-// [" &/./", "lex_slash_or_regexp", "wrap_regexp", "(regexp)", 3]
-// [" +/./", "lex_slash_or_regexp", "wrap_regexp", "(regexp)", 3]
-// [" -/./", "lex_slash_or_regexp", "wrap_regexp", "(regexp)", 3]
-// [" 0 * /./", "lex_slash_or_regexp", "wrap_regexp", "(regexp)", 6]
-// [" 0 / /./", "lex_slash_or_regexp", "wrap_regexp", "(regexp)", 6]
-// [" ;/./", "lex_slash_or_regexp", "wrap_regexp", "(regexp)", 3]
-// [" </./", "lex_slash_or_regexp", "wrap_regexp", "(regexp)", 3]
-// [" >/./", "lex_slash_or_regexp", "wrap_regexp", "(regexp)", 3]
-// [" ^/./", "lex_slash_or_regexp", "wrap_regexp", "(regexp)", 3]
-// [" {/./", "lex_slash_or_regexp", "wrap_regexp", "(regexp)", 3]
-// [" |/./", "lex_slash_or_regexp", "wrap_regexp", "(regexp)", 3]
-// [" }/./", "lex_slash_or_regexp", "wrap_regexp", "(regexp)", 3]
-// [" ~/./", "lex_slash_or_regexp", "wrap_regexp", "(regexp)", 3]
+// ["!/./", "77f", "77c", "7a", 77]
+// ["%/./", "77f", "77c", "7a", 77]
+// ["&/./", "77f", "77c", "7a", 77]
+// ["+/./", "77f", "77c", "7a", 77]
+// ["-/./", "77f", "77c", "7a", 77]
+// ["0 * /./", "77f", "77c", "7a", 77]
+// ["0 / /./", "77f", "77c", "7a", 77]
+// [";/./", "77f", "77c", "7a", 77]
+// ["</./", "77f", "77c", "7a", 77]
+// [">/./", "77f", "77c", "7a", 77]
+// ["^/./", "77f", "77c", "7a", 77]
+// ["{/./", "77f", "77c", "7a", 77]
+// ["|/./", "77f", "77c", "7a", 77]
+// ["}/./", "77f", "77c", "7a", 77]
+// ["~/./", "77f", "77c", "7a", 77]
 
-            the_token = lex_regexp();
             warn("wrap_regexp", the_token);
             return the_token;
         case "(":
@@ -1361,14 +1401,13 @@ function jslint_phase2_lex(state) {
         case "[":
 
 // test_cause:
-// [" (/./", "lex_slash_or_regexp", "lex_regexp", "(", 0]
-// [" ,/./", "lex_slash_or_regexp", "lex_regexp", 0, ","]
-// [" :/./", "lex_slash_or_regexp", "lex_regexp", ":", 0]
-// [" =/./", "lex_slash_or_regexp", "lex_regexp", "=", 0]
-// [" ?/./", "lex_slash_or_regexp", "lex_regexp", "?", 0]
-// [" aa[/./", "lex_slash_or_regexp", "lex_regexp", "[", 0]
+// ["(/./", "77f", "77c", "7a", 77]
+// [",/./", "77f", "77c", "7a", 77]
+// [":/./", "77f", "77c", "7a", 77]
+// ["=/./", "77f", "77c", "7a", 77]
+// ["?/./", "77f", "77c", "7a", 77]
+// ["aa[/./", "77f", "77c", "7a", 77]
 
-            test_cause("lex_regexp", token_prv_expr.id);
             return lex_regexp();
         }
         if (line_source[0] === "=") {
@@ -1388,7 +1427,7 @@ function jslint_phase2_lex(state) {
         if (!option_dict.single && quote === "'") {
 
 // test_cause:
-// [" ''", "lex_string", "use_double", null, 2]
+// ["''", "77f", "77c", "7a", 77]
 
             warn_at("use_double", line, column);
         }
@@ -1402,9 +1441,9 @@ function jslint_phase2_lex(state) {
             case "":
 
 // test_cause:
-// [" \"0", "lex_string", "unclosed_string", null, 3]
+// ["\"", "77f", "77c", "7a", 77]
 
-                return stop_at("unclosed_string", line, column - 1);
+                return stop_at("unclosed_string", line, column);
             case "\\":
                 char_after_escape(quote);
                 break;
@@ -1412,7 +1451,7 @@ function jslint_phase2_lex(state) {
                 if (mode_mega) {
 
 // test_cause:
-// [" `${\"`\"}`", "lex_string", "unexpected_a", "`", 6]
+// ["`${\"`\"}`", "77f", "77c", "7a", 77]
 
                     warn_at("unexpected_a", line, column, "`");
                 }
@@ -1445,15 +1484,18 @@ function jslint_phase2_lex(state) {
                 line_source = read_line();
                 from = 0;
                 if (line_source === undefined) {
-
-// test_cause:
-// [" `${//}`", "lex_token", "unclosed_mega", null, 2]
-// ["/*jslint-disable*/", "lex_token", "unclosed_disable", null, null]
-
                     return (
                         mode_mega
-                        ? stop_at("unclosed_mega", line_mega, from_mega + 1)
+
+// test_cause:
+// ["`${//}`", "77f", "77c", "7a", 77]
+
+                        ? stop_at("unclosed_mega", line_mega, from_mega)
                         : line_disable !== undefined
+
+// test_cause:
+// ["/*jslint-disable*/", "77f", "77c", "7a", 77]
+
                         ? stop_at("unclosed_disable", line_disable)
                         : token_create("(end)")
                     );
@@ -1471,12 +1513,12 @@ function jslint_phase2_lex(state) {
             if (!match) {
 
 // test_cause:
-// [" #", "lex_token", "unexpected_char_a", "#", 2]
+// ["#", "77f", "77c", "7a", 77]
 
                 return stop_at(
                     "unexpected_char_a",
                     line,
-                    column + 1,
+                    column,
                     line_source[0]
                 );
             }
@@ -1577,7 +1619,6 @@ function jslint_phase3_parse(state) {
         stop,
         syntax_dict,
         tenure,
-        test_cause,
         token_global,
         token_list,
         warn,
@@ -1686,14 +1727,17 @@ function jslint_phase3_parse(state) {
 // Attempt to match token_nxt with an expected id.
 
         if (id !== undefined && token_nxt.id !== id) {
-
-// test_cause:
-// [" ()", "advance", "expected_a_b", "(end)", 1]
-// [" {\"aa\":0", "advance", "expected_a_b_from_c_d", "{", 1]
-
             return (
                 match === undefined
+
+// test_cause:
+// ["()", "77f", "77c", "7a", 77]
+
                 ? stop("expected_a_b", token_nxt, id, artifact())
+
+// test_cause:
+// ["{\"aa\":0", "77f", "77c", "7a", 77]
+
                 : stop(
                     "expected_a_b_from_c_d",
                     token_nxt,
@@ -1721,7 +1765,7 @@ function jslint_phase3_parse(state) {
             if (state.mode_json) {
 
 // test_cause:
-// [" [//]", "advance", "cause_code", null, 0]
+// ["[//]", "77f", "77c", "7a", 77]
 
                 warn("unexpected_a");
             }
@@ -1759,7 +1803,7 @@ function jslint_phase3_parse(state) {
         if (syntax_dict[id] !== undefined && id !== "ignore") {
 
 // test_cause:
-// [" let undefined", "enroll", "cause_code", null, 0]
+// ["let undefined", "77f", "77c", "7a", 77]
 
             warn("reserved_a", name);
         } else {
@@ -1770,7 +1814,7 @@ function jslint_phase3_parse(state) {
             if (earlier) {
 
 // test_cause:
-// [" let aa;let aa", "enroll", "cause_code", null, 0]
+// ["let aa;let aa", "77f", "77c", "7a", 77]
 
                 warn("redefinition_a_b", name, name.id, earlier.line);
 
@@ -1788,7 +1832,7 @@ function jslint_phase3_parse(state) {
                         if (earlier.role === "variable") {
 
 // test_cause:
-// [" let ignore;function aa(ignore){}", "enroll", "cause_code", null, 0]
+// ["let ignore;function aa(ignore){}", "77f", "77c", "7a", 77]
 
                             warn("unexpected_a", name);
                         }
@@ -1802,8 +1846,8 @@ function jslint_phase3_parse(state) {
                         ) {
 
 // test_cause:
-// [" function aa(){try{aa();}catch(aa){aa();}}", "enroll", "cause_code", null, 0] //jslint-quiet
-// [" function aa(){var aa;}", "enroll", "cause_code", null, 0]
+// ["function aa(){try{aa();}catch(aa){aa();}}", "77f", "77c", "7a", 77]
+// ["function aa(){var aa;}", "77f", "77c", "7a", 77]
 
                             warn(
                                 "redefinition_a_b",
@@ -1861,24 +1905,22 @@ function jslint_phase3_parse(state) {
         if (the_symbol !== undefined && the_symbol.nud !== undefined) {
 
 // test_cause:
-// [" 0", "fnc", "cause_code", null, 0]
+// ["0", "77f", "77c", "7a", 77]
 
-            test_cause("cause_code", 0, "yy");
             left = the_symbol.nud();
         } else if (token_now.identifier) {
 
 // test_cause:
-// [" aa", "fnc", "cause_code", null, 0]
+// ["aa", "77f", "77c", "7a", 77]
 
-            test_cause("cause_code", 0, "yy");
             left = token_now;
             left.arity = "variable";
         } else {
 
 // test_cause:
-// [" !", "fnc", "cause_code", null, 0]
-// [" /./", "fnc", "cause_code", null, 0]
-// [" let aa=`${}`;", "fnc", "cause_code", null, 0]
+// ["!", "77f", "77c", "7a", 77]
+// ["/./", "77f", "77c", "7a", 77]
+// ["let aa=`${}`;", "77f", "77c", "7a", 77]
 
             return stop("unexpected_a", token_now);
         }
@@ -1908,11 +1950,10 @@ function jslint_phase3_parse(state) {
         let the_value;
 
 // test_cause:
-// [" do{}while()", "fnc", "cause_code", null, 0]
-// [" if(){}", "fnc", "cause_code", null, 0]
-// [" while(){}", "fnc", "cause_code", null, 0]
+// ["do{}while()", "77f", "77c", "7a", 77]
+// ["if(){}", "77f", "77c", "7a", 77]
+// ["while(){}", "77f", "77c", "7a", 77]
 
-        test_cause("cause_code", 0, "yy");
         the_paren.free = true;
         advance("(");
         the_value = parse_expression(0);
@@ -1920,7 +1961,7 @@ function jslint_phase3_parse(state) {
         if (the_value.wrapped === true) {
 
 // test_cause:
-// [" while((0)){}", "fnc", "cause_code", null, 0]
+// ["while((0)){}", "77f", "77c", "7a", 77]
 
             warn("unexpected_a", the_paren);
         }
@@ -1929,39 +1970,69 @@ function jslint_phase3_parse(state) {
 
         switch (the_value.id) {
         case "%":
+            warn("unexpected_a", the_value);
+            break;
         case "&":
+            warn("unexpected_a", the_value);
+            break;
         case "(number)":
+            warn("unexpected_a", the_value);
+            break;
         case "(string)":
+            warn("unexpected_a", the_value);
+            break;
         case "*":
+            warn("unexpected_a", the_value);
+            break;
         case "+":
+            warn("unexpected_a", the_value);
+            break;
         case "-":
+            warn("unexpected_a", the_value);
+            break;
         case "/":
+            warn("unexpected_a", the_value);
+            break;
         case "<<":
+            warn("unexpected_a", the_value);
+            break;
         case ">>":
+            warn("unexpected_a", the_value);
+            break;
         case ">>>":
+            warn("unexpected_a", the_value);
+            break;
         case "?":
+            warn("unexpected_a", the_value);
+            break;
         case "^":
+            warn("unexpected_a", the_value);
+            break;
         case "typeof":
+            warn("unexpected_a", the_value);
+            break;
         case "|":
+            warn("unexpected_a", the_value);
+            break;
         case "~":
 
 // test_cause:
-// [" if(\"aa\"){}", "condition", "unexpected_a", "(string)", "the_value.id"]
-// [" if(0%0){}", "condition", "unexpected_a", "%", "the_value.id"]
-// [" if(0&0){}", "condition", "unexpected_a", "&", "the_value.id"]
-// [" if(0){}", "condition", "unexpected_a", "(number)", "the_value.id"]
-// [" if(0*0){}", "condition", "unexpected_a", "*", "the_value.id"]
-// [" if(0+0){}", "condition", "unexpected_a", "+", "the_value.id"]
-// [" if(0-0){}", "condition", "unexpected_a", "-", "the_value.id"]
-// [" if(0/0){}", "condition", "unexpected_a", "/", "the_value.id"]
-// [" if(0<<0){}", "condition", "unexpected_a", "<<", "the_value.id"]
-// [" if(0>>0){}", "condition", "unexpected_a", ">>", "the_value.id"]
-// [" if(0>>>0){}", "condition", "unexpected_a", ">>>", "the_value.id"]
-// [" if(0?0:0){}", "condition", "unexpected_a", "?", "the_value.id"]
-// [" if(0^0){}", "condition", "unexpected_a", "^", "the_value.id"]
-// [" if(0|0){}", "condition", "unexpected_a", "|", "the_value.id"]
-// [" if(typeof 0){}", "condition", "unexpected_a", "typeof", "the_value.id"]
-// [" if(~0){}", "condition", "unexpected_a", "~", "the_value.id"]
+// ["if(0%0){}", "77f", "77c", "7a", 77]
+// ["if(0&0){}", "77f", "77c", "7a", 77]
+// ["if(0){}", "77f", "77c", "7a", 77]
+// ["if(0*0){}", "77f", "77c", "7a", 77]
+// ["if(0+0){}", "77f", "77c", "7a", 77]
+// ["if(0-0){}", "77f", "77c", "7a", 77]
+// ["if(0/0){}", "77f", "77c", "7a", 77]
+// ["if(0<<0){}", "77f", "77c", "7a", 77]
+// ["if(0>>0){}", "77f", "77c", "7a", 77]
+// ["if(0>>>0){}", "77f", "77c", "7a", 77]
+// ["if(0?0:0){}", "77f", "77c", "7a", 77]
+// ["if(0^0){}", "77f", "77c", "7a", 77]
+// ["if(0|0){}", "77f", "77c", "7a", 77]
+// ["if(\"aa\"){}", "77f", "77c", "7a", 77]
+// ["if(typeof 0){}", "77f", "77c", "7a", 77]
+// ["if(~0){}", "77f", "77c", "7a", 77]
 
             warn("unexpected_a", the_value);
             break;
@@ -1978,7 +2049,7 @@ function jslint_phase3_parse(state) {
         } else {
 
 // test_cause:
-// [" 0", "fnc", "cause_code", null, 0]
+// ["0", "77f", "77c", "7a", 77]
 
             warn_at(
                 "expected_a_b",
@@ -2007,7 +2078,7 @@ function jslint_phase3_parse(state) {
             if (the_label.id === "ignore") {
 
 // test_cause:
-// [" ignore:", "fnc", "cause_code", null, 0]
+// ["ignore:", "77f", "77c", "7a", 77]
 
                 warn("unexpected_a", the_label);
             }
@@ -2030,7 +2101,7 @@ function jslint_phase3_parse(state) {
             advance();
 
 // test_cause:
-// [" aa:", "fnc", "cause_code", null, 0]
+// ["aa:", "77f", "77c", "7a", 77]
 
             warn("unexpected_label_a", the_label);
         }
@@ -2061,7 +2132,7 @@ function jslint_phase3_parse(state) {
             if (the_statement.wrapped && the_statement.id !== "(") {
 
 // test_cause:
-// [" (0)", "fnc", "cause_code", null, 0]
+// ["(0)", "77f", "77c", "7a", 77]
 
                 warn("unexpected_a", first);
             }
@@ -2078,29 +2149,31 @@ function jslint_phase3_parse(state) {
 // Parse a list of statements. Give a warning if an unreachable statement
 // follows a disruptive statement.
 
+        const statement_list = [];
         let a_statement;
         let disrupt = false;
-        let statement_list = [];
-        state.token_tree = state.token_tree || statement_list;
 
 // Parse/loop each statement until a statement-terminator is reached.
 
         while (true) {
             switch (token_nxt.id) {
             case "(end)":
+                return statement_list;
             case "case":
+                return statement_list;
             case "default":
+                return statement_list;
             case "else":
+                return statement_list;
             case "}":
 
 // test_cause:
-// [" ;", "parse_statements", "statement_list", "(end)", "token_nxt.id"]
-// [" case", "parse_statements", "statement_list", "case", "token_nxt.id"]
-// [" default", "parse_statements", "statement_list", "default", "token_nxt.id"]
-// [" else", "parse_statements", "statement_list", "else", "token_nxt.id"]
-// [" }", "parse_statements", "statement_list", "}", "token_nxt.id"]
+// [";", "77f", "77c", "7a", 77]
+// ["case", "77f", "77c", "7a", 77]
+// ["default", "77f", "77c", "7a", 77]
+// ["else", "77f", "77c", "7a", 77]
+// ["}", "77f", "77c", "7a", 77]
 
-                test_cause("statement_list", "token_nxt.id", token_nxt.id);
                 return statement_list;
             }
             a_statement = parse_statement();
@@ -2108,7 +2181,7 @@ function jslint_phase3_parse(state) {
             if (disrupt) {
 
 // test_cause:
-// [" while(0){break;0;}", "fnc", "cause_code", null, 0]
+// ["while(0){break;0;}", "77f", "77c", "7a", 77]
 
                 warn("unreachable_a", a_statement);
             }
@@ -2123,7 +2196,7 @@ function jslint_phase3_parse(state) {
         if (functionage === token_global) {
 
 // test_cause:
-// [" while(0){}", "fnc", "cause_code", null, 0]
+// ["while(0){}", "77f", "77c", "7a", 77]
 
             warn("unexpected_at_top_level_a", thing);
         }
@@ -2166,7 +2239,7 @@ function jslint_phase3_parse(state) {
             if (!option_dict.devel && special !== "ignore") {
 
 // test_cause:
-// [" function aa(){}", "fnc", "cause_code", null, 0]
+// ["function aa(){}", "77f", "77c", "7a", 77]
 
                 warn("empty_block", the_block);
             }
@@ -2195,7 +2268,7 @@ function jslint_phase3_parse(state) {
         ) {
 
 // test_cause:
-// [" 0=0", "fnc", "cause_code", null, 0]
+// ["0=0", "77f", "77c", "7a", 77]
 
             warn("bad_assignment_a", the_thing);
             return false;
@@ -2327,12 +2400,11 @@ function jslint_phase3_parse(state) {
 
         const the_symbol = symbol(id, bp);
         the_symbol.led = function (left) {
-            let the_token = token_now;
 
 // test_cause:
-// [" 0**0", "fnc", "cause_code", null, 0]
+// ["0**0", "77f", "77c", "7a", 77]
 
-            test_cause("cause_code", 0, "yy");
+            const the_token = token_now;
             the_token.arity = "binary";
             the_token.expression = [left, parse_expression(bp - 1)];
             return the_token;
@@ -2419,7 +2491,7 @@ function jslint_phase3_parse(state) {
         } else if (!name.identifier) {
 
 // test_cause:
-// [" let aa={0:0}", "fnc", "cause_code", null, 0]
+// ["let aa={0:0}", "77f", "77c", "7a", 77]
 
             return stop("expected_identifier_a", name);
         }
@@ -2438,7 +2510,7 @@ function jslint_phase3_parse(state) {
                 if (tenure[id] !== true) {
 
 // test_cause:
-// [" /*property aa*/\naa.bb", "fnc", "cause_code", null, 0]
+// ["/*property aa*/\naa.bb", "77f", "77c", "7a", 77]
 
                     warn("unregistered_property_a", name);
                 }
@@ -2452,11 +2524,11 @@ function jslint_phase3_parse(state) {
             ) {
 
 // test_cause:
-// [" aa.$", "survey", "weird_property_a", "$", "id"]
-// [" aa._", "survey", "weird_property_a", "_", "id"]
-// [" aa._aa", "survey", "weird_property_a", "_aa", "id"]
-// [" aa.aaSync", "survey", "weird_property_a", "aaSync", "id"]
-// [" aa.aa_", "survey", "weird_property_a", "aa_", "id"]
+// ["aa.$", "77f", "77c", "7a", 77]
+// ["aa._", "77f", "77c", "7a", 77]
+// ["aa._aa", "77f", "77c", "7a", 77]
+// ["aa.aaSync", "77f", "77c", "7a", 77]
+// ["aa.aa_", "77f", "77c", "7a", 77]
 
                 warn("weird_property_a", name);
             }
@@ -2481,7 +2553,7 @@ function jslint_phase3_parse(state) {
             if (token_nxt.id !== ")") {
 
 // test_cause:
-// [" 0?0:0", "fnc", "cause_code", null, 0]
+// ["0?0:0", "77f", "77c", "7a", 77]
 
                 warn("use_open", the_token);
             }
@@ -2525,7 +2597,7 @@ function jslint_phase3_parse(state) {
     constant("arguments", "object", function () {
 
 // test_cause:
-// [" arguments", "fnc", "cause_code", null, 0]
+// ["arguments", "77f", "77c", "7a", 77]
 
         warn("unexpected_a", token_now);
         return token_now;
@@ -2534,13 +2606,13 @@ function jslint_phase3_parse(state) {
         if (!option_dict.eval) {
 
 // test_cause:
-// [" eval", "fnc", "cause_code", null, 0]
+// ["eval", "77f", "77c", "7a", 77]
 
             warn("unexpected_a", token_now);
         } else if (token_nxt.id !== "(") {
 
 // test_cause:
-// [" /*jslint eval*/\neval", "fnc", "cause_code", null, 0]
+// ["/*jslint eval*/\neval", "77f", "77c", "7a", 77]
 
             warn("expected_a_before_b", token_nxt, "(", artifact());
         }
@@ -2551,13 +2623,13 @@ function jslint_phase3_parse(state) {
         if (!option_dict.eval) {
 
 // test_cause:
-// [" Function", "fnc", "cause_code", null, 0]
+// ["Function", "77f", "77c", "7a", 77]
 
             warn("unexpected_a", token_now);
         } else if (token_nxt.id !== "(") {
 
 // test_cause:
-// [" /*jslint eval*/\nFunction", "fnc", "cause_code", null, 0]
+// ["/*jslint eval*/\nFunction", "77f", "77c", "7a", 77]
 
             warn("expected_a_before_b", token_nxt, "(", artifact());
         }
@@ -2566,7 +2638,7 @@ function jslint_phase3_parse(state) {
     constant("ignore", "undefined", function () {
 
 // test_cause:
-// [" ignore", "fnc", "cause_code", null, 0]
+// ["ignore", "77f", "77c", "7a", 77]
 
         warn("unexpected_a", token_now);
         return token_now;
@@ -2575,7 +2647,7 @@ function jslint_phase3_parse(state) {
     constant("isFinite", "function", function () {
 
 // test_cause:
-// [" isFinite", "fnc", "cause_code", null, 0]
+// ["isFinite", "77f", "77c", "7a", 77]
 
         warn("expected_a_b", token_now, "Number.isFinite", "isFinite");
         return token_now;
@@ -2583,7 +2655,7 @@ function jslint_phase3_parse(state) {
     constant("isNaN", "function", function () {
 
 // test_cause:
-// [" isNaN(0)", "fnc", "cause_code", null, 0]
+// ["isNaN(0)", "77f", "77c", "7a", 77]
 
         warn("number_isNaN", token_now);
         return token_now;
@@ -2594,7 +2666,7 @@ function jslint_phase3_parse(state) {
         if (!option_dict.this) {
 
 // test_cause:
-// [" this", "fnc", "cause_code", null, 0]
+// ["this", "77f", "77c", "7a", 77]
 
             warn("unexpected_a", token_now);
         }
@@ -2648,10 +2720,9 @@ function jslint_phase3_parse(state) {
         if (left.id !== "function") {
 
 // test_cause:
-// [" (0?0:0)()", "fnc", "cause_code", null, 0]
-// [" 0()", "fnc", "cause_code", null, 0]
+// ["(0?0:0)()", "77f", "77c", "7a", 77]
+// ["0()", "77f", "77c", "7a", 77]
 
-            test_cause("cause_code", 0, "yy");
             left_check(left, the_paren);
         }
         if (functionage.arity === "statement" && left.identifier) {
@@ -2682,14 +2753,13 @@ function jslint_phase3_parse(state) {
         if (the_paren.expression.length === 2) {
 
 // test_cause:
-// [" aa(0)", "fnc", "cause_code", null, 0]
+// ["aa(0)", "77f", "77c", "7a", 77]
 
-            test_cause("cause_code", 0, "yy");
             the_paren.free = true;
             if (the_argument.wrapped === true) {
 
 // test_cause:
-// [" aa((0))", "fnc", "cause_code", null, 0]
+// ["aa((0))", "77f", "77c", "7a", 77]
 
                 warn("unexpected_a", the_paren);
             }
@@ -2699,10 +2769,9 @@ function jslint_phase3_parse(state) {
         } else {
 
 // test_cause:
-// [" aa()", "fnc", "cause_code", null, 0]
-// [" aa(0,0)", "fnc", "cause_code", null, 0]
+// ["aa()", "77f", "77c", "7a", 77]
+// ["aa(0,0)", "77f", "77c", "7a", 77]
 
-            test_cause("cause_code", 0, "yy");
             the_paren.free = false;
         }
         return the_paren;
@@ -2733,15 +2802,14 @@ function jslint_phase3_parse(state) {
         ) {
 
 // test_cause:
-// [" \"\".aa", "fnc", "cause_code", null, 0]
+// ["\"\".aa", "77f", "77c", "7a", 77]
 
-            test_cause("cause_code", 0, "yy");
             left_check(left, the_token);
         }
         if (!name.identifier) {
 
 // test_cause:
-// [" aa.0", "fnc", "cause_code", null, 0]
+// ["aa.0", "77f", "77c", "7a", 77]
 
             stop("expected_identifier_a");
         }
@@ -2772,6 +2840,10 @@ function jslint_phase3_parse(state) {
                     && name.id !== "map"
                 )
             )
+
+// test_cause:
+// ["(0+0)?.0", "77f", "77c", "7a", 77]
+
             && (left.id !== "+" || name.id !== "slice")
             && (
                 left.id !== "(regexp)"
@@ -2780,18 +2852,16 @@ function jslint_phase3_parse(state) {
         ) {
 
 // test_cause:
-// [" (0+0)?.0", "fnc", "cause_code", null, 0]
-// [" \"aa\"?.0", "fnc", "cause_code", null, 0]
-// [" (/./)?.0", "fnc", "cause_code", null, 0]
-// [" aa=[]?.aa", "fnc", "cause_code", null, 0]
+// ["(/./)?.0", "77f", "77c", "7a", 77]
+// ["\"aa\"?.0", "77f", "77c", "7a", 77]
+// ["aa=[]?.aa", "77f", "77c", "7a", 77]
 
-            test_cause("cause_code", 0, "yy");
             left_check(left, the_token);
         }
         if (!name.identifier) {
 
 // test_cause:
-// [" aa?.0", "fnc", "cause_code", null, 0]
+// ["aa?.0", "77f", "77c", "7a", 77]
 
             stop("expected_identifier_a");
         }
@@ -2813,16 +2883,15 @@ function jslint_phase3_parse(state) {
             if (rx_identifier.test(name)) {
 
 // test_cause:
-// [" aa[`aa`]", "fnc", "cause_code", null, 0]
+// ["aa[`aa`]", "77f", "77c", "7a", 77]
 
                 warn("subscript_a", the_subscript, name);
             }
         }
 
 // test_cause:
-// [" 0[0]", "fnc", "cause_code", null, 0]
+// ["0[0]", "77f", "77c", "7a", 77]
 
-        test_cause("cause_code", 0, "yy");
         left_check(left, the_token);
         the_token.expression = [left, the_subscript];
         advance("]");
@@ -2831,7 +2900,7 @@ function jslint_phase3_parse(state) {
     infix("=>", 170, function (left) {
 
 // test_cause:
-// [" aa=>0", "fnc", "cause_code", null, 0]
+// ["aa=>0", "77f", "77c", "7a", 77]
 
         return stop("wrap_parameter", left);
     });
@@ -2853,9 +2922,8 @@ function jslint_phase3_parse(state) {
                 advance("${");
 
 // test_cause:
-// [" let aa=`${}`;", "fnc", "cause_code", null, 0]
+// ["let aa=`${}`;", "77f", "77c", "7a", 77]
 
-                test_cause("cause_code", 0, "yy");
                 the_tick.expression.push(parse_expression(0));
                 advance("}");
             }
@@ -2868,9 +2936,8 @@ function jslint_phase3_parse(state) {
         const the_tick = parse_tick();
 
 // test_cause:
-// [" 0``", "fnc", "cause_code", null, 0]
+// ["0``", "77f", "77c", "7a", 77]
 
-        test_cause("cause_code", 0, "yy");
         left_check(left, the_tick);
         the_tick.expression = [left].concat(the_tick.expression);
         return the_tick;
@@ -2912,7 +2979,8 @@ function jslint_phase3_parse(state) {
                 advance(",");
                 if (token_nxt.id === "]") {
 
-// cause: let aa=[0,]
+// test_cause:
+// ["let aa=[0,]", "77f", "77c", "7a", 77]
 
                     warn("unexpected_a", token_now);
                     break;
@@ -2925,14 +2993,14 @@ function jslint_phase3_parse(state) {
     prefix("/=", function () {
 
 // test_cause:
-// [" /=", "fnc", "cause_code", null, 0]
+// ["/=", "77f", "77c", "7a", 77]
 
         stop("expected_a_b", token_now, "/\\=", "/=");
     });
     prefix("=>", function () {
 
 // test_cause:
-// [" =>0", "fnc", "cause_code", null, 0]
+// ["=>0", "77f", "77c", "7a", 77]
 
         return stop("expected_a_before_b", token_now, "()", "=>");
     });
@@ -2943,7 +3011,7 @@ function jslint_phase3_parse(state) {
         if (token_nxt.id !== "(") {
 
 // test_cause:
-// [" new aa", "fnc", "cause_code", null, 0]
+// ["new aa", "77f", "77c", "7a", 77]
 
             warn("expected_a_before_b", token_nxt, "()", artifact());
         }
@@ -2955,8 +3023,8 @@ function jslint_phase3_parse(state) {
         const the_void = token_now;
 
 // test_cause:
-// [" void", "fnc", "cause_code", null, 0]
-// [" void 0", "fnc", "cause_code", null, 0]
+// ["void 0", "77f", "77c", "7a", 77]
+// ["void", "77f", "77c", "7a", 77]
 
         warn("unexpected_a", the_void);
         the_void.expression = parse_expression(0);
@@ -2975,7 +3043,7 @@ function jslint_phase3_parse(state) {
                     if (optional !== undefined) {
 
 // test_cause:
-// [" function aa(aa=0,{}){}", "fnc", "cause_code", null, 0]
+// ["function aa(aa=0,{}){}", "77f", "77c", "7a", 77]
 
                         warn(
                             "required_a_optional_b",
@@ -2993,8 +3061,8 @@ function jslint_phase3_parse(state) {
                         if (!subparam.identifier) {
 
 // test_cause:
-// [" function aa(aa=0,{}){}", "fnc", "cause_code", null, 0]
-// [" function aa({0}){}", "fnc", "cause_code", null, 0]
+// ["function aa(aa=0,{}){}", "77f", "77c", "7a", 77]
+// ["function aa({0}){}", "77f", "77c", "7a", 77]
 
                             return stop("expected_identifier_a");
                         }
@@ -3009,7 +3077,7 @@ function jslint_phase3_parse(state) {
                             if (!subparam.identifier) {
 
 // test_cause:
-// [" function aa({aa:0}){}", "fnc", "cause_code", null, 0]
+// ["function aa({aa:0}){}", "77f", "77c", "7a", 77]
 
                                 return stop(
                                     "expected_identifier_a",
@@ -3019,9 +3087,8 @@ function jslint_phase3_parse(state) {
                         }
 
 // test_cause:
-// [" function aa({aa=aa},aa){}", "fnc", "cause_code", null, 0]
+// ["function aa({aa=aa},aa){}", "77f", "77c", "7a", 77]
 
-                        test_cause("cause_code", 0, "yy");
                         if (token_nxt.id === "=") {
                             advance("=");
                             subparam.expression = parse_expression();
@@ -3036,9 +3103,8 @@ function jslint_phase3_parse(state) {
                     }());
 
 // test_cause:
-// [" function aa({bb,aa}){}", "fnc", "cause_code", null, 0]
+// ["function aa({bb,aa}){}", "77f", "77c", "7a", 77]
 
-                    test_cause("cause_code", 0, "yy");
                     list.push(param);
                     warn_if_unordered("parameter", param.names);
                     advance("}");
@@ -3052,7 +3118,7 @@ function jslint_phase3_parse(state) {
                     if (optional !== undefined) {
 
 // test_cause:
-// [" function aa(aa=0,[]){}", "fnc", "cause_code", null, 0]
+// ["function aa(aa=0,[]){}", "77f", "77c", "7a", 77]
 
                         warn(
                             "required_a_optional_b",
@@ -3070,7 +3136,7 @@ function jslint_phase3_parse(state) {
                         if (!subparam.identifier) {
 
 // test_cause:
-// [" function aa(aa=0,[]){}", "fnc", "cause_code", null, 0]
+// ["function aa(aa=0,[]){}", "77f", "77c", "7a", 77]
 
                             return stop("expected_identifier_a");
                         }
@@ -3078,9 +3144,8 @@ function jslint_phase3_parse(state) {
                         param.names.push(subparam);
 
 // test_cause:
-// [" function aa([aa=aa],aa){}", "fnc", "cause_code", null, 0]
+// ["function aa([aa=aa],aa){}", "77f", "77c", "7a", 77]
 
-                        test_cause("cause_code", 0, "yy");
                         if (token_nxt.id === "=") {
                             advance("=");
                             subparam.expression = parse_expression();
@@ -3106,7 +3171,7 @@ function jslint_phase3_parse(state) {
                         if (optional !== undefined) {
 
 // test_cause:
-// [" function aa(aa=0,...){}", "fnc", "cause_code", null, 0]
+// ["function aa(aa=0,...){}", "77f", "77c", "7a", 77]
 
                             warn(
                                 "required_a_optional_b",
@@ -3119,7 +3184,7 @@ function jslint_phase3_parse(state) {
                     if (!token_nxt.identifier) {
 
 // test_cause:
-// [" function aa(0){}", "fnc", "cause_code", null, 0]
+// ["function aa(0){}", "77f", "77c", "7a", 77]
 
                         return stop("expected_identifier_a");
                     }
@@ -3138,7 +3203,7 @@ function jslint_phase3_parse(state) {
                             if (optional !== undefined) {
 
 // test_cause:
-// [" function aa(aa=0,bb){}", "fnc", "cause_code", null, 0]
+// ["function aa(aa=0,bb){}", "77f", "77c", "7a", 77]
 
                                 warn(
                                     "required_a_optional_b",
@@ -3173,8 +3238,8 @@ function jslint_phase3_parse(state) {
                 if (!token_nxt.identifier) {
 
 // test_cause:
-// [" function(){}", "fnc", "cause_code", null, 0]
-// [" function*aa(){}", "fnc", "cause_code", null, 0]
+// ["function(){}", "77f", "77c", "7a", 77]
+// ["function*aa(){}", "77f", "77c", "7a", 77]
 
                     return stop("expected_identifier_a");
                 }
@@ -3215,7 +3280,7 @@ function jslint_phase3_parse(state) {
         if (functionage.loop > 0) {
 
 // test_cause:
-// [" while(0){aa.map(function(){});}", "fnc", "cause_code", null, 0]
+// ["while(0){aa.map(function(){});}", "77f", "77c", "7a", 77]
 
             warn("function_in_loop", the_function);
         }
@@ -3240,9 +3305,8 @@ function jslint_phase3_parse(state) {
         if (the_function.arity !== "statement" && typeof name === "object") {
 
 // test_cause:
-// [" let aa=function bb(){return;};", "fnc", "cause_code", null, 0]
+// ["let aa=function bb(){return;};", "77f", "77c", "7a", 77]
 
-            test_cause("cause_code", 0, "yy");
             enroll(name, "function", true);
             name.dead = false;
             name.init = true;
@@ -3254,9 +3318,8 @@ function jslint_phase3_parse(state) {
         advance("(");
 
 // test_cause:
-// [" function(){}", "fnc", "cause_code", null, 0]
+// ["function(){}", "77f", "77c", "7a", 77]
 
-        test_cause("cause_code", 0, "yy");
         token_now.free = false;
         token_now.arity = "function";
         [functionage.parameters, functionage.signature] = parse_function_arg();
@@ -3277,7 +3340,7 @@ function jslint_phase3_parse(state) {
         ) {
 
 // test_cause:
-// [" function aa(){}0", "fnc", "cause_code", null, 0]
+// ["function aa(){}0", "77f", "77c", "7a", 77]
 
             return stop("unexpected_a");
         }
@@ -3288,7 +3351,7 @@ function jslint_phase3_parse(state) {
         ) {
 
 // test_cause:
-// [" function aa(){}\n[]", "fnc", "cause_code", null, 0]
+// ["function aa(){}\n[]", "77f", "77c", "7a", 77]
 
             warn("unexpected_a");
         }
@@ -3312,7 +3375,7 @@ function jslint_phase3_parse(state) {
         if (the_function.async === 1) {
 
 // test_cause:
-// [" async function aa(){}", "fnc", "cause_code", null, 0]
+// ["async function aa(){}", "77f", "77c", "7a", 77]
 
             warn("missing_await_statement", the_function);
         }
@@ -3324,9 +3387,9 @@ function jslint_phase3_parse(state) {
         if (functionage.async === 0) {
 
 // test_cause:
-// [" await", "fnc", "cause_code", null, 0]
-// [" function aa(){aa=await 0;}", "fnc", "cause_code", null, 0]
-// [" function aa(){await 0;}", "fnc", "cause_code", null, 0]
+// ["await", "77f", "77c", "7a", 77]
+// ["function aa(){aa=await 0;}", "77f", "77c", "7a", 77]
+// ["function aa(){await 0;}", "77f", "77c", "7a", 77]
 
             warn("unexpected_a", the_await);
         } else {
@@ -3356,7 +3419,7 @@ function jslint_phase3_parse(state) {
         if (functionage.loop > 0) {
 
 // test_cause:
-// [" while(0){aa.map(()=>0);}", "fnc", "cause_code", null, 0]
+// ["while(0){aa.map(()=>0);}", "77f", "77c", "7a", 77]
 
             warn("function_in_loop", the_fart);
         }
@@ -3379,15 +3442,14 @@ function jslint_phase3_parse(state) {
         the_fart.parameters.forEach(function (name) {
 
 // test_cause:
-// [" (aa)=>{}", "fnc", "cause_code", null, 0]
+// ["(aa)=>{}", "77f", "77c", "7a", 77]
 
-            test_cause("cause_code", 0, "yy");
             enroll(name, "parameter", true);
         });
         if (token_nxt.id === "{") {
 
 // test_cause:
-// [" ()=>{}", "fnc", "cause_code", null, 0]
+// ["()=>{}", "77f", "77c", "7a", 77]
 
             warn("expected_a_b", the_fart, "function", "=>");
             the_fart.block = block("body");
@@ -3413,23 +3475,21 @@ function jslint_phase3_parse(state) {
         ) {
 
 // test_cause:
-// [" ()=>0", "fnc", "cause_code", null, 0]
+// ["()=>0", "77f", "77c", "7a", 77]
 
-            test_cause("cause_code", 0, "yy");
             the_paren.free = false;
             return fart(parse_function_arg());
         }
 
 // test_cause:
-// [" (0)", "fnc", "cause_code", null, 0]
+// ["(0)", "77f", "77c", "7a", 77]
 
-        test_cause("cause_code", 0, "yy");
         the_paren.free = true;
         the_value = parse_expression(0);
         if (the_value.wrapped === true) {
 
 // test_cause:
-// [" ((0))", "fnc", "cause_code", null, 0]
+// ["((0))", "77f", "77c", "7a", 77]
 
             warn("unexpected_a", the_paren);
         }
@@ -3440,20 +3500,20 @@ function jslint_phase3_parse(state) {
                 if (the_value.id === "{" || the_value.id === "[") {
 
 // test_cause:
-// [" ([])=>0", "fnc", "cause_code", null, 0]
-// [" ({})=>0", "fnc", "cause_code", null, 0]
+// ["([])=>0", "77f", "77c", "7a", 77]
+// ["({})=>0", "77f", "77c", "7a", 77]
 
                     warn("expected_a_before_b", the_paren, "function", "(");
 
 // test_cause:
-// [" ([])=>0", "fnc", "cause_code", null, 0]
-// [" ({})=>0", "fnc", "cause_code", null, 0]
+// ["([])=>0", "77f", "77c", "7a", 77]
+// ["({})=>0", "77f", "77c", "7a", 77]
 
                     return stop("expected_a_b", token_nxt, "{", "=>");
                 }
 
 // test_cause:
-// [" (0)=>0", "fnc", "cause_code", null, 0]
+// ["(0)=>0", "77f", "77c", "7a", 77]
 
                 return stop("expected_identifier_a", the_value);
             }
@@ -3487,7 +3547,7 @@ function jslint_phase3_parse(state) {
                     if (!option_dict.getset) {
 
 // test_cause:
-// [" aa={get aa(){}}", "fnc", "cause_code", null, 0]
+// ["aa={get aa(){}}", "77f", "77c", "7a", 77]
 
                         warn("unexpected_a", name);
                     }
@@ -3499,7 +3559,7 @@ function jslint_phase3_parse(state) {
                     if (seen[full] === true || seen[id] === true) {
 
 // test_cause:
-// [" aa={get aa(){},get aa(){}}", "fnc", "cause_code", null, 0]
+// ["aa={get aa(){},get aa(){}}", "77f", "77c", "7a", 77]
 
                         warn("duplicate_a", name);
                     }
@@ -3510,7 +3570,7 @@ function jslint_phase3_parse(state) {
                     if (typeof seen[id] === "boolean") {
 
 // test_cause:
-// [" aa={aa,aa}", "fnc", "cause_code", null, 0]
+// ["aa={aa,aa}", "77f", "77c", "7a", 77]
 
                         warn("duplicate_a", name);
                     }
@@ -3521,19 +3581,12 @@ function jslint_phase3_parse(state) {
                         if (typeof extra === "string") {
 
 // test_cause:
-// [" aa={get aa}", "fnc", "cause_code", null, 0]
+// ["aa={get aa}", "77f", "77c", "7a", 77]
 
-                            test_cause("cause_code", 0, "yy");
                             advance("(");
                         }
                         value = parse_expression(Infinity, true);
                     } else if (token_nxt.id === "(") {
-
-// test_cause:
-// [" aa={get aa(){}}", "fnc", "cause_code", null, 0]
-// [" aa={aa()}", "fnc", "cause_code", null, 0]
-
-                        test_cause("cause_code", 0, "yy");
                         value = parse_function({
                             arity: "unary",
                             from: name.from,
@@ -3541,7 +3594,15 @@ function jslint_phase3_parse(state) {
                             line: name.line,
                             name: (
                                 typeof extra === "string"
+
+// test_cause:
+// ["aa={get aa(){}}", "77f", "77c", "7a", 77]
+
                                 ? extra
+
+// test_cause:
+// ["aa={aa()}", "77f", "77c", "7a", 77]
+
                                 : id
                             ),
                             thru: name.from
@@ -3550,9 +3611,8 @@ function jslint_phase3_parse(state) {
                         if (typeof extra === "string") {
 
 // test_cause:
-// [" aa={get aa.aa}", "fnc", "cause_code", null, 0]
+// ["aa={get aa.aa}", "77f", "77c", "7a", 77]
 
-                            test_cause("cause_code", 0, "yy");
                             advance("(");
                         }
                         the_colon = token_nxt;
@@ -3564,7 +3624,7 @@ function jslint_phase3_parse(state) {
                         ) {
 
 // test_cause:
-// [" aa={aa:aa}", "fnc", "cause_code", null, 0]
+// ["aa={aa:aa}", "77f", "77c", "7a", 77]
 
                             warn("unexpected_a", the_colon, ": " + name.id);
                         }
@@ -3576,7 +3636,8 @@ function jslint_phase3_parse(state) {
                     the_brace.expression.push(value);
                 } else {
 
-// cause: aa={"aa":0}
+// test_cause:
+// ["aa={\"aa\":0}", "77f", "77c", "7a", 77]
 
                     advance(":");
                     value = parse_expression(0);
@@ -3587,12 +3648,14 @@ function jslint_phase3_parse(state) {
                     break;
                 }
 
-// cause: aa={"aa":0,"bb":0}
+// test_cause:
+// ["aa={\"aa\":0,\"bb\":0}", "77f", "77c", "7a", 77]
 
                 advance(",");
                 if (token_nxt.id === "}") {
 
-// cause: let aa={aa:0,}
+// test_cause:
+// ["let aa={aa:0,}", "77f", "77c", "7a", 77]
 
                     warn("unexpected_a", token_now);
                     break;
@@ -3601,9 +3664,8 @@ function jslint_phase3_parse(state) {
         }
 
 // test_cause:
-// [" aa={bb,aa}", "fnc", "cause_code", null, 0]
+// ["aa={bb,aa}", "77f", "77c", "7a", 77]
 
-        test_cause("cause_code", 0, "yy");
         warn_if_unordered(
             "property",
             the_brace.expression.map(function ({
@@ -3619,7 +3681,7 @@ function jslint_phase3_parse(state) {
     stmt(";", function () {
 
 // test_cause:
-// [" ;", "fnc", "cause_code", null, 0]
+// [";", "77f", "77c", "7a", 77]
 
         warn("unexpected_a", token_now);
         return token_now;
@@ -3627,8 +3689,8 @@ function jslint_phase3_parse(state) {
     stmt("{", function () {
 
 // test_cause:
-// [" ;{}", "fnc", "cause_code", null, 0]
-// [" class aa{}", "fnc", "cause_code", null, 0]
+// [";{}", "77f", "77c", "7a", 77]
+// ["class aa{}", "77f", "77c", "7a", 77]
 
         warn("naked_block", token_now);
         return block("naked");
@@ -3644,7 +3706,7 @@ function jslint_phase3_parse(state) {
         ) {
 
 // test_cause:
-// [" break", "fnc", "cause_code", null, 0]
+// ["break", "77f", "77c", "7a", 77]
 
             warn("unexpected_a", the_break);
         }
@@ -3659,13 +3721,13 @@ function jslint_phase3_parse(state) {
                 if (the_label !== undefined && the_label.dead) {
 
 // test_cause:
-// [" aa:{function aa(aa){break aa;}}", "fnc", "cause_code", null, 0]
+// ["aa:{function aa(aa){break aa;}}", "77f", "77c", "7a", 77]
 
                     warn("out_of_scope_a");
                 } else {
 
 // test_cause:
-// [" aa:{break aa;}", "fnc", "cause_code", null, 0]
+// ["aa:{break aa;}", "77f", "77c", "7a", 77]
 
                     warn("not_label_a");
                 }
@@ -3698,7 +3760,7 @@ function jslint_phase3_parse(state) {
             } else if (the_variable.id !== mode_var) {
 
 // test_cause:
-// [" let aa;var aa", "fnc", "cause_code", null, 0]
+// ["let aa;var aa", "77f", "77c", "7a", 77]
 
                 warn("expected_a_b", the_variable, mode_var, the_variable.id);
             }
@@ -3709,7 +3771,7 @@ function jslint_phase3_parse(state) {
         if (functionage.switch > 0) {
 
 // test_cause:
-// [" switch(0){case 0:var aa}", "fnc", "cause_code", null, 0]
+// ["switch(0){case 0:var aa}", "77f", "77c", "7a", 77]
 
             warn("var_switch", the_variable);
         }
@@ -3718,23 +3780,25 @@ function jslint_phase3_parse(state) {
             && functionage.last_statement.id
         ) {
         case "const":
-        case "let":
-        case "var":
-
-// test_cause:
-// [" const aa=0;const bb=0;", "fnc", "cause_code", null, 0]
-// [" let aa=0;let bb=0;", "fnc", "cause_code", null, 0]
-// [" var aa=0;var bb=0;", "fnc", "cause_code", null, 0]
-
-            test_cause("cause_code", 0, "yy");
             variable_prv = functionage.last_statement;
             break;
         case "import":
 
 // test_cause:
-// [" import aa from \"aa\";\nlet bb=0;", "fnc", "cause_code", null, 0]
+// ["import aa from \"aa\";\nlet bb=0;", "77f", "77c", "7a", 77]
 
-            test_cause("cause_code", 0, "yy");
+            break;
+        case "let":
+            variable_prv = functionage.last_statement;
+            break;
+        case "var":
+
+// test_cause:
+// ["const aa=0;const bb=0;", "77f", "77c", "7a", 77]
+// ["let aa=0;let bb=0;", "77f", "77c", "7a", 77]
+// ["var aa=0;var bb=0;", "77f", "77c", "7a", 77]
+
+            variable_prv = functionage.last_statement;
             break;
         case false:
             break;
@@ -3745,10 +3809,10 @@ function jslint_phase3_parse(state) {
             ) {
 
 // test_cause:
-// [" /*jslint beta*/\nconsole.log();let aa=0;", "fnc", "cause_code", null, 0]
-// [" console.log();var aa=0;", "fnc", "cause_code", null, 0]
-// [" try{aa();}catch(aa){var aa=0;}", "fnc", "cause_code", null, 0]
-// [" while(0){var aa;}", "fnc", "cause_code", null, 0]
+// ["/*jslint beta*/\nconsole.log();let aa=0;", "77f", "77c", "7a", 77]
+// ["console.log();var aa=0;", "77f", "77c", "7a", 77]
+// ["try{aa();}catch(aa){var aa=0;}", "77f", "77c", "7a", 77]
+// ["while(0){var aa;}", "77f", "77c", "7a", 77]
 
                 warn("var_on_top", token_now);
             }
@@ -3758,7 +3822,7 @@ function jslint_phase3_parse(state) {
                 if (the_variable.id === "var") {
 
 // test_cause:
-// [" var{aa}=0", "fnc", "cause_code", null, 0]
+// ["var{aa}=0", "77f", "77c", "7a", 77]
 
                     warn("unexpected_a", the_variable);
                 }
@@ -3769,7 +3833,7 @@ function jslint_phase3_parse(state) {
                     if (!name.identifier) {
 
 // test_cause:
-// [" let {0}", "fnc", "cause_code", null, 0]
+// ["let {0}", "77f", "77c", "7a", 77]
 
                         return stop("expected_identifier_a");
                     }
@@ -3780,8 +3844,8 @@ function jslint_phase3_parse(state) {
                         if (!token_nxt.identifier) {
 
 // test_cause:
-// [" let {aa:0}", "fnc", "cause_code", null, 0]
-// [" let {aa:{aa}}", "fnc", "cause_code", null, 0]
+// ["let {aa:0}", "77f", "77c", "7a", 77]
+// ["let {aa:{aa}}", "77f", "77c", "7a", 77]
 
                             return stop("expected_identifier_a");
                         }
@@ -3799,9 +3863,8 @@ function jslint_phase3_parse(state) {
                     if (token_nxt.id === "=") {
 
 // test_cause:
-// [" let {aa=0}", "fnc", "cause_code", null, 0]
+// ["let {aa=0}", "77f", "77c", "7a", 77]
 
-                        test_cause("cause_code", 0, "yy");
                         advance("=");
                         name.expression = parse_expression();
                         the_brace.open = true;
@@ -3813,9 +3876,8 @@ function jslint_phase3_parse(state) {
                 }
 
 // test_cause:
-// [" let{bb,aa}", "fnc", "cause_code", null, 0]
+// ["let{bb,aa}", "77f", "77c", "7a", 77]
 
-                test_cause("cause_code", 0, "yy");
                 warn_if_unordered(the_variable.id, the_variable.names);
                 advance("}");
                 advance("=");
@@ -3824,7 +3886,7 @@ function jslint_phase3_parse(state) {
                 if (the_variable.id === "var") {
 
 // test_cause:
-// [" var[aa]=0", "fnc", "cause_code", null, 0]
+// ["var[aa]=0", "77f", "77c", "7a", 77]
 
                     warn("unexpected_a", the_variable);
                 }
@@ -3839,7 +3901,7 @@ function jslint_phase3_parse(state) {
                     if (!token_nxt.identifier) {
 
 // test_cause:
-// [" let[]", "fnc", "cause_code", null, 0]
+// ["let[]", "77f", "77c", "7a", 77]
 
                         return stop("expected_identifier_a");
                     }
@@ -3872,7 +3934,7 @@ function jslint_phase3_parse(state) {
                 if (name.id === "ignore") {
 
 // test_cause:
-// [" let ignore;function aa(ignore) {}", "fnc", "cause_code", null, 0]
+// ["let ignore;function aa(ignore) {}", "77f", "77c", "7a", 77]
 
                     warn("unexpected_a", name);
                 }
@@ -3887,8 +3949,8 @@ function jslint_phase3_parse(state) {
             } else {
 
 // test_cause:
-// [" let 0", "fnc", "cause_code", null, 0]
-// [" var{aa:{aa}}", "fnc", "cause_code", null, 0]
+// ["let 0", "77f", "77c", "7a", 77]
+// ["var{aa:{aa}}", "77f", "77c", "7a", 77]
 
                 return stop("expected_identifier_a");
             }
@@ -3897,7 +3959,7 @@ function jslint_phase3_parse(state) {
             }
 
 // test_cause:
-// [" let aa,bb;", "fnc", "cause_code", null, 0]
+// ["let aa,bb;", "77f", "77c", "7a", 77]
 
             warn("expected_a_b", token_nxt, ";", ",");
             advance(",");
@@ -3917,9 +3979,9 @@ function jslint_phase3_parse(state) {
         ) {
 
 // test_cause:
-// [" /*jslint beta*/\nconst bb=0;const aa=0;", "fnc", "cause_code", null, 0]
-// [" /*jslint beta*/\nlet bb;let aa;", "fnc", "cause_code", null, 0]
-// [" /*jslint beta*/\nvar bb;var aa;", "fnc", "cause_code", null, 0]
+// ["/*jslint beta*/\nconst bb=0;const aa=0;", "77f", "77c", "7a", 77]
+// ["/*jslint beta*/\nlet bb;let aa;", "77f", "77c", "7a", 77]
+// ["/*jslint beta*/\nvar bb;var aa;", "77f", "77c", "7a", 77]
 
             warn(
                 "expected_a_b_ordered_before_c_d",
@@ -3940,8 +4002,8 @@ function jslint_phase3_parse(state) {
         if (functionage.loop < 1 || functionage.finally > 0) {
 
 // test_cause:
-// [" continue", "fnc", "cause_code", null, 0]
-// [" function aa(){while(0){try{}finally{continue}}}", "fnc", "cause_code", 0, null], //jslint-quiet
+// ["continue", "77f", "77c", "7a", 77]
+// ["function aa(){while(0){try{}finally{continue}}}", "77f", "77c", "7a", 77]
 
             warn("unexpected_a", the_continue);
         }
@@ -3956,7 +4018,7 @@ function jslint_phase3_parse(state) {
         if (!option_dict.devel) {
 
 // test_cause:
-// [" debugger", "fnc", "cause_code", null, 0]
+// ["debugger", "77f", "77c", "7a", 77]
 
             warn("unexpected_a", the_debug);
         }
@@ -3972,7 +4034,7 @@ function jslint_phase3_parse(state) {
         ) {
 
 // test_cause:
-// [" delete 0", "fnc", "cause_code", null, 0]
+// ["delete 0", "77f", "77c", "7a", 77]
 
             stop("expected_a_b", the_value, ".", artifact(the_value));
         }
@@ -3991,7 +4053,7 @@ function jslint_phase3_parse(state) {
         if (the_do.block.disrupt === true) {
 
 // test_cause:
-// [" function aa(){do{break;}while(0)}", "fnc", "cause_code", null, 0]
+// ["function aa(){do{break;}while(0)}", "77f", "77c", "7a", 77]
 
             warn("weird_loop", the_do);
         }
@@ -4008,7 +4070,7 @@ function jslint_phase3_parse(state) {
             if (!token_nxt.identifier) {
 
 // test_cause:
-// [" export {}", "fnc", "cause_code", null, 0]
+// ["export {}", "77f", "77c", "7a", 77]
 
                 stop("expected_identifier_a");
             }
@@ -4017,7 +4079,7 @@ function jslint_phase3_parse(state) {
             if (the_name === undefined) {
 
 // test_cause:
-// [" export {aa}", "fnc", "cause_code", null, 0]
+// ["export {aa}", "77f", "77c", "7a", 77]
 
                 warn("unexpected_a");
             } else {
@@ -4025,7 +4087,7 @@ function jslint_phase3_parse(state) {
                 if (export_dict[the_id] !== undefined) {
 
 // test_cause:
-// [" let aa;export{aa,aa}", "fnc", "cause_code", null, 0]
+// ["let aa;export{aa,aa}", "77f", "77c", "7a", 77]
 
                     warn("duplicate_a");
                 }
@@ -4040,7 +4102,7 @@ function jslint_phase3_parse(state) {
             if (export_dict.default !== undefined) {
 
 // test_cause:
-// [" export default 0;export default 0", "fnc", "cause_code", null, 0]
+// ["export default 0;export default 0", "77f", "77c", "7a", 77]
 
                 warn("duplicate_a");
             }
@@ -4054,7 +4116,7 @@ function jslint_phase3_parse(state) {
             ) {
 
 // test_cause:
-// [" export default {}", "fnc", "cause_code", null, 0]
+// ["export default {}", "77f", "77c", "7a", 77]
 
                 warn("freeze_exports", the_thing);
 
@@ -4063,9 +4125,8 @@ function jslint_phase3_parse(state) {
             } else {
 
 // test_cause:
-// [" export default Object.freeze({})", "fnc", "cause_code", null, 0]
+// ["export default Object.freeze({})", "77f", "77c", "7a", 77]
 
-                test_cause("cause_code", 0, "yy");
                 semicolon();
             }
             export_dict.default = the_thing;
@@ -4074,7 +4135,7 @@ function jslint_phase3_parse(state) {
             if (token_nxt.id === "function") {
 
 // test_cause:
-// [" export function aa(){}", "fnc", "cause_code", null, 0]
+// ["export function aa(){}", "77f", "77c", "7a", 77]
 
                 warn("freeze_exports");
                 the_thing = parse_statement();
@@ -4083,9 +4144,8 @@ function jslint_phase3_parse(state) {
                 the_name.used += 1;
 
 // test_cause:
-// [" let aa;export{aa};export function aa(){}", "fnc", "cause_code", null, 0]
+// ["let aa;export{aa};export function aa(){}", "77f", "77c", "7a", 77]
 
-                test_cause("cause_code", 0, "yy");
                 if (export_dict[the_id] !== undefined) {
                     warn("duplicate_a", the_name);
                 }
@@ -4100,18 +4160,17 @@ function jslint_phase3_parse(state) {
             ) {
 
 // test_cause:
-// [" export const", "fnc", "cause_code", null, 0]
-// [" export let", "fnc", "cause_code", null, 0]
-// [" export var", "fnc", "cause_code", null, 0]
+// ["export const", "77f", "77c", "7a", 77]
+// ["export let", "77f", "77c", "7a", 77]
+// ["export var", "77f", "77c", "7a", 77]
 
                 warn("unexpected_a");
                 parse_statement();
             } else if (token_nxt.id === "{") {
 
 // test_cause:
-// [" export {}", "fnc", "cause_code", null, 0]
+// ["export {}", "77f", "77c", "7a", 77]
 
-                test_cause("cause_code", 0, "yy");
                 advance("{");
                 (function loop() {
                     export_id();
@@ -4125,7 +4184,7 @@ function jslint_phase3_parse(state) {
             } else {
 
 // test_cause:
-// [" export", "fnc", "cause_code", null, 0]
+// ["export", "77f", "77c", "7a", 77]
 
                 stop("unexpected_a");
             }
@@ -4139,7 +4198,7 @@ function jslint_phase3_parse(state) {
         if (!option_dict.for) {
 
 // test_cause:
-// [" for", "fnc", "cause_code", null, 0]
+// ["for", "77f", "77c", "7a", 77]
 
             warn("unexpected_a", the_for);
         }
@@ -4148,14 +4207,13 @@ function jslint_phase3_parse(state) {
         advance("(");
 
 // test_cause:
-// [" for(){}", "fnc", "cause_code", null, 0]
+// ["for(){}", "77f", "77c", "7a", 77]
 
-        test_cause("cause_code", 0, "yy");
         token_now.free = true;
         if (token_nxt.id === ";") {
 
 // test_cause:
-// [" for(;;){}", "fnc", "cause_code", null, 0]
+// ["for(;;){}", "77f", "77c", "7a", 77]
 
             return stop("expected_a_b", the_for, "while (", "for (;");
         }
@@ -4166,7 +4224,7 @@ function jslint_phase3_parse(state) {
         ) {
 
 // test_cause:
-// [" for(const aa in aa){}", "fnc", "cause_code", null, 0]
+// ["for(const aa in aa){}", "77f", "77c", "7a", 77]
 
             return stop("unexpected_a");
         }
@@ -4175,7 +4233,7 @@ function jslint_phase3_parse(state) {
             if (first.expression[0].arity !== "variable") {
 
 // test_cause:
-// [" for(0 in aa){}", "fnc", "cause_code", null, 0]
+// ["for(0 in aa){}", "77f", "77c", "7a", 77]
 
                 warn("bad_assignment_a", first.expression[0]);
             }
@@ -4191,7 +4249,7 @@ function jslint_phase3_parse(state) {
             if (the_for.inc.id === "++") {
 
 // test_cause:
-// [" for(aa;aa;aa++){}", "fnc", "cause_code", null, 0]
+// ["for(aa;aa;aa++){}", "77f", "77c", "7a", 77]
 
                 warn("expected_a_b", the_for.inc, "+= 1", "++");
             }
@@ -4201,7 +4259,7 @@ function jslint_phase3_parse(state) {
         if (the_for.block.disrupt === true) {
 
 // test_cause:
-// [" /*jslint for*/\nfunction aa(bb,cc){for(0;0;0){break;}}", "fnc", "cause_code", 0, null], //jslint-quiet
+// ["/*jslint for*/\nfunction aa(bb,cc){for(0;0;0){break;}}", "77f", "77c", "7a", 77] //jslint-quiet
 
             warn("weird_loop", the_for);
         }
@@ -4217,29 +4275,30 @@ function jslint_phase3_parse(state) {
         if (token_nxt.id === "else") {
             advance("else");
             the_else = token_now;
-
-// test_cause:
-// [" if(0){0}else if(0){0}", "fnc", "cause_code", null, 0]
-// [" if(0){0}else{0}", "fnc", "cause_code", null, 0]
-
-            test_cause("cause_code", 0, "yy");
             the_if.else = (
                 token_nxt.id === "if"
+
+// test_cause:
+// ["if(0){0}else if(0){0}", "77f", "77c", "7a", 77]
+
                 ? parse_statement()
+
+// test_cause:
+// ["if(0){0}else{0}", "77f", "77c", "7a", 77]
+
                 : block()
             );
             if (the_if.block.disrupt === true) {
                 if (the_if.else.disrupt === true) {
 
 // test_cause:
-// [" if(0){break;}else{break;}", "fnc", "cause_code", null, 0]
+// ["if(0){break;}else{break;}", "77f", "77c", "7a", 77]
 
-                    test_cause("cause_code", 0, "yy");
                     the_if.disrupt = true;
                 } else {
 
 // test_cause:
-// [" if(0){break;}else{}", "fnc", "cause_code", null, 0]
+// ["if(0){break;}else{}", "77f", "77c", "7a", 77]
 
                     warn("unexpected_a", the_else);
                 }
@@ -4254,7 +4313,7 @@ function jslint_phase3_parse(state) {
         if (typeof state.mode_module === "object") {
 
 // test_cause:
-// [" /*global aa*/\nimport aa from \"aa\"", "fnc", "cause_code", null, 0]
+// ["/*global aa*/\nimport aa from \"aa\"", "77f", "77c", "7a", 77]
 
             warn(
                 "unexpected_directive_a",
@@ -4269,7 +4328,7 @@ function jslint_phase3_parse(state) {
             if (name.id === "ignore") {
 
 // test_cause:
-// [" import ignore from \"aa\"", "fnc", "cause_code", null, 0]
+// ["import ignore from \"aa\"", "77f", "77c", "7a", 77]
 
                 warn("unexpected_a", name);
             }
@@ -4283,7 +4342,7 @@ function jslint_phase3_parse(state) {
                     if (!token_nxt.identifier) {
 
 // test_cause:
-// [" import {", "fnc", "cause_code", null, 0]
+// ["import {", "77f", "77c", "7a", 77]
 
                         stop("expected_identifier_a");
                     }
@@ -4292,7 +4351,7 @@ function jslint_phase3_parse(state) {
                     if (name.id === "ignore") {
 
 // test_cause:
-// [" import {ignore} from \"aa\"", "fnc", "cause_code", null, 0]
+// ["import {ignore} from \"aa\"", "77f", "77c", "7a", 77]
 
                         warn("unexpected_a", name);
                     }
@@ -4316,7 +4375,7 @@ function jslint_phase3_parse(state) {
         ).test(token_now.value)) {
 
 // test_cause:
-// [" import aa from \"!aa\"", "fnc", "cause_code", null, 0]
+// ["import aa from \"!aa\"", "77f", "77c", "7a", 77]
 
             warn("bad_module_name_a", token_now);
         }
@@ -4331,7 +4390,7 @@ function jslint_phase3_parse(state) {
         if (functionage.finally > 0) {
 
 // test_cause:
-// [" function aa(){try{}finally{return;}}", "fnc", "cause_code", null, 0]
+// ["function aa(){try{}finally{return;}}", "77f", "77c", "7a", 77]
 
             warn("unexpected_a", the_return);
         }
@@ -4355,7 +4414,7 @@ function jslint_phase3_parse(state) {
         if (functionage.finally > 0) {
 
 // test_cause:
-// [" function aa(){try{}finally{switch(0){}}}", "fnc", "cause_code", null, 0]
+// ["function aa(){try{}finally{switch(0){}}}", "77f", "77c", "7a", 77]
 
             warn("unexpected_a", the_switch);
         }
@@ -4363,9 +4422,8 @@ function jslint_phase3_parse(state) {
         advance("(");
 
 // test_cause:
-// [" switch(){}", "fnc", "cause_code", null, 0]
+// ["switch(){}", "77f", "77c", "7a", 77]
 
-        test_cause("cause_code", 0, "yy");
         token_now.free = true;
         the_switch.expression = parse_expression(0);
         the_switch.block = the_cases;
@@ -4385,7 +4443,7 @@ function jslint_phase3_parse(state) {
                 })) {
 
 // test_cause:
-// [" switch(0){case 0:break;case 0:break}", "fnc", "cause_code", null, 0]
+// ["switch(0){case 0:break;case 0:break}", "77f", "77c", "7a", 77]
 
                     warn("unexpected_a", exp);
                 }
@@ -4398,23 +4456,18 @@ function jslint_phase3_parse(state) {
             }());
 
 // test_cause:
-// [" switch(0){case \"aa\":case 0:break;}", "major", "expected_a_b_ordered_before_c_d", "value0", "aa"], //jslint-quiet
-// [" switch(0){case \"bb\":case \"aa\":break;}", "major", "expected_a_b_ordered_before_c_d", "value0", "bb"], //jslint-quiet
-// [" switch(0){case 1:case 0:break;}", "major", "expected_a_b_ordered_before_c_d", "value0", "1"], //jslint-quiet
-// [" switch(0){case aa:case \"aa\":break;}", "major", "expected_a_b_ordered_before_c_d", "value0",null], //jslint-quiet
-// [" switch(0){case bb:case aa:break;}", "major", "expected_a_b_ordered_before_c_d", "value0",null] //jslint-quiet
+// ["switch(0){case 1:case 0:break;}", "77f", "77c", "7a", 77]
+// ["switch(0){case \"aa\":case 0:break;}", "77f", "77c", "7a", 77]
+// ["switch(0){case \"bb\":case \"aa\":break;}", "77f", "77c", "7a", 77]
+// ["switch(0){case aa:case \"aa\":break;}", "77f", "77c", "7a", 77]
+// ["switch(0){case bb:case aa:break;}", "77f", "77c", "7a", 77]
 
-            test_cause(
-                "expected_a_b_ordered_before_c_d",
-                "value0",
-                the_case.expression[0].value
-            );
             warn_if_unordered_case_statement(the_case.expression);
             stmts = parse_statements();
             if (stmts.length < 1) {
 
 // test_cause:
-// [" switch(0){case 0:}", "fnc", "cause_code", null, 0]
+// ["switch(0){case 0:}", "77f", "77c", "7a", 77]
 
                 warn("expected_statements_a");
                 return;
@@ -4435,17 +4488,12 @@ function jslint_phase3_parse(state) {
         }());
 
 // test_cause:
-// [" switch(0){case \"aa\":break;case 0:break;}", "major", "expected_a_b_ordered_before_c_d", "value0", "aa"], //jslint-quiet
-// [" switch(0){case \"bb\":break;case \"aa\":break;}", "major", "expected_a_b_ordered_before_c_d", "value0", "bb"], //jslint-quiet
-// [" switch(0){case 1:break;case 0:break;}", "major", "expected_a_b_ordered_before_c_d", "value0", "1"], //jslint-quiet
-// [" switch(0){case aa:break;case \"aa\":break;}", "major", "expected_a_b_ordered_before_c_d", "value0",null], //jslint-quiet
-// [" switch(0){case bb:break;case aa:break;}", "major", "expected_a_b_ordered_before_c_d", "value0",null] //jslint-quiet
+// ["switch(0){case 1:break;case 0:break;}", "77f", "77c", "7a", 77]
+// ["switch(0){case \"aa\":break;case 0:break;}", "77f", "77c", "7a", 77]
+// ["switch(0){case \"bb\":break;case \"aa\":break;}", "77f", "77c", "7a", 77]
+// ["switch(0){case aa:break;case \"aa\":break;}", "77f", "77c", "7a", 77]
+// ["switch(0){case bb:break;case aa:break;}", "77f", "77c", "7a", 77]
 
-        test_cause(
-            "expected_a_b_ordered_before_c_d",
-            "value0",
-            the_cases[0].expression[0]
-        );
         warn_if_unordered_case_statement(the_cases.map(function ({
             expression
         }) {
@@ -4461,7 +4509,7 @@ function jslint_phase3_parse(state) {
             if (the_switch.else.length < 1) {
 
 // test_cause:
-// [" switch(0){case 0:break;default:}", "fnc", "cause_code", null, 0]
+// ["switch(0){case 0:break;default:}", "77f", "77c", "7a", 77]
 
                 warn("unexpected_a", the_default);
                 the_disrupt = false;
@@ -4475,7 +4523,7 @@ function jslint_phase3_parse(state) {
                 ) {
 
 // test_cause:
-// [" switch(0){case 0:break;default:break;}", "fnc", "cause_code", null, 0]
+// ["switch(0){case 0:break;default:break;}", "77f", "77c", "7a", 77]
 
                     warn("unexpected_a", the_last);
                     the_last.disrupt = false;
@@ -4498,7 +4546,7 @@ function jslint_phase3_parse(state) {
         if (functionage.try > 0) {
 
 // test_cause:
-// [" try{throw 0}catch(){}", "fnc", "cause_code", null, 0]
+// ["try{throw 0}catch(){}", "77f", "77c", "7a", 77]
 
             warn("unexpected_a", the_throw);
         }
@@ -4512,7 +4560,7 @@ function jslint_phase3_parse(state) {
         if (functionage.try > 0) {
 
 // test_cause:
-// [" try{try{}catch(){}}catch(){}", "fnc", "cause_code", null, 0]
+// ["try{try{}catch(){}}catch(){}", "77f", "77c", "7a", 77]
 
             warn("unexpected_a", the_try);
         }
@@ -4536,7 +4584,7 @@ function jslint_phase3_parse(state) {
                 if (!token_nxt.identifier) {
 
 // test_cause:
-// [" try{}catch(){}", "fnc", "cause_code", null, 0]
+// ["try{}catch(){}", "77f", "77c", "7a", 77]
 
                     return stop("expected_identifier_a");
                 }
@@ -4559,7 +4607,7 @@ function jslint_phase3_parse(state) {
         } else {
 
 // test_cause:
-// [" try{}finally{break;}", "fnc", "cause_code", null, 0]
+// ["try{}finally{break;}", "77f", "77c", "7a", 77]
 
             warn("expected_a_before_b", token_nxt, "catch", artifact());
 
@@ -4585,7 +4633,7 @@ function jslint_phase3_parse(state) {
         if (the_while.block.disrupt === true) {
 
 // test_cause:
-// [" function aa(){while(0){break;}}", "fnc", "cause_code", null, 0]
+// ["function aa(){while(0){break;}}", "77f", "77c", "7a", 77]
 
             warn("weird_loop", the_while);
         }
@@ -4595,7 +4643,7 @@ function jslint_phase3_parse(state) {
     stmt("with", function () {
 
 // test_cause:
-// [" with", "fnc", "cause_code", null, 0]
+// ["with", "77f", "77c", "7a", 77]
 
         stop("unexpected_a", token_now);
     });
@@ -4614,7 +4662,7 @@ function jslint_phase3_parse(state) {
                 if (!rx_json_number.test(token_nxt.value)) {
 
 // test_cause:
-// [" [0x0]", "fnc", "cause_code", null, 0]
+// ["[0x0]", "77f", "77c", "7a", 77]
 
                     warn("unexpected_a");
                 }
@@ -4624,7 +4672,7 @@ function jslint_phase3_parse(state) {
                 if (token_nxt.quote !== "\"") {
 
 // test_cause:
-// [" ['']", "fnc", "cause_code", null, 0]
+// ["['']", "77f", "77c", "7a", 77]
 
                     warn("unexpected_a", token_nxt, token_nxt.quote);
                 }
@@ -4638,7 +4686,7 @@ function jslint_phase3_parse(state) {
                 if (!rx_json_number.test(token_now.value)) {
 
 // test_cause:
-// [" [-0x0]", "fnc", "cause_code", null, 0]
+// ["[-0x0]", "77f", "77c", "7a", 77]
 
                     warn("unexpected_a", token_now);
                 }
@@ -4647,9 +4695,8 @@ function jslint_phase3_parse(state) {
             case "[":
 
 // test_cause:
-// [" []", "fnc", "cause_code", null, 0]
+// ["[]", "77f", "77c", "7a", 77]
 
-                test_cause("cause_code", 0, "yy");
                 return (function json_list() {
                     const bracket = token_nxt;
                     const elements = [];
@@ -4661,9 +4708,8 @@ function jslint_phase3_parse(state) {
                             if (token_nxt.id !== ",") {
 
 // test_cause:
-// [" [0,0]", "fnc", "cause_code", null, 0]
+// ["[0,0]", "77f", "77c", "7a", 77]
 
-                                test_cause("cause_code", 0, "yy");
                                 break;
                             }
                             advance(",");
@@ -4681,11 +4727,10 @@ function jslint_phase3_parse(state) {
             case "true":
 
 // test_cause:
-// [" [false]", "fnc", "cause_code", null, 0]
-// [" [null]", "fnc", "cause_code", null, 0]
-// [" [true]", "fnc", "cause_code", null, 0]
+// ["[false]", "77f", "77c", "7a", 77]
+// ["[null]", "77f", "77c", "7a", 77]
+// ["[true]", "77f", "77c", "7a", 77]
 
-                test_cause("cause_code", 0, "yy");
                 advance();
                 return token_now;
             case "{":
@@ -4709,7 +4754,7 @@ function jslint_phase3_parse(state) {
                             if (token_nxt.quote !== "\"") {
 
 // test_cause:
-// [" {0:0}", "fnc", "cause_code", null, 0]
+// ["{0:0}", "77f", "77c", "7a", 77]
 
                                 warn(
                                     "unexpected_a",
@@ -4722,13 +4767,13 @@ function jslint_phase3_parse(state) {
                             if (object[token_now.value] !== undefined) {
 
 // test_cause:
-// [" {\"aa\":0,\"aa\":0}", "fnc", "cause_code", null, 0]
+// ["{\"aa\":0,\"aa\":0}", "77f", "77c", "7a", 77]
 
                                 warn("duplicate_a", token_now);
                             } else if (token_now.value === "__proto__") {
 
 // test_cause:
-// [" {\"__proto__\":0}", "fnc", "cause_code", null, 0]
+// ["{\"__proto__\":0}", "77f", "77c", "7a", 77]
 
                                 warn("weird_property_a", token_now);
                             } else {
@@ -4750,7 +4795,7 @@ function jslint_phase3_parse(state) {
             default:
 
 // test_cause:
-// [" [undefined]", "fnc", "cause_code", null, 0]
+// ["[undefined]", "77f", "77c", "7a", 77]
 
                 stop("unexpected_a");
             }
@@ -4766,7 +4811,7 @@ function jslint_phase3_parse(state) {
         if (token_nxt.id === ";") {
             advance(";");
         }
-        parse_statements();
+        state.token_tree = parse_statements();
         advance("(end)");
         return;
     }
@@ -4779,7 +4824,7 @@ function jslint_phase3_parse(state) {
         advance("(string)");
         advance(";");
     }
-    parse_statements();
+    state.token_tree = parse_statements();
     advance("(end)");
 }
 
@@ -4798,7 +4843,6 @@ function jslint_phase4_walk(state) {
         is_weird,
         option_dict,
         syntax_dict,
-        test_cause,
         token_global,
         warn
     } = state;
@@ -4902,7 +4946,7 @@ function jslint_phase4_walk(state) {
         if (blockage !== token_global) {
 
 // test_cause:
-// [" if(0){import aa from \"aa\";}", "fnc", "cause_code", null, 0]
+// ["if(0){import aa from \"aa\";}", "77f", "77c", "7a", 77]
 
             warn("misplaced_a", the_thing);
         }
@@ -4913,10 +4957,9 @@ function jslint_phase4_walk(state) {
             if (Array.isArray(thing)) {
 
 // test_cause:
-// [" (function(){}())", "fnc", "cause_code", null, 0]
-// [" 0&&0", "fnc", "cause_code", null, 0]
+// ["(function(){}())", "77f", "77c", "7a", 77]
+// ["0&&0", "77f", "77c", "7a", 77]
 
-                test_cause("cause_code", 0, "yy");
                 thing.forEach(walk_expression);
             } else {
                 preamble(thing);
@@ -4924,26 +4967,28 @@ function jslint_phase4_walk(state) {
                 if (thing.id === "function") {
 
 // test_cause:
-// [" aa=function(){}", "fnc", "cause_code", null, 0]
+// ["aa=function(){}", "77f", "77c", "7a", 77]
 
-                    test_cause("cause_code", 0, "yy");
                     walk_statement(thing.block);
                 }
                 if (thing.arity === "pre" || thing.arity === "post") {
 
 // test_cause:
-// [" aa=++aa", "fnc", "cause_code", null, 0]
-// [" aa=--aa", "fnc", "cause_code", null, 0]
+// ["aa=++aa", "77f", "77c", "7a", 77]
+// ["aa=--aa", "77f", "77c", "7a", 77]
 
                     warn("unexpected_a", thing);
                 } else if (
+
+// test_cause:
+// ["aa=0", "77f", "77c", "7a", 77]
+
                     thing.arity === "statement"
                     || thing.arity === "assignment"
                 ) {
 
 // test_cause:
-// [" aa=0", "fnc", "cause_code", null, 0]
-// [" aa[aa=0]", "fnc", "cause_code", null, 0]
+// ["aa[aa=0]", "77f", "77c", "7a", 77]
 
                     warn("unexpected_statement_a", thing);
                 }
@@ -4957,9 +5002,8 @@ function jslint_phase4_walk(state) {
             if (Array.isArray(thing)) {
 
 // test_cause:
-// [" +[]", "fnc", "cause_code", null, 0]
+// ["+[]", "77f", "77c", "7a", 77]
 
-                test_cause("cause_code", 0, "yy");
                 thing.forEach(walk_statement);
             } else {
                 preamble(thing);
@@ -4968,7 +5012,7 @@ function jslint_phase4_walk(state) {
                     if (thing.id !== "(") {
 
 // test_cause:
-// [" 0&&0", "fnc", "cause_code", null, 0]
+// ["0&&0", "77f", "77c", "7a", 77]
 
                         warn("unexpected_expression_a", thing);
                     }
@@ -4979,12 +5023,12 @@ function jslint_phase4_walk(state) {
                 ) {
 
 // test_cause:
-// [" !0", "walk_statement", "unexpected_expression_a", "!", "thing.id"]
-// [" +[]", "walk_statement", "unexpected_expression_a", "+", "thing.id"]
-// [" +new aa()", "walk_statement", "unexpected_expression_a", "+", "thing.id"]
-// [" 0", "walk_statement", "unexpected_expression_a", "(number)", "thing.id"]
-// [" async function aa(){await 0;}", "walk_statement", "unexpected_expression_a", "thing.id", "(number)"], //jslint-quiet
-// [" typeof 0", "walk_statement", "unexpected_expression_a", "typeof", "thing.id"] //jslint-quiet
+// ["!0", "77f", "77c", "7a", 77]
+// ["+[]", "77f", "77c", "7a", 77]
+// ["+new aa()", "77f", "77c", "7a", 77]
+// ["0", "77f", "77c", "7a", 77]
+// ["async function aa(){await 0;}", "77f", "77c", "7a", 77]
+// ["typeof 0", "77f", "77c", "7a", 77]
 
                     warn("unexpected_expression_a", thing);
                 }
@@ -5026,10 +5070,10 @@ function jslint_phase4_walk(state) {
                     if (global_dict[thing.id] === undefined) {
 
 // test_cause:
-// [" aa", "fnc", "cause_code", null, 0]
-// [" class aa{}", "fnc", "cause_code", null, 0]
-// [" let aa=0;try{aa();}catch(bb){bb();}bb();", "fnc", "cause_code", null, 0]
-// [" let aa=0;try{aa();}catch(ignore){bb();}", "fnc", "cause_code", null, 0]
+// ["aa", "77f", "77c", "7a", 77]
+// ["class aa{}", "77f", "77c", "7a", 77]
+// ["let aa=0;try{aa();}catch(bb){bb();}bb();", "77f", "77c", "7a", 77]
+// ["let aa=0;try{aa();}catch(ignore){bb();}", "77f", "77c", "7a", 77]
 
                         warn("undeclared_a", thing);
                         return;
@@ -5050,7 +5094,7 @@ function jslint_phase4_walk(state) {
             } else if (the_variable.role === "label") {
 
 // test_cause:
-// [" aa:while(0){aa;}", "fnc", "cause_code", null, 0]
+// ["aa:while(0){aa;}", "77f", "77c", "7a", 77]
 
                 warn("label_a", thing);
             }
@@ -5064,7 +5108,7 @@ function jslint_phase4_walk(state) {
             ) {
 
 // test_cause:
-// [" let aa;if(aa){let bb;}bb;", "fnc", "cause_code", null, 0]
+// ["let aa;if(aa){let bb;}bb;", "77f", "77c", "7a", 77]
 
                 warn("out_of_scope_a", thing);
             }
@@ -5081,15 +5125,14 @@ function jslint_phase4_walk(state) {
     function preaction_function(thing) {
 
 // test_cause:
-// [" ()=>0", "fnc", "cause_code", null, 0]
-// [" (function (){}())", "fnc", "cause_code", null, 0]
-// [" function aa(){}", "fnc", "cause_code", null, 0]
+// ["()=>0", "77f", "77c", "7a", 77]
+// ["(function (){}())", "77f", "77c", "7a", 77]
+// ["function aa(){}", "77f", "77c", "7a", 77]
 
-        test_cause("cause_code", 0, "yy");
         if (thing.arity === "statement" && blockage.body !== true) {
 
 // test_cause:
-// [" if(0){function aa(){}\n}", "fnc", "cause_code", null, 0]
+// ["if(0){function aa(){}\n}", "77f", "77c", "7a", 77]
 
             warn("unexpected_a", thing);
         }
@@ -5106,7 +5149,7 @@ function jslint_phase4_walk(state) {
             if (thing.parameters.length !== 0) {
 
 // test_cause:
-// [" /*jslint getset*/\naa={get aa(aa){}}", "fnc", "cause_code", null, 0]
+// ["/*jslint getset*/\naa={get aa(aa){}}", "77f", "77c", "7a", 77]
 
                 warn("bad_get", thing);
             }
@@ -5114,7 +5157,7 @@ function jslint_phase4_walk(state) {
             if (thing.parameters.length !== 1) {
 
 // test_cause:
-// [" /*jslint getset*/\naa={set aa(){}}", "fnc", "cause_code", null, 0]
+// ["/*jslint getset*/\naa={set aa(){}}", "77f", "77c", "7a", 77]
 
                 warn("bad_set", thing);
             }
@@ -5136,33 +5179,57 @@ function jslint_phase4_walk(state) {
 
         switch (!option_dict.bitwise && thing.id) {
         case "&":
+            warn("unexpected_a", thing);
+            break;
         case "&=":
+            warn("unexpected_a", thing);
+            break;
         case "<<":
+            warn("unexpected_a", thing);
+            break;
         case "<<=":
+            warn("unexpected_a", thing);
+            break;
         case ">>":
+            warn("unexpected_a", thing);
+            break;
         case ">>=":
+            warn("unexpected_a", thing);
+            break;
         case ">>>":
+            warn("unexpected_a", thing);
+            break;
         case ">>>=":
+            warn("unexpected_a", thing);
+            break;
         case "^":
+            warn("unexpected_a", thing);
+            break;
         case "^=":
+            warn("unexpected_a", thing);
+            break;
         case "|":
+            warn("unexpected_a", thing);
+            break;
         case "|=":
+            warn("unexpected_a", thing);
+            break;
         case "~":
 
 // test_cause:
-// [" 0&0", "bitwise_check", "unexpected_a", "&", "thing.id"]
-// [" 0&=0", "bitwise_check", "unexpected_a", "&=", "thing.id"]
-// [" 0<<0", "bitwise_check", "unexpected_a", "<<", "thing.id"]
-// [" 0<<=0", "bitwise_check", "unexpected_a", "<<=", "thing.id"]
-// [" 0>>0", "bitwise_check", "unexpected_a", ">>", "thing.id"]
-// [" 0>>=0", "bitwise_check", "unexpected_a", ">>=", "thing.id"]
-// [" 0>>>0", "bitwise_check", "unexpected_a", ">>>", "thing.id"]
-// [" 0>>>=0", "bitwise_check", "unexpected_a", ">>>=", "thing.id"]
-// [" 0^0", "bitwise_check", "unexpected_a", "^", "thing.id"]
-// [" 0^=0", "bitwise_check", "unexpected_a", "^=", "thing.id"]
-// [" 0|0", "bitwise_check", "unexpected_a", "|", "thing.id"]
-// [" 0|=0", "bitwise_check", "unexpected_a", "|=", "thing.id"]
-// [" 0~0", "bitwise_check", "unexpected_a", "~", "thing.id"]
+// ["0&0", "77f", "77c", "7a", 77]
+// ["0&=0", "77f", "77c", "7a", 77]
+// ["0<<0", "77f", "77c", "7a", 77]
+// ["0<<=0", "77f", "77c", "7a", 77]
+// ["0>>0", "77f", "77c", "7a", 77]
+// ["0>>=0", "77f", "77c", "7a", 77]
+// ["0>>>0", "77f", "77c", "7a", 77]
+// ["0>>>=0", "77f", "77c", "7a", 77]
+// ["0^0", "77f", "77c", "7a", 77]
+// ["0^=0", "77f", "77c", "7a", 77]
+// ["0|0", "77f", "77c", "7a", 77]
+// ["0|=0", "77f", "77c", "7a", 77]
+// ["~0", "77f", "77c", "7a", 77]
 
             warn("unexpected_a", thing);
             break;
@@ -5181,7 +5248,7 @@ function jslint_phase4_walk(state) {
         ) {
 
 // test_cause:
-// [" 0<0<0", "fnc", "cause_code", null, 0]
+// ["0<0<0", "77f", "77c", "7a", 77]
 
             warn("unexpected_a", thing);
         }
@@ -5239,7 +5306,7 @@ function jslint_phase4_walk(state) {
         if (thing.wrapped) {
 
 // test_cause:
-// [" aa=(function(){})", "fnc", "cause_code", null, 0]
+// ["aa=(function(){})", "77f", "77c", "7a", 77]
 
             warn("unexpected_parens", thing);
         }
@@ -5263,7 +5330,7 @@ function jslint_phase4_walk(state) {
             if (left.id === "NaN" || right.id === "NaN") {
 
 // test_cause:
-// [" NaN===NaN", "fnc", "cause_code", null, 0]
+// ["NaN===NaN", "77f", "77c", "7a", 77]
 
                 warn("number_isNaN", thing);
             } else if (left.id === "typeof") {
@@ -5271,7 +5338,7 @@ function jslint_phase4_walk(state) {
                     if (right.id !== "typeof") {
 
 // test_cause:
-// [" typeof 0===0", "fnc", "cause_code", null, 0]
+// ["typeof 0===0", "77f", "77c", "7a", 77]
 
                         warn("expected_string_a", right);
                     }
@@ -5280,7 +5347,7 @@ function jslint_phase4_walk(state) {
                     if (value === "null" || value === "undefined") {
 
 // test_cause:
-// [" typeof aa===\"undefined\"", "fnc", "cause_code", null, 0]
+// ["typeof aa===\"undefined\"", "77f", "77c", "7a", 77]
 
                         warn("unexpected_typeof_a", right, value);
                     } else if (
@@ -5293,7 +5360,7 @@ function jslint_phase4_walk(state) {
                     ) {
 
 // test_cause:
-// [" typeof 0===\"aa\"", "fnc", "cause_code", null, 0]
+// ["typeof 0===\"aa\"", "77f", "77c", "7a", 77]
 
                         warn("expected_type_string_a", right, value);
                     }
@@ -5304,14 +5371,14 @@ function jslint_phase4_walk(state) {
     preaction("binary", "==", function (thing) {
 
 // test_cause:
-// [" 0==0", "fnc", "cause_code", null, 0]
+// ["0==0", "77f", "77c", "7a", 77]
 
         warn("expected_a_b", thing, "===", "==");
     });
     preaction("binary", "!=", function (thing) {
 
 // test_cause:
-// [" 0!=0", "fnc", "cause_code", null, 0]
+// ["0!=0", "77f", "77c", "7a", 77]
 
         warn("expected_a_b", thing, "!==", "!=");
     });
@@ -5321,7 +5388,7 @@ function jslint_phase4_walk(state) {
             if (thang.id === "&&" && !thang.wrapped) {
 
 // test_cause:
-// [" 0&&0||0", "fnc", "cause_code", null, 0]
+// ["0&&0||0", "77f", "77c", "7a", 77]
 
                 warn("and", thang);
             }
@@ -5355,14 +5422,14 @@ function jslint_phase4_walk(state) {
     preaction("binary", "in", function (thing) {
 
 // test_cause:
-// [" aa in aa", "fnc", "cause_code", null, 0]
+// ["aa in aa", "77f", "77c", "7a", 77]
 
         warn("infix_in", thing);
     });
     preaction("binary", "instanceof", function (thing) {
 
 // test_cause:
-// [" 0 instanceof 0", "fnc", "cause_code", null, 0]
+// ["0 instanceof 0", "77f", "77c", "7a", 77]
 
         warn("unexpected_a", thing);
     });
@@ -5380,7 +5447,7 @@ function jslint_phase4_walk(state) {
                 if (!the_variable.writable) {
 
 // test_cause:
-// [" const aa=0;for(aa in aa){}", "fnc", "cause_code", null, 0]
+// ["const aa=0;for(aa in aa){}", "77f", "77c", "7a", 77]
 
                     warn("bad_assignment_a", thing.name);
                 }
@@ -5435,9 +5502,9 @@ function jslint_phase4_walk(state) {
             if (thing.names !== undefined) {
 
 // test_cause:
-// [" if(0){aa=0}", "fnc", "cause_code", null, 0]
+// ["if(0){aa=0}", "77f", "77c", "7a", 77]
 
-                test_cause("cause_code", 0, "yy");
+                noop();
 
 // Probably deadcode.
 // if (Array.isArray(thing.names)) {
@@ -5464,7 +5531,7 @@ function jslint_phase4_walk(state) {
                 ) {
 
 // test_cause:
-// [" aa.aa=undefined", "fnc", "cause_code", null, 0]
+// ["aa.aa=undefined", "77f", "77c", "7a", 77]
 
                     warn(
                         "expected_a_b",
@@ -5495,7 +5562,7 @@ function jslint_phase4_walk(state) {
             ) {
 
 // test_cause:
-// [" aa+=undefined", "fnc", "cause_code", null, 0]
+// ["aa+=undefined", "77f", "77c", "7a", 77]
 
                 warn("unexpected_a", thing.expression[1]);
             }
@@ -5516,7 +5583,7 @@ function jslint_phase4_walk(state) {
             ) {
 
 // test_cause:
-// [" if(0===0){0}", "fnc", "cause_code", null, 0]
+// ["if(0===0){0}", "77f", "77c", "7a", 77]
 
                 warn("weird_relation_a", thing);
             }
@@ -5526,13 +5593,13 @@ function jslint_phase4_walk(state) {
                 if (thing.expression[0].value === "") {
 
 // test_cause:
-// [" \"\"+0", "fnc", "cause_code", null, 0]
+// ["\"\"+0", "77f", "77c", "7a", 77]
 
                     warn("expected_a_b", thing, "String(...)", "\"\" +");
                 } else if (thing.expression[1].value === "") {
 
 // test_cause:
-// [" 0+\"\"", "fnc", "cause_code", null, 0]
+// ["0+\"\"", "77f", "77c", "7a", 77]
 
                     warn("expected_a_b", thing, "String(...)", "+ \"\"");
                 }
@@ -5541,14 +5608,14 @@ function jslint_phase4_walk(state) {
             if (thing.expression[0].id === "window") {
 
 // test_cause:
-// [" aa=window[0]", "fnc", "cause_code", null, 0]
+// ["aa=window[0]", "77f", "77c", "7a", 77]
 
                 warn("weird_expression_a", thing, "window[...]");
             }
             if (thing.expression[0].id === "self") {
 
 // test_cause:
-// [" aa=self[0]", "fnc", "cause_code", null, 0]
+// ["aa=self[0]", "77f", "77c", "7a", 77]
 
                 warn("weird_expression_a", thing, "self[...]");
             }
@@ -5556,7 +5623,7 @@ function jslint_phase4_walk(state) {
             if (thing.expression.id === "RegExp") {
 
 // test_cause:
-// [" aa=RegExp.aa", "fnc", "cause_code", null, 0]
+// ["aa=RegExp.aa", "77f", "77c", "7a", 77]
 
                 warn("weird_expression_a", thing);
             }
@@ -5570,7 +5637,7 @@ function jslint_phase4_walk(state) {
             ) {
 
 // test_cause:
-// [" 0- -0", "fnc", "cause_code", null, 0]
+// ["0- -0", "77f", "77c", "7a", 77]
 
                 warn("wrap_unary", right);
             }
@@ -5591,14 +5658,14 @@ function jslint_phase4_walk(state) {
         ) {
 
 // test_cause:
-// [" aa=(()=>0)&&(()=>0)", "file", "weird_condition_a", "=>", "te0.id"]
-// [" aa=(``?``:``)&&(``?``:``)", "file", "weird_condition_a", "?", "te0.id"]
-// [" aa=/./&&/./", "file", "weird_condition_a", "(regexp)", "te0.id"]
-// [" aa=0&&0", "file", "weird_condition_a", "(number)", "te0.id"]
-// [" aa=[]&&[]", "file", "weird_condition_a", "[", "te0.id"]
-// [" aa=`${0}`&&`${0}`", "file", "weird_condition_a", "`", "te0.id"]
-// [" aa=function aa(){}&&function aa(){}", "file", "weird_condition_a", "te0.id", "function"], //jslint-quiet
-// [" aa={}&&{}", "file", "weird_condition_a", "{", "te0.id"]
+// ["aa=(()=>0)&&(()=>0)", "77f", "77c", "7a", 77]
+// ["aa=(``?``:``)&&(``?``:``)", "77f", "77c", "7a", 77]
+// ["aa=/./&&/./", "77f", "77c", "7a", 77]
+// ["aa=0&&0", "77f", "77c", "7a", 77]
+// ["aa=[]&&[]", "77f", "77c", "7a", 77]
+// ["aa=`${0}`&&`${0}`", "77f", "77c", "7a", 77]
+// ["aa=function aa(){}&&function aa(){}", "77f", "77c", "7a", 77]
+// ["aa={}&&{}", "77f", "77c", "7a", 77]
 
             warn("weird_condition_a", thing);
         }
@@ -5611,7 +5678,7 @@ function jslint_phase4_walk(state) {
         ) {
 
 // test_cause:
-// [" aa=0||0", "fnc", "cause_code", null, 0]
+// ["aa=0||0", "77f", "77c", "7a", 77]
 
             warn("weird_condition_a", thing);
         }
@@ -5633,7 +5700,7 @@ function jslint_phase4_walk(state) {
             if (!thing.wrapped) {
 
 // test_cause:
-// [" aa=function(){}()", "fnc", "cause_code", null, 0]
+// ["aa=function(){}()", "77f", "77c", "7a", 77]
 
                 warn("wrap_immediate", thing);
             }
@@ -5648,18 +5715,18 @@ function jslint_phase4_walk(state) {
                 ) {
 
 // test_cause:
-// [" new Boolean()", "file", "unexpected_a", "Boolean", "left.id"]
-// [" new Number()", "file", "unexpected_a", "Number", "left.id"]
-// [" new String()", "file", "unexpected_a", "String", "left.id"]
-// [" new Symbol()", "file", "unexpected_a", "Symbol", "left.id"]
-// [" new aa()", "file", "unexpected_a", "aa", "left.id"]
+// ["new Boolean()", "77f", "77c", "7a", 77]
+// ["new Number()", "77f", "77c", "7a", 77]
+// ["new String()", "77f", "77c", "7a", 77]
+// ["new Symbol()", "77f", "77c", "7a", 77]
+// ["new aa()", "77f", "77c", "7a", 77]
 
                     warn("unexpected_a", the_new);
                 } else if (left.id === "Function") {
                     if (!option_dict.eval) {
 
 // test_cause:
-// [" new Function()", "fnc", "cause_code", null, 0]
+// ["new Function()", "77f", "77c", "7a", 77]
 
                         warn("unexpected_a", left, "new Function");
                     }
@@ -5668,14 +5735,14 @@ function jslint_phase4_walk(state) {
                     if (arg.length !== 2 || arg[1].id === "(string)") {
 
 // test_cause:
-// [" new Array()", "fnc", "cause_code", null, 0]
+// ["new Array()", "77f", "77c", "7a", 77]
 
                         warn("expected_a_b", left, "[]", "new Array");
                     }
                 } else if (left.id === "Object") {
 
 // test_cause:
-// [" new Object()", "fnc", "cause_code", null, 0]
+// ["new Object()", "77f", "77c", "7a", 77]
 
                     warn(
                         "expected_a_b",
@@ -5695,7 +5762,7 @@ function jslint_phase4_walk(state) {
                 ) {
 
 // test_cause:
-// [" let Aa=Aa()", "fnc", "cause_code", null, 0]
+// ["let Aa=Aa()", "77f", "77c", "7a", 77]
 
                     warn("expected_a_before_b", left, "new", artifact(left));
                 }
@@ -5705,9 +5772,8 @@ function jslint_phase4_walk(state) {
             if (left.expression.id === "Date" && left.name.id === "UTC") {
 
 // test_cause:
-// [" new Date.UTC()", "fnc", "cause_code", null, 0]
+// ["new Date.UTC()", "77f", "77c", "7a", 77]
 
-                test_cause("cause_code", 0, "yy");
                 cack = !cack;
             }
             if ((
@@ -5717,13 +5783,13 @@ function jslint_phase4_walk(state) {
                 if (the_new !== undefined) {
 
 // test_cause:
-// [" new Date.UTC()", "fnc", "cause_code", null, 0]
+// ["new Date.UTC()", "77f", "77c", "7a", 77]
 
                     warn("unexpected_a", the_new);
                 } else {
 
 // test_cause:
-// [" let Aa=Aa.Aa()", "fnc", "cause_code", null, 0]
+// ["let Aa=Aa.Aa()", "77f", "77c", "7a", 77]
 
                     warn(
                         "expected_a_before_b",
@@ -5745,7 +5811,7 @@ function jslint_phase4_walk(state) {
                         ) {
 
 // test_cause:
-// [" new Date().getTime()", "fnc", "cause_code", null, 0]
+// ["new Date().getTime()", "77f", "77c", "7a", 77]
 
                             warn(
                                 "expected_a_b",
@@ -5763,14 +5829,14 @@ function jslint_phase4_walk(state) {
         if (thing.expression[0].id === "RegExp") {
 
 // test_cause:
-// [" aa=RegExp[0]", "fnc", "cause_code", null, 0]
+// ["aa=RegExp[0]", "77f", "77c", "7a", 77]
 
             warn("weird_expression_a", thing);
         }
         if (is_weird(thing.expression[1])) {
 
 // test_cause:
-// [" aa[[0]]", "fnc", "cause_code", null, 0]
+// ["aa[[0]]", "77f", "77c", "7a", 77]
 
             warn("weird_expression_a", thing.expression[1]);
         }
@@ -5826,13 +5892,13 @@ function jslint_phase4_walk(state) {
         } else if (is_equal(thing.expression[0], thing.expression[1])) {
 
 // test_cause:
-// [" aa?aa:0", "fnc", "cause_code", null, 0]
+// ["aa?aa:0", "77f", "77c", "7a", 77]
 
             warn("expected_a_b", thing, "||", "?");
         } else if (is_equal(thing.expression[0], thing.expression[2])) {
 
 // test_cause:
-// [" aa?0:aa", "fnc", "cause_code", null, 0]
+// ["aa?0:aa", "77f", "77c", "7a", 77]
 
             warn("expected_a_b", thing, "&&", "?");
         } else if (
@@ -5841,7 +5907,7 @@ function jslint_phase4_walk(state) {
         ) {
 
 // test_cause:
-// [" aa?true:false", "fnc", "cause_code", null, 0]
+// ["aa?true:false", "77f", "77c", "7a", 77]
 
             warn("expected_a_b", thing, "!!", "?");
         } else if (
@@ -5850,7 +5916,7 @@ function jslint_phase4_walk(state) {
         ) {
 
 // test_cause:
-// [" aa?false:true", "fnc", "cause_code", null, 0]
+// ["aa?false:true", "77f", "77c", "7a", 77]
 
             warn("expected_a_b", thing, "!", "?");
         } else if (
@@ -5862,7 +5928,7 @@ function jslint_phase4_walk(state) {
         ) {
 
 // test_cause:
-// [" (aa&&!aa?0:1)", "fnc", "cause_code", null, 0]
+// ["(aa&&!aa?0:1)", "77f", "77c", "7a", 77]
 
             warn("wrap_condition", thing.expression[0]);
         }
@@ -5882,7 +5948,7 @@ function jslint_phase4_walk(state) {
             if (!option_dict.convert) {
 
 // test_cause:
-// [" !!0", "fnc", "cause_code", null, 0]
+// ["!!0", "77f", "77c", "7a", 77]
 
                 warn("expected_a_b", thing, "Boolean(...)", "!!");
             }
@@ -5902,8 +5968,8 @@ function jslint_phase4_walk(state) {
         const right = thing.expression;
         if (!option_dict.convert) {
 
-// test_cause2:
-// [" aa=+0", "walk_expression", "expected_a_b", "+", 5]
+// test_cause:
+// ["aa=+0", "77f", "77c", "7a", 77]
 
             warn("expected_a_b", thing, "Number(...)", "+");
         }
@@ -5931,7 +5997,6 @@ function jslint_phase5_whitage(state) {
         function_list,
         function_stack,
         option_dict,
-        test_cause,
         token_global,
         token_list,
         warn
@@ -5940,23 +6005,25 @@ function jslint_phase5_whitage(state) {
 
 // free = false
 
-// cause2: "()=>0"
-// cause2: "aa()"
-// cause2: "aa(0,0)"
-// cause2: "function(){}"
+// test_cause:
+// ["()=>0", "77f", "77c", "7a", 77]
+// ["aa()", "77f", "77c", "7a", 77]
+// ["aa(0,0)", "77f", "77c", "7a", 77]
+// ["function(){}", "77f", "77c", "7a", 77]
 
     let free = false;
 
 // free = true
 
-// cause2: "(0)"
-// cause2: "(aa)"
-// cause2: "aa(0)"
-// cause2: "do{}while()"
-// cause2: "for(){}"
-// cause2: "if(){}"
-// cause2: "switch(){}"
-// cause2: "while(){}"
+// test_cause:
+// ["(0)", "77f", "77c", "7a", 77]
+// ["(aa)", "77f", "77c", "7a", 77]
+// ["aa(0)", "77f", "77c", "7a", 77]
+// ["do{}while()", "77f", "77c", "7a", 77]
+// ["for(){}", "77f", "77c", "7a", 77]
+// ["if(){}", "77f", "77c", "7a", 77]
+// ["switch(){}", "77f", "77c", "7a", 77]
+// ["while(){}", "77f", "77c", "7a", 77]
 
     let left = token_global;
     let margin = 0;
@@ -6011,10 +6078,9 @@ function jslint_phase5_whitage(state) {
             const name = the_function.context[id];
             if (id !== "ignore" && name.parent === the_function) {
 
-// test_cause2:
-// [" let aa=function bb(){return;};", "delve", "not_ignore", "bb", 0]
+// test_cause:
+// ["let aa=function bb(){return;};", "77f", "77c", "7a", 77]
 
-                test_cause("not_ignore", name);
                 if (
                     name.used === 0
 
@@ -6030,25 +6096,24 @@ function jslint_phase5_whitage(state) {
                     )
                 ) {
 
-// test_cause2:
-// [" /*jslint node*/\n let aa;", "delve", "unused_a", "aa", 6]
-// [" function aa(aa){return;}", "delve", "unused_a", "aa", 14]
-// [" let aa=0;try{aa();}catch(bb){aa();}", "delve", "unused_a", "bb", 27]
+// test_cause:
+// ["/*jslint node*/\nlet aa;", "77f", "77c", "7a", 77]
+// ["function aa(aa){return;}", "77f", "77c", "7a", 77]
+// ["let aa=0;try{aa();}catch(bb){aa();}", "77f", "77c", "7a", 77]
 
                     warn("unused_a", name);
                 } else if (!name.init) {
 
-// test_cause2:
-// [" /*jslint node*/\n let aa;aa();", "delve", "uninitialized_a", "aa", 6]
+// test_cause:
+// ["/*jslint node*/\nlet aa;aa();", "77f", "77c", "7a", 77]
 
                     warn("uninitialized_a", name);
                 }
             }
 
-// test_cause2:
-// [" function aa(ignore){return;}", "delve", "ignore", "ignore", 0]
+// test_cause:
+// ["function aa(ignore){return;}", "77f", "77c", "7a", 77]
 
-            test_cause("ignore", name);
         });
     }
 
@@ -6062,8 +6127,8 @@ function jslint_phase5_whitage(state) {
 
             if (left.thru !== right.from && nr_comments_skipped === 0) {
 
-// test_cause2:
-// [" let aa=aa( );", "no_space", "unexpected_space_a_b", ")", 13]
+// test_cause:
+// ["let aa = aa( );", "77f", "77c", "7a", 77]
 
                 warn(
                     "unexpected_space_a_b",
@@ -6103,6 +6168,7 @@ function jslint_phase5_whitage(state) {
             assert_or_throw(free, `Expected free.`);
             if (right.from < margin) {
 
+// test_cause1:
 // cause:
 // let aa = aa(
 //     aa
@@ -6214,12 +6280,12 @@ function jslint_phase5_whitage(state) {
             case "{":
 
 // test_cause:
-// [" let aa=(", "jslint_phase5_whitage", "cause_code", null, 0]
-// [" let aa=[", "jslint_phase5_whitage", "cause_code", null, 0]
-// [" let aa=`${", "jslint_phase5_whitage", "cause_code", null, 0]
-// [" let aa={", "jslint_phase5_whitage", "cause_code", null, 0]
+// ["let aa=(", "77f", "77c", "7a", 77]
+// ["let aa=[", "77f", "77c", "7a", 77]
+// ["let aa=`${", "77f", "77c", "7a", 77]
+// ["let aa={", "77f", "77c", "7a", 77]
 
-                test_cause("cause_code", left);
+                noop();
 
 // Probably deadcode.
 // case "${}":
@@ -6236,37 +6302,33 @@ function jslint_phase5_whitage(state) {
 // If left and right are opener and closer, then the placement of right depends
 // on the openness. Illegal pairs (like '{]') have already been detected.
 
-// test_cause:no_space
-// [" let aa=[];", "jslint_phase5_whitage", "cause_code", null, 0]
-// [" let aa=aa();", "jslint_phase5_whitage", "cause_code", null, 0]
-// [" let aa={};", "jslint_phase5_whitage", "cause_code", null, 0]
+// test_cause:
+// ["let aa=[];", "77f", "77c", "7a", 77]
+// ["let aa=aa();", "77f", "77c", "7a", 77]
+// ["let aa={};", "77f", "77c", "7a", 77]
 
-                    test_cause("cause_code", 0, "yy");
                     if (left.line === right.line) {
 
 // test_cause:
-// [" let aa = aa( );", "jslint_phase5_whitage", "cause_code", null, 0]
+// ["let aa = aa( );", "77f", "77c", "7a", 77]
 
-                        test_cause("cause_code", 0, "yy");
                         no_space();
                     } else {
 
 // test_cause:
-// [" let aa = aa(\n );", "jslint_phase5_whitage", "cause_code", null, 0]
+// ["let aa = aa(\n );", "77f", "77c", "7a", 77]
 
-                        test_cause("cause_code", 0, "yy");
                         at_margin(0);
                     }
                     break;
                 default:
 
 // test_cause:
-// [" let aa=(0", "jslint_phase5_whitage", "cause_code", null, 0]
-// [" let aa=[0", "jslint_phase5_whitage", "cause_code", null, 0]
-// [" let aa=`${0", "jslint_phase5_whitage", "cause_code", null, 0]
-// [" let aa={0", "jslint_phase5_whitage", "cause_code", null, 0]
+// ["let aa=(0", "77f", "77c", "7a", 77]
+// ["let aa=[0", "77f", "77c", "7a", 77]
+// ["let aa=`${0", "77f", "77c", "7a", 77]
+// ["let aa={0", "77f", "77c", "7a", 77]
 
-                    test_cause("cause_code", 0, "yy");
                     opening = left.open || (left.line !== right.line);
                     push();
                     switch (left.id) {
@@ -6286,18 +6348,18 @@ function jslint_phase5_whitage(state) {
                     if (opening) {
 
 // test_cause:
-// [" function aa(){\nreturn;\n}", "jslint_phase5_whitage", "cause_code", "{", 0] //jslint-quiet
-// [" let aa=(\n0\n)", "jslint_phase5_whitage", "cause_code", "(", 0]
-// [" let aa=[\n0\n]", "jslint_phase5_whitage", "cause_code", null, 0]
-// [" let aa=`${\n0\n}`", "jslint_phase5_whitage", "cause_code", null, 0]
+// ["function aa(){\nreturn;\n}", "77f", "77c", "7a", 77]
+// ["let aa=(\n0\n)", "77f", "77c", "7a", 77]
+// ["let aa=[\n0\n]", "77f", "77c", "7a", 77]
+// ["let aa=`${\n0\n}`", "77f", "77c", "7a", 77]
 
-                        test_cause("opening", 0, left.id);
                         free = closer === ")" && left.free;
                         open = true;
                         margin += mode_indent;
                         if (right.role === "label") {
                             if (right.from !== 0) {
 
+// test_cause2:
 // cause:
 // function aa() {
 //  bb:
@@ -6318,6 +6380,7 @@ function jslint_phase5_whitage(state) {
                     } else {
                         if (right.statement || right.role === "label") {
 
+// test_cause3:
 // cause:
 // function aa() {bb:
 //     while (aa) {aa();
@@ -6333,17 +6396,16 @@ function jslint_phase5_whitage(state) {
                         }
 
 // test_cause:
-// [" ${0}", "jslint_phase5_whitage", "cause_code", null, 0]
-// [" (0)", "jslint_phase5_whitage", "cause_code", null, 0]
-// [" [0]", "jslint_phase5_whitage", "cause_code", null, 0]
-// [" {0}", "jslint_phase5_whitage", "cause_code", null, 0]
+// ["${0}", "77f", "77c", "7a", 77]
+// ["(0)", "77f", "77c", "7a", 77]
+// ["[0]", "77f", "77c", "7a", 77]
+// ["{0}", "77f", "77c", "7a", 77]
 
-                        test_cause("cause_code", 0, "yy");
                         free = false;
                         open = false;
 
-// test_cause2:
-// [" let aa=( 0);", "no_space_only", "unexpected_space_a_b", "0", 11]
+// test_cause:
+// ["let aa = ( 0 );", "77f", "77c", "7a", 77]
 
                         no_space_only();
                     }
@@ -6353,6 +6415,7 @@ function jslint_phase5_whitage(state) {
                 if (right.statement === true) {
                     if (left.id === "else") {
 
+// test_cause4:
 // cause:
 // let aa = 0;
 // if (aa) {
@@ -6364,8 +6427,8 @@ function jslint_phase5_whitage(state) {
                         one_space_only();
                     } else {
 
-// test_cause2:
-// [" let aa=0;", "expected_at", "expected_a_at_b_c", 1, 2]
+// test_cause:
+// [" let aa = 0;", "77f", "77c", "7a", 77]
 
                         at_margin(0);
                         open = false;
@@ -6393,6 +6456,7 @@ function jslint_phase5_whitage(state) {
                     } else if (right.role === "label") {
                         if (right.from !== 0) {
 
+// test_cause5:
 // cause:
 // function aa() {
 //     aa();cc:
@@ -6411,12 +6475,13 @@ function jslint_phase5_whitage(state) {
                             && left.line === right.line
                         )) {
 
-// test_cause2:
-// [" let {aa,bb}=0;", "one_space", "expected_space_a_b", "bb", 10]
+// test_cause:
+// ["let {aa,bb} = 0;", "77f", "77c", "7a", 77]
 
                             one_space();
                         } else {
 
+// test_cause6:
 // cause:
 // function aa() {
 //     aa(
@@ -6432,6 +6497,7 @@ function jslint_phase5_whitage(state) {
                     } else if (right.arity === "ternary") {
                         if (open) {
 
+// test_cause7:
 // cause:
 // let aa = (
 //     aa
@@ -6442,8 +6508,8 @@ function jslint_phase5_whitage(state) {
                             at_margin(0);
                         } else {
 
-// test_cause2:
-// [" let aa=(aa?1:2);", "jslint_phase5_whitage", "use_open", "?", 12]
+// test_cause:
+// ["let aa = (aa ? 0 : 1);", "77f", "77c", "7a", 77]
 
                             warn("use_open", right);
                         }
@@ -6453,6 +6519,7 @@ function jslint_phase5_whitage(state) {
                         && free
                     ) {
 
+// test_cause8:
 // cause:
 // let aa = aa(
 //     aa
@@ -6477,18 +6544,19 @@ function jslint_phase5_whitage(state) {
                         )
                     ) {
 
-// test_cause2:
-// [" let aa = 0 ;", "no_space_only", "unexpected_space_a_b", ";", 13]
+// test_cause:
+// ["let aa = 0 ;", "77f", "77c", "7a", 77]
 
                         no_space_only();
                     } else if (right.id === "." || right.id === "?.") {
 
-// test_cause2:
-// [" let aa = aa ?.aa;", "no_space_only", "unexpected_space_a_b", "?.", 14]
+// test_cause:
+// ["let aa = aa ?.aa;", "77f", "77c", "7a", 77]
 
                         no_space_only();
                     } else if (left.id === ";") {
 
+// test_cause9:
 // cause:
 // /*jslint for*/
 // function aa() {
@@ -6519,6 +6587,7 @@ function jslint_phase5_whitage(state) {
                         || (left.id === ")" && right.id === "{")
                     ) {
 
+// test_causea:
 // cause:
 // function aa() {
 //     do {
@@ -6558,7 +6627,8 @@ function jslint_phase5_whitage(state) {
                         || (left.arity === "statement" && right.id !== ";")
                     ) {
 
-// cause: "let aa=0;"
+// test_causeb:
+// ["let aa=0;", "77f", "77c", "7a", 77]
 // cause:
 // let aa={
 //     aa:
@@ -6678,7 +6748,6 @@ function jslint(
             "setTimeout"
         ],
         single: true,           // Allow single-quote strings.
-        test_cause: true,       // Test jslint's causes.
         test_internal_error: true,      // Test jslint's internal-error
                                         // ... handling-ability.
         this: true,             // Allow 'this'.
@@ -6694,7 +6763,6 @@ function jslint(
             context: empty()
         }
     ];
-    let cause_dict = empty();   // The object of test-causes.
     let directive_list = [];    // The directive comments.
     let export_dict = empty();  // The exported names and values.
     let function_list = [];     // The array containing all functions.
@@ -6833,28 +6901,6 @@ function jslint(
     let token_list = [];        // The array of tokens.
     let warning_list = [];      // The array collecting all generated warnings.
 
-    function test_cause(code, aa) {
-
-// This function will instrument <cause> to <cause_dict> for test-purposes.
-
-        if (option_dict.test_cause) {
-            cause_dict[JSON.stringify([
-                String(new Error().stack).replace((
-                    /^\u0020{4}at\u0020(?:file|stop|stop_at|test_cause|warn|warn_at|\w+?\.\w+?)\b.*?\n/gm
-                ), "").match(
-                    /^\u0020{4}at\u0020(\w+?)\b/m
-                )[1],
-                code,
-                (
-                    (aa === undefined || (typeof aa === "object" && aa))
-                    ? artifact(aa)
-                    : aa
-                ),
-                0
-            ])] = true;
-        }
-    }
-
 // Error reportage functions:
 
     function artifact(the_token) {
@@ -6872,25 +6918,15 @@ function jslint(
     function is_weird(thing) {
         switch (thing.id) {
         case "(regexp)":
+            return true;
         case "=>":
-        case "function":
-        case "{":
-
-// test_cause2:
-// [" aa[()=>0]", "is_weird", "true", "=>", 0]
-// [" aa[/./]", "is_weird", "true", "(regexp)", 0]
-// [" aa[function aa(){}]", "is_weird", "true", "function", 0]
-// [" aa[{}]", "is_weird", "true", "{", 0]
-
-            test_cause("true", thing);
             return true;
         case "[":
-
-// test_cause2:
-// [" aa[[]]", "is_weird", "unary", "[", 0]
-
-            test_cause("unary", thing);
             return thing.arity === "unary";
+        case "function":
+            return true;
+        case "{":
+            return true;
         default:
             return false;
         }
@@ -6900,10 +6936,10 @@ function jslint(
         let aa_value;
         let bb_value;
 
-// test_cause2:
-// [" 0&&0", "is_equal", "", "0", 0]
+// test_cause:
+// ["0&&0", "77f", "77c", "7a", 77]
 
-        test_cause("", aa);
+        noop();
 
 // Probably deadcode.
 // if (aa === bb) {
@@ -6917,10 +6953,9 @@ function jslint(
                 && aa.length === bb.length
                 && aa.every(function (value, index) {
 
-// test_cause2:
-// [" `${0}`&&`${0}`", "is_equal", "Array.isArray", "0", 0]
+// test_cause:
+// ["`${0}`&&`${0}`", "77f", "77c", "7a", 77]
 
-                    test_cause("Array.isArray", value);
                     return is_equal(value, bb[index]);
                 })
             );
@@ -6952,31 +6987,28 @@ function jslint(
             return false;
         }
         if (aa.arity === bb.arity && aa.id === bb.id) {
+
+// test_cause:
+// ["aa.bb&&aa.bb", "77f", "77c", "7a", 77]
+
             if (aa.id === ".") {
-
-// test_cause2:
-// [" aa.bb&&aa.bb", "is_equal", ".", ".", 0]
-
-                test_cause(".", aa);
                 return (
                     is_equal(aa.expression, bb.expression)
                     && is_equal(aa.name, bb.name)
                 );
             }
+
+// test_cause:
+// ["+0&&+0", "77f", "77c", "7a", 77]
+
             if (aa.arity === "unary") {
-
-// test_cause2:
-// [" +0&&+0", "is_equal", "unary", "+", 0]
-
-                test_cause("unary", aa);
                 return is_equal(aa.expression, bb.expression);
             }
             if (aa.arity === "binary") {
 
-// test_cause2:
-// [" aa[0]&&aa[0]", "is_equal", "binary", "[", 0]
+// test_cause:
+// ["aa[0]&&aa[0]", "77f", "77c", "7a", 77]
 
-                test_cause("binary", aa);
                 return (
                     aa.id !== "("
                     && is_equal(aa.expression[0], bb.expression[0])
@@ -6985,10 +7017,9 @@ function jslint(
             }
             if (aa.arity === "ternary") {
 
-// test_cause2:
-// [" aa=(``?``:``)&&(``?``:``)", "is_equal", "ternary", "?", 0]
+// test_cause:
+// ["aa=(``?``:``)&&(``?``:``)", "77f", "77c", "7a", 77]
 
-                test_cause("ternary", aa);
                 return (
                     is_equal(aa.expression[0], bb.expression[0])
                     && is_equal(aa.expression[1], bb.expression[1])
@@ -7006,17 +7037,15 @@ function jslint(
                 `Expected !(aa.arity === "function" || aa.arity === "regexp").`
             );
 
-// test_cause2:
-// [" undefined&&undefined", "is_equal", "true", "undefined", 0]
+// test_cause:
+// ["undefined&&undefined", "77f", "77c", "7a", 77]
 
-            test_cause("true", aa);
             return true;
         }
 
-// test_cause2:
-// [" null&&undefined", "is_equal", "false", "null", 0]
+// test_cause:
+// ["null&&undefined", "77f", "77c", "7a", 77]
 
-        test_cause("false", aa);
         return false;
     }
 
@@ -7040,22 +7069,6 @@ function jslint(
             line_source: "",
             name: "JSLintError"
         }, line_list[line]);
-        warning.column = Math.max(
-            Math.min(warning.column, warning.line_source.length),
-            jslint_fudge
-        );
-        if (option_dict.test_cause) {
-            cause_dict[JSON.stringify([
-                String(new Error().stack).replace((
-                    /^\u0020{4}at\u0020(?:file|stop|stop_at|test_cause|warn|warn_at|\w+?\.\w+?)\b.*?\n/gm
-                ), "").match(
-                    /^\u0020{4}at\u0020(\w+?)\b/m
-                )[1],
-                code,
-                b || a,
-                column
-            ])] = true;
-        }
         switch (code) {
 
 // The bundle contains the raw text messages that are generated by jslint. It
@@ -7245,7 +7258,7 @@ function jslint(
             mm = `Unexpected comment.`;
             break;
         case "unexpected_directive_a":
-            mm = `When using modules, don't use directive '/(*)${a}'.`;
+            mm = `When using modules, don't use directive '/\u002a${a}'.`;
             break;
         case "unexpected_expression_a":
             mm = `Unexpected expression '${a}' in statement position.`;
@@ -7354,10 +7367,9 @@ function jslint(
         }
         if (warning.directive_quiet) {
 
-// test_cause2:
-// [" 0 //jslint-quiet", "read_line", "directive_quiet", "(global)", 0]
+// test_cause:
+// ["0 //jslint-quiet", "77f", "77c", "7a", 77]
 
-            test_cause("directive_quiet");
             return warning;
         }
         warning_list.push(warning);
@@ -7448,7 +7460,6 @@ function jslint(
             stop_at,
             syntax_dict,
             tenure,
-            test_cause,
             token_global,
             token_list,
             token_nxt: token_global,
@@ -7512,8 +7523,8 @@ function jslint(
             directive_list.forEach(function (comment) {
                 if (comment.directive === "global") {
 
-// test_cause2:
-// [" /*global aa*/", "jslint", "missing_browser", "(comment)", 2]
+// test_cause:
+// ["/*global aa*/", "77f", "77c", "7a", 77]
 
                     warn("missing_browser", comment);
                 }
@@ -7568,7 +7579,6 @@ function jslint(
     });
 
     return {
-        causes: cause_dict,
         directives: directive_list,
         edition: jslint_edition,
         exports: export_dict,

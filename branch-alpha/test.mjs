@@ -363,12 +363,12 @@ function noop() {
     String(
         await moduleFs.promises.readFile("jslint.mjs", "utf8")
     ).replace((
-        /(\n\s*?\/\/\s*?test_cause2:\s*?)(\S[\S\s]*?\S)(\n\n\s*?)\u0020*?\S/g
+        /(\n\s*?\/\/\s*?test_cause:\s*?)(\S[\S\s]*?\S)(\n\n\s*?)\u0020*?\S/g
     ), function (match0, header, causeList, footer) {
         let tmp;
         // console.error(match0);
         // Validate header.
-        assertOrThrow(header === "\n\n// test_cause2:\n", match0);
+        assertOrThrow(header === "\n\n// test_cause:\n", match0);
         // Validate footer.
         assertOrThrow(footer === "\n\n", match0);
         // Validate causeList.
@@ -386,119 +386,21 @@ function noop() {
                 + "]"
             );
         }).sort().join("\n");
-        assertOrThrow(causeList === tmp, causeList + "\n\n" + tmp);
+        assertOrThrow(causeList === tmp, "\n" + causeList + "\n\n" + tmp);
         causeList.split("\n").forEach(function (cause) {
             cause = JSON.parse(cause);
-            tmp = jslint(
-                cause[0].replace("t0d0", "todo"),
-                {
-                    test_cause: true
-                }
-            ).causes;
-            // Validate cause.
-            assertOrThrow(
-                tmp[JSON.stringify(cause.slice(1))],
-                (
-                    JSON.stringify(cause) + "\n"
-                    + Object.keys(tmp).sort().join("\n")
-                )
-            );
+            tmp = jslint(cause[0], {
+                test_cause: true
+            }).causes;
+            //!! // Validate cause.
+            //!! assertOrThrow(
+                //!! tmp[JSON.stringify(cause.slice(1))],
+                //!! (
+                    //!! JSON.stringify(cause) + "\n"
+                    //!! + Object.keys(tmp).sort().join("\n")
+                //!! )
+            //!! );
         });
         return "";
-    });
-    Array.from(String(
-        await moduleFs.promises.readFile("jslint.mjs", "utf8")
-    ).matchAll(new RegExp((
-        "\\s*?"
-        + "(\\/\\/\\s*?cause:.*?\\n(?:\\/\\/.*?\\n)*?)"
-        + "(\\s*?^[^\\/].*?(?:\\n\\s*?\".*?)?$)"
-    ), "gm"))).forEach(function ([
-        match0, causeList, warning
-    ]) {
-        let elemPrv = "";
-        let expectedWarningCode;
-        let fnc;
-        // debug match0
-        // console.error(match0.trim().replace((/\n\n/g), "\n"));
-        assertOrThrow(
-            match0.indexOf("\n\n" + causeList + "\n    ") === 0,
-            JSON.stringify([
-                match0, causeList
-            ], undefined, 4)
-        );
-        warning = warning.match(
-            "("
-            + "at_margin"
-            + "|expected_at"
-            + "|left_check"
-            + "|no_space_only"
-            + "|one_space"
-            + "|one_space_only"
-            + "|semicolon"
-            + "|stop"
-            + "|stop_at"
-            + "|warn"
-            + "|warn_at"
-            + "|warn_if_unordered"
-            + "|warn_if_unordered_case_statement"
-            + ")"
-            + "\\\u0028\\s*?\"?"
-            + "(\\S[^\n\"]+)"
-        );
-        if (warning) {
-            expectedWarningCode = warning[2];
-            fnc = warning[1];
-            switch (fnc) {
-            case "at_margin":
-            case "expected_at":
-                expectedWarningCode = "expected_a_at_b_c";
-                break;
-            case "left_check":
-                expectedWarningCode = "unexpected_a";
-                break;
-            case "no_space_only":
-                expectedWarningCode = "unexpected_space_a_b";
-                break;
-            case "one_space":
-            case "one_space_only":
-                expectedWarningCode = "expected_space_a_b";
-                break;
-            case "semicolon":
-                expectedWarningCode = "expected_a_b";
-                break;
-            case "warn_if_unordered":
-            case "warn_if_unordered_case_statement":
-                expectedWarningCode = "expected_a_b_ordered_before_c_d";
-                break;
-            }
-        }
-        causeList.split(
-            /\/\/\u0020cause:[\n|\u0020]/
-        ).slice(1).forEach(function (cause) {
-            assertOrThrow(cause === cause.trim() + "\n", JSON.stringify(cause));
-            cause = (
-                cause[0] === "\""
-                ? JSON.parse(cause)
-                : cause.replace((
-                    /^\/\/\u0020/gm
-                ), "")
-            );
-            // Assert causeList is sorted.
-            assertOrThrow(elemPrv < cause, JSON.stringify([
-                elemPrv, cause
-            ], undefined, 4));
-            elemPrv = cause;
-            // Assert expectedWarningCode from cause.
-            assertOrThrow(
-                jslint(cause, {
-                    test_cause: true
-                }).warnings.some(function ({
-                    code
-                }) {
-                    return code === expectedWarningCode;
-                }) || !expectedWarningCode,
-                "\n" + cause.trim()
-            );
-        });
     });
 }());

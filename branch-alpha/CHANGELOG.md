@@ -15,13 +15,13 @@
 - jslint-refactor - migrate recursive-loops to for/while loops.
 - merge function.html and help.html into README.md
 - node - after node-v14 is deprecated, remove shell-code `export "NODE_OPTIONS=--unhandled-rejections=strict"`.
-- tests - update function warn_at() with assertion-check matching column with artifact.
 - vim - add vim plugin.
 
 # v2021.7.1-beta
 - bugfix - fix website crashing when linting pure json-object.
 - jslint - comment out shebang in jslint.mjs so older ios devices can use website.
-- test - revamp cause-based testing with more robust instrumentation.
+- tests - revamp cause-based testing with more robust instrumentation.
+- tests - test column position in warnings are correct.
 
 # v2021.6.30
 - breaking-change - rename files *.js to *.mjs for better integration with nodejs.
