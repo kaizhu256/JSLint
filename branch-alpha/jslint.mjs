@@ -1129,7 +1129,7 @@ function jslint_phase2_lex(state) {
 // test_cause:
 // ["aa=/\\/", "lex_regexp_group", "escape", "77a", 77]
 
-                    test_cause("escape", line);
+                    test_cause("escape");
                     char_after_escape("BbDdSsWw^${}[]():=!.|*+?");
                     break;
                 case "^":
@@ -1205,7 +1205,7 @@ function jslint_phase2_lex(state) {
 // test_cause:
 // ["aa=/.{,/", "lex_regexp_group", "comma", "77a", 77]
 
-                        test_cause("comma", line);
+                        test_cause("comma");
                         read_digits(rx_digits, true);
                     }
                     if (char_after("}") === "?") {
@@ -1277,7 +1277,7 @@ function jslint_phase2_lex(state) {
 // test_cause:
 // ["aa=/./gimuy", "lex_regexp", "flag", "77a", 77]
 
-                test_cause("flag", line);
+                test_cause("flag");
                 break;
             default:
 
@@ -1418,7 +1418,7 @@ function jslint_phase2_lex(state) {
 // ["?/./", "lex_slash_or_regexp", "recurse", "77a", 77]
 // ["aa[/./", "lex_slash_or_regexp", "recurse", "77a", 77]
 
-            test_cause("recurse", line);
+            test_cause("recurse");
             return lex_regexp();
         }
         if (line_source[0] === "=") {
@@ -1630,6 +1630,7 @@ function jslint_phase3_parse(state) {
         stop,
         syntax_dict,
         tenure,
+        test_cause,
         token_global,
         token_list,
         warn,
@@ -1918,22 +1919,24 @@ function jslint_phase3_parse(state) {
         if (the_symbol !== undefined && the_symbol.nud !== undefined) {
 
 // test_cause:
-// ["0", "77f", "77c", "77a", 77]
+// ["0", "parse_expression", "symbol", "77a", 77]
 
+            test_cause("symbol");
             left = the_symbol.nud();
         } else if (token_now.identifier) {
 
 // test_cause:
-// ["aa", "77f", "77c", "77a", 77]
+// ["aa", "parse_expression", "identifier", "77a", 77]
 
+            test_cause("identifier");
             left = token_now;
             left.arity = "variable";
         } else {
 
 // test_cause:
-// ["!", "77f", "77c", "77a", 77]
-// ["/./", "77f", "77c", "77a", 77]
-// ["let aa=`${}`;", "77f", "77c", "77a", 77]
+// ["!", "parse_expression", "unexpected_a", "77a", 77]
+// ["/./", "parse_expression", "unexpected_a", "77a", 77]
+// ["let aa=`${}`;", "parse_expression", "unexpected_a", "77a", 77]
 
             return stop("unexpected_a", token_now);
         }
@@ -1963,10 +1966,11 @@ function jslint_phase3_parse(state) {
         let the_value;
 
 // test_cause:
-// ["do{}while()", "77f", "77c", "77a", 77]
-// ["if(){}", "77f", "77c", "77a", 77]
-// ["while(){}", "77f", "77c", "77a", 77]
+// ["do{}while()", "condition", "", "77a", 77]
+// ["if(){}", "condition", "", "77a", 77]
+// ["while(){}", "condition", "", "77a", 77]
 
+        test_cause("");
         the_paren.free = true;
         advance("(");
         the_value = parse_expression(0);
@@ -1974,7 +1978,7 @@ function jslint_phase3_parse(state) {
         if (the_value.wrapped === true) {
 
 // test_cause:
-// ["while((0)){}", "77f", "77c", "77a", 77]
+// ["while((0)){}", "condition", "unexpected_a", "77a", 77]
 
             warn("unexpected_a", the_paren);
         }
@@ -2030,22 +2034,22 @@ function jslint_phase3_parse(state) {
         case "~":
 
 // test_cause:
-// ["if(0%0){}", "77f", "77c", "77a", 77]
-// ["if(0&0){}", "77f", "77c", "77a", 77]
-// ["if(0){}", "77f", "77c", "77a", 77]
-// ["if(0*0){}", "77f", "77c", "77a", 77]
-// ["if(0+0){}", "77f", "77c", "77a", 77]
-// ["if(0-0){}", "77f", "77c", "77a", 77]
-// ["if(0/0){}", "77f", "77c", "77a", 77]
-// ["if(0<<0){}", "77f", "77c", "77a", 77]
-// ["if(0>>0){}", "77f", "77c", "77a", 77]
-// ["if(0>>>0){}", "77f", "77c", "77a", 77]
-// ["if(0?0:0){}", "77f", "77c", "77a", 77]
-// ["if(0^0){}", "77f", "77c", "77a", 77]
-// ["if(0|0){}", "77f", "77c", "77a", 77]
-// ["if(\"aa\"){}", "77f", "77c", "77a", 77]
-// ["if(typeof 0){}", "77f", "77c", "77a", 77]
-// ["if(~0){}", "77f", "77c", "77a", 77]
+// ["if(0%0){}", "condition", "unexpected_a", "77a", 77]
+// ["if(0&0){}", "condition", "unexpected_a", "77a", 77]
+// ["if(0){}", "condition", "unexpected_a", "77a", 77]
+// ["if(0*0){}", "condition", "unexpected_a", "77a", 77]
+// ["if(0+0){}", "condition", "unexpected_a", "77a", 77]
+// ["if(0-0){}", "condition", "unexpected_a", "77a", 77]
+// ["if(0/0){}", "condition", "unexpected_a", "77a", 77]
+// ["if(0<<0){}", "condition", "unexpected_a", "77a", 77]
+// ["if(0>>0){}", "condition", "unexpected_a", "77a", 77]
+// ["if(0>>>0){}", "condition", "unexpected_a", "77a", 77]
+// ["if(0?0:0){}", "condition", "unexpected_a", "77a", 77]
+// ["if(0^0){}", "condition", "unexpected_a", "77a", 77]
+// ["if(0|0){}", "condition", "unexpected_a", "77a", 77]
+// ["if(\"aa\"){}", "condition", "unexpected_a", "77a", 77]
+// ["if(typeof 0){}", "condition", "unexpected_a", "77a", 77]
+// ["if(~0){}", "condition", "unexpected_a", "77a", 77]
 
             warn("unexpected_a", the_value);
             break;
@@ -4856,6 +4860,7 @@ function jslint_phase4_walk(state) {
         is_weird,
         option_dict,
         syntax_dict,
+        test_cause,
         token_global,
         warn
     } = state;
@@ -4970,9 +4975,10 @@ function jslint_phase4_walk(state) {
             if (Array.isArray(thing)) {
 
 // test_cause:
-// ["(function(){}())", "77f", "77c", "77a", 77]
-// ["0&&0", "77f", "77c", "77a", 77]
+// ["(function(){}())", "walk_expression", "isArray", "77a", 77]
+// ["0&&0", "walk_expression", "isArray", "77a", 77]
 
+                test_cause("isArray");
                 thing.forEach(walk_expression);
             } else {
                 preamble(thing);
@@ -6010,6 +6016,7 @@ function jslint_phase5_whitage(state) {
         function_list,
         function_stack,
         option_dict,
+        test_cause,
         token_global,
         token_list,
         warn
@@ -6092,8 +6099,9 @@ function jslint_phase5_whitage(state) {
             if (id !== "ignore" && name.parent === the_function) {
 
 // test_cause:
-// ["let aa=function bb(){return;};", "77f", "77c", "77a", 77]
+// ["let aa=function bb(){return;};", "delve", "id", "77a", 77]
 
+                test_cause("id");
                 if (
                     name.used === 0
 
