@@ -1230,7 +1230,7 @@ function jslint_phase2_lex(state) {
         if (char === "=") {
 
 // test_cause:
-// ["aa=/=/", "77f", "77c", "77a", 77]
+// ["aa=/=/", "lex_regexp", "expected_a_before_b", "77a", 77]
 
             warn_at("expected_a_before_b", line, column, "\\", "=");
         }
@@ -1275,14 +1275,15 @@ function jslint_phase2_lex(state) {
             case "y":
 
 // test_cause:
-// ["aa=/./gimuy", "77f", "77c", "77a", 77]
+// ["aa=/./gimuy", "lex_regexp", "flag", "77a", 77]
 
+                test_cause("flag", line);
                 break;
             default:
 
 // test_cause:
-// ["aa=/./gg", "77f", "77c", "77a", 77]
-// ["aa=/./z", "77f", "77c", "77a", 77]
+// ["aa=/./gg", "lex_regexp", "unexpected_a", "77a", 77]
+// ["aa=/./z", "lex_regexp", "unexpected_a", "77a", 77]
 
                 warn_at("unexpected_a", line, column, char);
             }
@@ -1293,7 +1294,7 @@ function jslint_phase2_lex(state) {
         if (char === "/" || char === "*") {
 
 // test_cause:
-// ["aa=/.//", "77f", "77c", "77a", 77]
+// ["aa=/.//", "lex_regexp", "unexpected_a", "77a", 77]
 
             return stop_at("unexpected_a", line, from, char);
         }
@@ -1303,7 +1304,7 @@ function jslint_phase2_lex(state) {
         if (mode_regexp_multiline && !flag.m) {
 
 // test_cause:
-// ["aa=/$^/", "77f", "77c", "77a", 77]
+// ["aa=/$^/", "lex_regexp", "missing_m", "77a", 77]
 
             warn_at("missing_m", line, column);
         }
@@ -1354,14 +1355,14 @@ function jslint_phase2_lex(state) {
             the_token = lex_regexp();
 
 // test_cause:
-// ["case /./", "77f", "77c", "77a", 77]
-// ["delete /./", "77f", "77c", "77a", 77]
-// ["in /./", "77f", "77c", "77a", 77]
-// ["instanceof /./", "77f", "77c", "77a", 77]
-// ["new /./", "77f", "77c", "77a", 77]
-// ["typeof /./", "77f", "77c", "77a", 77]
-// ["void /./", "77f", "77c", "77a", 77]
-// ["yield /./", "77f", "77c", "77a", 77]
+// ["case /./", "lex_slash_or_regexp", "unexpected_a", "77a", 77]
+// ["delete /./", "lex_slash_or_regexp", "unexpected_a", "77a", 77]
+// ["in /./", "lex_slash_or_regexp", "unexpected_a", "77a", 77]
+// ["instanceof /./", "lex_slash_or_regexp", "unexpected_a", "77a", 77]
+// ["new /./", "lex_slash_or_regexp", "unexpected_a", "77a", 77]
+// ["typeof /./", "lex_slash_or_regexp", "unexpected_a", "77a", 77]
+// ["void /./", "lex_slash_or_regexp", "unexpected_a", "77a", 77]
+// ["yield /./", "lex_slash_or_regexp", "unexpected_a", "77a", 77]
 
             return stop("unexpected_a", the_token);
         }
@@ -1384,21 +1385,21 @@ function jslint_phase2_lex(state) {
             the_token = lex_regexp();
 
 // test_cause:
-// ["!/./", "77f", "77c", "77a", 77]
-// ["%/./", "77f", "77c", "77a", 77]
-// ["&/./", "77f", "77c", "77a", 77]
-// ["+/./", "77f", "77c", "77a", 77]
-// ["-/./", "77f", "77c", "77a", 77]
-// ["0 * /./", "77f", "77c", "77a", 77]
-// ["0 / /./", "77f", "77c", "77a", 77]
-// [";/./", "77f", "77c", "77a", 77]
-// ["</./", "77f", "77c", "77a", 77]
-// [">/./", "77f", "77c", "77a", 77]
-// ["^/./", "77f", "77c", "77a", 77]
-// ["{/./", "77f", "77c", "77a", 77]
-// ["|/./", "77f", "77c", "77a", 77]
-// ["}/./", "77f", "77c", "77a", 77]
-// ["~/./", "77f", "77c", "77a", 77]
+// ["!/./", "lex_slash_or_regexp", "wrap_regexp", "77a", 77]
+// ["%/./", "lex_slash_or_regexp", "wrap_regexp", "77a", 77]
+// ["&/./", "lex_slash_or_regexp", "wrap_regexp", "77a", 77]
+// ["+/./", "lex_slash_or_regexp", "wrap_regexp", "77a", 77]
+// ["-/./", "lex_slash_or_regexp", "wrap_regexp", "77a", 77]
+// ["0 * /./", "lex_slash_or_regexp", "wrap_regexp", "77a", 77]
+// ["0 / /./", "lex_slash_or_regexp", "wrap_regexp", "77a", 77]
+// [";/./", "lex_slash_or_regexp", "wrap_regexp", "77a", 77]
+// ["</./", "lex_slash_or_regexp", "wrap_regexp", "77a", 77]
+// [">/./", "lex_slash_or_regexp", "wrap_regexp", "77a", 77]
+// ["^/./", "lex_slash_or_regexp", "wrap_regexp", "77a", 77]
+// ["{/./", "lex_slash_or_regexp", "wrap_regexp", "77a", 77]
+// ["|/./", "lex_slash_or_regexp", "wrap_regexp", "77a", 77]
+// ["}/./", "lex_slash_or_regexp", "wrap_regexp", "77a", 77]
+// ["~/./", "lex_slash_or_regexp", "wrap_regexp", "77a", 77]
 
             warn("wrap_regexp", the_token);
             return the_token;
@@ -1410,13 +1411,14 @@ function jslint_phase2_lex(state) {
         case "[":
 
 // test_cause:
-// ["(/./", "77f", "77c", "77a", 77]
-// [",/./", "77f", "77c", "77a", 77]
-// [":/./", "77f", "77c", "77a", 77]
-// ["=/./", "77f", "77c", "77a", 77]
-// ["?/./", "77f", "77c", "77a", 77]
-// ["aa[/./", "77f", "77c", "77a", 77]
+// ["(/./", "lex_slash_or_regexp", "recurse", "77a", 77]
+// [",/./", "lex_slash_or_regexp", "recurse", "77a", 77]
+// [":/./", "lex_slash_or_regexp", "recurse", "77a", 77]
+// ["=/./", "lex_slash_or_regexp", "recurse", "77a", 77]
+// ["?/./", "lex_slash_or_regexp", "recurse", "77a", 77]
+// ["aa[/./", "lex_slash_or_regexp", "recurse", "77a", 77]
 
+            test_cause("recurse", line);
             return lex_regexp();
         }
         if (line_source[0] === "=") {
