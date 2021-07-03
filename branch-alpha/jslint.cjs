@@ -6014,7 +6014,7 @@ function jslint_phase5_whitage(state) {
 // test_cause2:
 // [" let aa=function bb(){return;};", "delve", "not_ignore", 0, "bb"]
 
-                test_cause("not_ignore", 0, id);
+                test_cause("not_ignore", name);
                 if (
                     name.used === 0
 
@@ -6048,7 +6048,7 @@ function jslint_phase5_whitage(state) {
 // test_cause2:
 // [" function aa(ignore){return;}", "delve", "ignore", 0, "ignore"]
 
-            test_cause("ignore", 0, id);
+            test_cause("ignore", name);
         });
     }
 
@@ -6834,7 +6834,7 @@ function jslint(
     let token_list = [];        // The array of tokens.
     let warning_list = [];      // The array collecting all generated warnings.
 
-    function test_cause(code, column, aa) {
+    function test_cause(code, aa) {
 
 // This function will instrument <cause> to <cause_dict> for test-purposes.
 
@@ -6846,8 +6846,12 @@ function jslint(
                     /^\u0020{4}at\u0020(\w+?)\b/m
                 )[1],
                 code,
-                column || 0,
-                aa || artifact()
+                0,
+                (
+                    (aa === undefined || (typeof aa === "object" && aa))
+                    ? artifact(aa)
+                    : aa
+                )
             ])] = true;
         }
     }
@@ -6879,14 +6883,14 @@ function jslint(
 // [" aa[function aa(){}]", "is_weird", "true", 0, "function"]
 // [" aa[{}]", "is_weird", "true", 0, "{"]
 
-            test_cause("true", 0, thing.id);
+            test_cause("true", thing);
             return true;
         case "[":
 
 // test_cause2:
 // [" aa[[]]", "is_weird", "unary", 0, "["]
 
-            test_cause("unary", 0, thing.id);
+            test_cause("unary", thing);
             return thing.arity === "unary";
         default:
             return false;
@@ -6900,7 +6904,7 @@ function jslint(
 // test_cause2:
 // [" 0&&0", "is_equal", "", 0, "0"]
 
-        test_cause("", 0, artifact(aa));
+        test_cause("", aa);
 
 // Probably deadcode.
 // if (aa === bb) {
@@ -6915,9 +6919,9 @@ function jslint(
                 && aa.every(function (value, index) {
 
 // test_cause2:
-// [" `${0}`&&`${0}`", "is_equal", "Array.isArray", 0, "(end)"]
+// [" `${0}`&&`${0}`", "is_equal", "Array.isArray", 0, "0"]
 
-                    test_cause("Array.isArray", 0, artifact(aa));
+                    test_cause("Array.isArray", value);
                     return is_equal(value, bb[index]);
                 })
             );
@@ -6954,7 +6958,7 @@ function jslint(
 // test_cause2:
 // [" aa.bb&&aa.bb", "is_equal", ".", 0, "."]
 
-                test_cause(".", 0, artifact(aa));
+                test_cause(".", aa);
                 return (
                     is_equal(aa.expression, bb.expression)
                     && is_equal(aa.name, bb.name)
@@ -6965,7 +6969,7 @@ function jslint(
 // test_cause2:
 // [" +0&&+0", "is_equal", "unary", 0, "+"]
 
-                test_cause("unary", 0, artifact(aa));
+                test_cause("unary", aa);
                 return is_equal(aa.expression, bb.expression);
             }
             if (aa.arity === "binary") {
@@ -6973,7 +6977,7 @@ function jslint(
 // test_cause2:
 // [" aa[0]&&aa[0]", "is_equal", "binary", 0, "["]
 
-                test_cause("binary", 0, artifact(aa));
+                test_cause("binary", aa);
                 return (
                     aa.id !== "("
                     && is_equal(aa.expression[0], bb.expression[0])
@@ -6985,7 +6989,7 @@ function jslint(
 // test_cause2:
 // [" aa=(``?``:``)&&(``?``:``)", "is_equal", "ternary", 0, "?"]
 
-                test_cause("ternary", 0, artifact(aa));
+                test_cause("ternary", aa);
                 return (
                     is_equal(aa.expression[0], bb.expression[0])
                     && is_equal(aa.expression[1], bb.expression[1])
@@ -7006,14 +7010,14 @@ function jslint(
 // test_cause2:
 // [" undefined&&undefined", "is_equal", "true", 0, "undefined"]
 
-            test_cause("true", 0, artifact(aa));
+            test_cause("true", aa);
             return true;
         }
 
 // test_cause2:
 // [" null&&undefined", "is_equal", "false", 0, "null"]
 
-        test_cause("false", 0, artifact(aa));
+        test_cause("false", aa);
         return false;
     }
 
