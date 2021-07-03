@@ -2175,21 +2175,17 @@ function jslint_phase3_parse(state) {
         while (true) {
             switch (token_nxt.id) {
             case "(end)":
-                return statement_list;
             case "case":
-                return statement_list;
             case "default":
-                return statement_list;
             case "else":
-                return statement_list;
             case "}":
 
-//!! // test_cause:
-//!! // [";", "parse_statements", "closer", "7", 77]
-//!! // ["case", "parse_statements", "closer", "7", 77]
-//!! // ["default", "parse_statements", "closer", "7", 77]
-//!! // ["else", "parse_statements", "closer", "7", 77]
-//!! // ["}", "parse_statements", "closer", "7", 77]
+// test_cause:
+// [";", "parse_statements", "closer", "7", 77]
+// ["case", "parse_statements", "closer", "7", 77]
+// ["default", "parse_statements", "closer", "7", 77]
+// ["else", "parse_statements", "closer", "7", 77]
+// ["}", "parse_statements", "closer", "7", 77]
 
                 test_cause("closer");
                 return statement_list;
@@ -3785,7 +3781,7 @@ function jslint_phase3_parse(state) {
             } else if (the_variable.id !== mode_var) {
 
 // test_cause:
-// ["let aa;var aa", "77f", "77c", "7", 77]
+// ["let aa;var aa", "parse_var", "expected_a_b", "7", 77]
 
                 warn("expected_a_b", the_variable, mode_var, the_variable.id);
             }
@@ -3796,7 +3792,7 @@ function jslint_phase3_parse(state) {
         if (functionage.switch > 0) {
 
 // test_cause:
-// ["switch(0){case 0:var aa}", "77f", "77c", "7", 77]
+// ["switch(0){case 0:var aa}", "parse_var", "var_switch", "7", 77]
 
             warn("var_switch", the_variable);
         }
@@ -3805,25 +3801,23 @@ function jslint_phase3_parse(state) {
             && functionage.last_statement.id
         ) {
         case "const":
+        case "let":
+        case "var":
+
+// test_cause:
+// ["const aa=0;const bb=0;", "parse_var", "declare", "7", 77]
+// ["let aa=0;let bb=0;", "parse_var", "declare", "7", 77]
+// ["var aa=0;var bb=0;", "parse_var", "declare", "7", 77]
+
+            test_cause("declare");
             variable_prv = functionage.last_statement;
             break;
         case "import":
 
 // test_cause:
-// ["import aa from \"aa\";\nlet bb=0;", "77f", "77c", "7", 77]
+// ["import aa from \"aa\";\nlet bb=0;", "parse_var", "import", "7", 77]
 
-            break;
-        case "let":
-            variable_prv = functionage.last_statement;
-            break;
-        case "var":
-
-// test_cause:
-// ["const aa=0;const bb=0;", "77f", "77c", "7", 77]
-// ["let aa=0;let bb=0;", "77f", "77c", "7", 77]
-// ["var aa=0;var bb=0;", "77f", "77c", "7", 77]
-
-            variable_prv = functionage.last_statement;
+            test_cause("import");
             break;
         case false:
             break;
@@ -3834,10 +3828,10 @@ function jslint_phase3_parse(state) {
             ) {
 
 // test_cause:
-// ["/*jslint beta*/\nconsole.log();let aa=0;", "77f", "77c", "7", 77]
-// ["console.log();var aa=0;", "77f", "77c", "7", 77]
-// ["try{aa();}catch(aa){var aa=0;}", "77f", "77c", "7", 77]
-// ["while(0){var aa;}", "77f", "77c", "7", 77]
+// ["/*jslint beta*/\nconsole.log();let aa=0;", "parse_var", "var_on_top", "7", 77] //jslint-quiet
+// ["console.log();var aa=0;", "parse_var", "var_on_top", "7", 77]
+// ["try{aa();}catch(aa){var aa=0;}", "parse_var", "var_on_top", "7", 77]
+// ["while(0){var aa;}", "parse_var", "var_on_top", "7", 77]
 
                 warn("var_on_top", token_now);
             }
@@ -3847,7 +3841,7 @@ function jslint_phase3_parse(state) {
                 if (the_variable.id === "var") {
 
 // test_cause:
-// ["var{aa}=0", "77f", "77c", "7", 77]
+// ["var{aa}=0", "parse_var", "unexpected_a", "7", 77]
 
                     warn("unexpected_a", the_variable);
                 }
@@ -3858,7 +3852,7 @@ function jslint_phase3_parse(state) {
                     if (!name.identifier) {
 
 // test_cause:
-// ["let {0}", "77f", "77c", "7", 77]
+// ["let {0}", "parse_var", "expected_identifier_a", "7", 77]
 
                         return stop("expected_identifier_a");
                     }
@@ -3869,8 +3863,8 @@ function jslint_phase3_parse(state) {
                         if (!token_nxt.identifier) {
 
 // test_cause:
-// ["let {aa:0}", "77f", "77c", "7", 77]
-// ["let {aa:{aa}}", "77f", "77c", "7", 77]
+// ["let {aa:0}", "parse_var", "expected_identifier_a", "7", 77]
+// ["let {aa:{aa}}", "parse_var", "expected_identifier_a", "7", 77]
 
                             return stop("expected_identifier_a");
                         }
@@ -3888,8 +3882,9 @@ function jslint_phase3_parse(state) {
                     if (token_nxt.id === "=") {
 
 // test_cause:
-// ["let {aa=0}", "77f", "77c", "7", 77]
+// ["let {aa=0}", "parse_var", "assign", "7", 77]
 
+                        test_cause("assign");
                         advance("=");
                         name.expression = parse_expression();
                         the_brace.open = true;
@@ -3901,7 +3896,7 @@ function jslint_phase3_parse(state) {
                 }
 
 // test_cause:
-// ["let{bb,aa}", "77f", "77c", "7", 77]
+// ["let{bb,aa}", "warn_if_unordered", "expected_a_b_ordered_before_c_d", "7", 77] //jslint-quiet
 
                 warn_if_unordered(the_variable.id, the_variable.names);
                 advance("}");
@@ -3911,7 +3906,7 @@ function jslint_phase3_parse(state) {
                 if (the_variable.id === "var") {
 
 // test_cause:
-// ["var[aa]=0", "77f", "77c", "7", 77]
+// ["var[aa]=0", "parse_var", "unexpected_a", "7", 77]
 
                     warn("unexpected_a", the_variable);
                 }
@@ -3926,7 +3921,7 @@ function jslint_phase3_parse(state) {
                     if (!token_nxt.identifier) {
 
 // test_cause:
-// ["let[]", "77f", "77c", "7", 77]
+// ["let[]", "parse_var", "expected_identifier_a", "7", 77]
 
                         return stop("expected_identifier_a");
                     }
@@ -3959,7 +3954,7 @@ function jslint_phase3_parse(state) {
                 if (name.id === "ignore") {
 
 // test_cause:
-// ["let ignore;function aa(ignore) {}", "77f", "77c", "7", 77]
+// ["let ignore;function aa(ignore) {}", "parse_var", "unexpected_a", "7", 77]
 
                     warn("unexpected_a", name);
                 }
@@ -3974,8 +3969,8 @@ function jslint_phase3_parse(state) {
             } else {
 
 // test_cause:
-// ["let 0", "77f", "77c", "7", 77]
-// ["var{aa:{aa}}", "77f", "77c", "7", 77]
+// ["let 0", "parse_var", "expected_identifier_a", "7", 77]
+// ["var{aa:{aa}}", "parse_var", "expected_identifier_a", "7", 77]
 
                 return stop("expected_identifier_a");
             }
@@ -3984,7 +3979,7 @@ function jslint_phase3_parse(state) {
             }
 
 // test_cause:
-// ["let aa,bb;", "77f", "77c", "7", 77]
+// ["let aa,bb;", "parse_var", "expected_a_b", "7", 77]
 
             warn("expected_a_b", token_nxt, ";", ",");
             advance(",");
@@ -4004,9 +3999,9 @@ function jslint_phase3_parse(state) {
         ) {
 
 // test_cause:
-// ["/*jslint beta*/\nconst bb=0;const aa=0;", "77f", "77c", "7", 77]
-// ["/*jslint beta*/\nlet bb;let aa;", "77f", "77c", "7", 77]
-// ["/*jslint beta*/\nvar bb;var aa;", "77f", "77c", "7", 77]
+// ["/*jslint beta*/\nconst bb=0;const aa=0;", "parse_var", "expected_a_b_ordered_before_c_d", "7", 77] //jslint-quiet
+// ["/*jslint beta*/\nlet bb;let aa;", "parse_var", "expected_a_b_ordered_before_c_d", "7", 77] //jslint-quiet
+// ["/*jslint beta*/\nvar bb;var aa;", "parse_var", "expected_a_b_ordered_before_c_d", "7", 77] //jslint-quiet
 
             warn(
                 "expected_a_b_ordered_before_c_d",
