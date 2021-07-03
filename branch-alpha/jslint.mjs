@@ -4993,31 +4993,33 @@ function jslint_phase4_walk(state) {
                 if (thing.id === "function") {
 
 // test_cause:
-// ["aa=function(){}", "77f", "77c", "7", 77]
+// ["aa=function(){}", "walk_expression", "function", "7", 77]
 
+                    test_cause("function");
                     walk_statement(thing.block);
                 }
                 if (thing.arity === "pre" || thing.arity === "post") {
 
 // test_cause:
-// ["aa=++aa", "77f", "77c", "7", 77]
-// ["aa=--aa", "77f", "77c", "7", 77]
+// ["aa=++aa", "walk_expression", "unexpected_a", "7", 77]
+// ["aa=--aa", "walk_expression", "unexpected_a", "7", 77]
 
                     warn("unexpected_a", thing);
                 } else if (
-
-// test_cause:
-// ["aa=0", "77f", "77c", "7", 77]
-
                     thing.arity === "statement"
                     || thing.arity === "assignment"
                 ) {
 
 // test_cause:
-// ["aa[aa=0]", "77f", "77c", "7", 77]
+// ["aa[aa=0]", "walk_expression", "unexpected_statement_a", "7", 77]
 
                     warn("unexpected_statement_a", thing);
                 }
+
+// test_cause:
+// ["aa=0", "walk_expression", "default", "7", 77]
+
+                test_cause("default");
                 postamble(thing);
             }
         }
@@ -6787,6 +6789,7 @@ function jslint(
             "setTimeout"
         ],
         single: true,           // Allow single-quote strings.
+        test_cause: true,       // Test jslint's causes.
         test_internal_error: true,      // Test jslint's internal-error
                                         // ... handling-ability.
         this: true,             // Allow 'this'.
@@ -7470,6 +7473,7 @@ function jslint(
             );
             return the_token.warning;
         }
+        test_cause(code);
     }
 
     function stop(code, the_token, a, b, c, d) {
