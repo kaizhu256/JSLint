@@ -31,7 +31,6 @@
 
 /*property
     dom_style_report_unmatched,
-    min,
     CodeMirror, Pos, Tab, addEventListener, checked, click, closest, closure,
     column, context, ctrlKey, currentTarget, dispatchEvent, display, edition,
     editor, error, exports, extraKeys, filter, forEach, from, fromTextArea,
@@ -47,7 +46,7 @@
     warnings, width
 */
 
-import jslint from "./jslint.mjs?cc=0px9";
+import jslint from "./jslint.mjs?cc=bekj";
 
 // This is the web script companion file for JSLint. It includes code for
 // interacting with the browser and displaying the reports.
@@ -100,15 +99,11 @@ function jslint_plugin_codemirror(CodeMirror) {
         return options.result.warnings.map(function ({
             column,
             line,
-            line_source,
             message,
             mode_stop
         }) {
             return {
-                from: CodeMirror.Pos( //jslint-quiet
-                    line - 1,
-                    Math.min(column - 1, line_source.length - 1)
-                ),
+                from: CodeMirror.Pos(line - 1, column - 1), //jslint-quiet
                 message,
                 severity: (
                     mode_stop

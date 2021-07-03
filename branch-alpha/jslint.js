@@ -95,6 +95,7 @@
 
 /*property
     causes,
+    max, min,
     stringify,
     test_cause,
     JSLINT_BETA, a, all, allowed_option, argv, arity, artifact, assign, async,
@@ -7039,6 +7040,10 @@ function jslint(
             line_source: "",
             name: "JSLintError"
         }, line_list[line]);
+        warning.column = Math.max(
+            Math.min(warning.column, warning.line_source.length),
+            jslint_fudge
+        );
         if (option_dict.test_cause) {
             cause_dict[JSON.stringify([
                 String(new Error().stack).replace((
