@@ -3399,7 +3399,7 @@ function jslint_phase3_parse(state) {
         if (the_function.async === 1) {
 
 // test_cause:
-// ["async function aa(){}", "77f", "77c", "7", 77]
+// ["async function aa(){}", "parse_async", "missing_await_statement", "7", 77]
 
             warn("missing_await_statement", the_function);
         }
@@ -3411,9 +3411,9 @@ function jslint_phase3_parse(state) {
         if (functionage.async === 0) {
 
 // test_cause:
-// ["await", "77f", "77c", "7", 77]
-// ["function aa(){aa=await 0;}", "77f", "77c", "7", 77]
-// ["function aa(){await 0;}", "77f", "77c", "7", 77]
+// ["await", "parse_await", "unexpected_a", "7", 77]
+// ["function aa(){aa=await 0;}", "parse_await", "unexpected_a", "7", 77]
+// ["function aa(){await 0;}", "parse_await", "unexpected_a", "7", 77]
 
             warn("unexpected_a", the_await);
         } else {
@@ -3432,7 +3432,7 @@ function jslint_phase3_parse(state) {
     prefix("await", parse_await);
     prefix("function", parse_function);
 
-    function fart(pl) {
+    function parse_fart(pl) {
         let the_fart;
         advance("=>");
         the_fart = token_now;
@@ -3443,7 +3443,7 @@ function jslint_phase3_parse(state) {
         if (functionage.loop > 0) {
 
 // test_cause:
-// ["while(0){aa.map(()=>0);}", "77f", "77c", "7", 77]
+// ["while(0){aa.map(()=>0);}", "parse_fart", "function_in_loop", "7", 77]
 
             warn("function_in_loop", the_fart);
         }
@@ -3466,14 +3466,15 @@ function jslint_phase3_parse(state) {
         the_fart.parameters.forEach(function (name) {
 
 // test_cause:
-// ["(aa)=>{}", "77f", "77c", "7", 77]
+// ["(aa)=>{}", "parse_fart", "parameter", "7", 77]
 
+            test_cause("parameter");
             enroll(name, "parameter", true);
         });
         if (token_nxt.id === "{") {
 
 // test_cause:
-// ["()=>{}", "77f", "77c", "7", 77]
+// ["()=>{}", "parse_fart", "expected_a_b", "7", 77]
 
             warn("expected_a_b", the_fart, "function", "=>");
             the_fart.block = block("body");
@@ -3502,7 +3503,7 @@ function jslint_phase3_parse(state) {
 // ["()=>0", "77f", "77c", "7", 77]
 
             the_paren.free = false;
-            return fart(parse_function_arg());
+            return parse_fart(parse_function_arg());
         }
 
 // test_cause:
@@ -3542,7 +3543,7 @@ function jslint_phase3_parse(state) {
                 return stop("expected_identifier_a", the_value);
             }
             the_paren.expression = [the_value];
-            return fart([the_paren.expression, "(" + the_value.id + ")"]);
+            return parse_fart([the_paren.expression, "(" + the_value.id + ")"]);
         }
         return the_value;
     });
