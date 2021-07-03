@@ -2066,7 +2066,7 @@ function jslint_phase3_parse(state) {
         } else {
 
 // test_cause:
-// ["0", "77f", "77c", "77a", 77]
+// ["0", "semicolon", "expected_a_b", "77a", 77]
 
             warn_at(
                 "expected_a_b",
@@ -2095,7 +2095,7 @@ function jslint_phase3_parse(state) {
             if (the_label.id === "ignore") {
 
 // test_cause:
-// ["ignore:", "77f", "77c", "77a", 77]
+// ["ignore:", "parse_statement", "unexpected_a", "77a", 77]
 
                 warn("unexpected_a", the_label);
             }
@@ -2118,7 +2118,7 @@ function jslint_phase3_parse(state) {
             advance();
 
 // test_cause:
-// ["aa:", "77f", "77c", "77a", 77]
+// ["aa:", "parse_statement", "unexpected_label_a", "77a", 77]
 
             warn("unexpected_label_a", the_label);
         }
@@ -2149,7 +2149,7 @@ function jslint_phase3_parse(state) {
             if (the_statement.wrapped && the_statement.id !== "(") {
 
 // test_cause:
-// ["(0)", "77f", "77c", "77a", 77]
+// ["(0)", "parse_statement", "unexpected_a", "77a", 77]
 
                 warn("unexpected_a", first);
             }
@@ -2184,13 +2184,14 @@ function jslint_phase3_parse(state) {
                 return statement_list;
             case "}":
 
-// test_cause:
-// [";", "77f", "77c", "77a", 77]
-// ["case", "77f", "77c", "77a", 77]
-// ["default", "77f", "77c", "77a", 77]
-// ["else", "77f", "77c", "77a", 77]
-// ["}", "77f", "77c", "77a", 77]
+//!! // test_cause:
+//!! // [";", "parse_statements", "closer", "77a", 77]
+//!! // ["case", "parse_statements", "closer", "77a", 77]
+//!! // ["default", "parse_statements", "closer", "77a", 77]
+//!! // ["else", "parse_statements", "closer", "77a", 77]
+//!! // ["}", "parse_statements", "closer", "77a", 77]
 
+                test_cause("closer");
                 return statement_list;
             }
             a_statement = parse_statement();
@@ -2198,7 +2199,7 @@ function jslint_phase3_parse(state) {
             if (disrupt) {
 
 // test_cause:
-// ["while(0){break;0;}", "77f", "77c", "77a", 77]
+// ["while(0){break;0;}", "parse_statements", "unreachable_a", "77a", 77]
 
                 warn("unreachable_a", a_statement);
             }
@@ -2256,7 +2257,7 @@ function jslint_phase3_parse(state) {
             if (!option_dict.devel && special !== "ignore") {
 
 // test_cause:
-// ["function aa(){}", "77f", "77c", "77a", 77]
+// ["function aa(){}", "block", "empty_block", "77a", 77]
 
                 warn("empty_block", the_block);
             }
@@ -2285,7 +2286,7 @@ function jslint_phase3_parse(state) {
         ) {
 
 // test_cause:
-// ["0=0", "77f", "77c", "77a", 77]
+// ["0=0", "mutation_check", "bad_assignment_a", "77a", 77]
 
             warn("bad_assignment_a", the_thing);
             return false;
@@ -2417,11 +2418,12 @@ function jslint_phase3_parse(state) {
 
         const the_symbol = symbol(id, bp);
         the_symbol.led = function (left) {
+            const the_token = token_now;
 
 // test_cause:
-// ["0**0", "77f", "77c", "77a", 77]
+// ["0**0", "parse_expression", "led", "77a", 77]
 
-            const the_token = token_now;
+            test_cause("led");
             the_token.arity = "binary";
             the_token.expression = [left, parse_expression(bp - 1)];
             return the_token;
@@ -2508,7 +2510,7 @@ function jslint_phase3_parse(state) {
         } else if (!name.identifier) {
 
 // test_cause:
-// ["let aa={0:0}", "77f", "77c", "77a", 77]
+// ["let aa={0:0}", "survey", "expected_identifier_a", "77a", 77]
 
             return stop("expected_identifier_a", name);
         }
@@ -2527,7 +2529,7 @@ function jslint_phase3_parse(state) {
                 if (tenure[id] !== true) {
 
 // test_cause:
-// ["/*property aa*/\naa.bb", "77f", "77c", "77a", 77]
+// ["/*property aa*/\naa.bb", "survey", "unregistered_property_a", "77a", 77]
 
                     warn("unregistered_property_a", name);
                 }
@@ -2541,11 +2543,11 @@ function jslint_phase3_parse(state) {
             ) {
 
 // test_cause:
-// ["aa.$", "77f", "77c", "77a", 77]
-// ["aa._", "77f", "77c", "77a", 77]
-// ["aa._aa", "77f", "77c", "77a", 77]
-// ["aa.aaSync", "77f", "77c", "77a", 77]
-// ["aa.aa_", "77f", "77c", "77a", 77]
+// ["aa.$", "survey", "weird_property_a", "77a", 77]
+// ["aa._", "survey", "weird_property_a", "77a", 77]
+// ["aa._aa", "survey", "weird_property_a", "77a", 77]
+// ["aa.aaSync", "survey", "weird_property_a", "77a", 77]
+// ["aa.aa_", "survey", "weird_property_a", "77a", 77]
 
                 warn("weird_property_a", name);
             }
