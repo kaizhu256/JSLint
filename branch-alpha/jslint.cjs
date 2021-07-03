@@ -946,7 +946,7 @@ function jslint_phase2_lex(state) {
         let value;
         mode_regexp = true;
 
-        function lex_regexp_bracket() {
+        function lex_regexp_bracketed() {
             let mode_regexp_range;
 
 // RegExp
@@ -966,13 +966,14 @@ function jslint_phase2_lex(state) {
                 case "]":
 
 // test_cause:
-// ["aa=/[", "77f", "77c", "77a", 77]
-// ["aa=/[]/", "77f", "77c", "77a", 77]
+// ["aa=/[", "lex_regexp_bracketed", "closer", "77a", 77]
+// ["aa=/[]/", "lex_regexp_bracketed", "closer", "77a", 77]
 
+                    test_cause("closer");
                     if (mode_regexp_range) {
 
 // test_cause:
-// ["aa=/[0-]/", "77f", "77c", "77a", 77]
+// ["aa=/[0-]/", "lex_regexp_bracketed", "unexpected_a", "77a", 77]
 
                         warn_at("unexpected_a", line, column - 1, "-");
                     }
@@ -980,7 +981,7 @@ function jslint_phase2_lex(state) {
                 case " ":
 
 // test_cause:
-// ["aa=/[ ]/", "77f", "77c", "77a", 77]
+// ["aa=/[ ]/", "lex_regexp_bracketed", "expected_a_b", "77a", 77]
 
                     warn_at("expected_a_b", line, column, "\\u0020", " ");
                     break;
@@ -990,11 +991,11 @@ function jslint_phase2_lex(state) {
                 case "^":
 
 // test_cause:
-// ["aa=/[-]/", "77f", "77c", "77a", 77]
-// ["aa=/[.^]/", "77f", "77c", "77a", 77]
-// ["aa=/[/", "77f", "77c", "77a", 77]
-// ["aa=/[\\\\/]/", "77f", "77c", "77a", 77]
-// ["aa=/[\\\\[]/", "77f", "77c", "77a", 77]
+// ["aa=/[-]/", "lex_regexp_bracketed", "expected_a_before_b", "77a", 77]
+// ["aa=/[.^]/", "lex_regexp_bracketed", "expected_a_before_b", "77a", 77]
+// ["aa=/[/", "lex_regexp_bracketed", "expected_a_before_b", "77a", 77]
+// ["aa=/[\\\\/]/", "lex_regexp_bracketed", "expected_a_before_b", "77a", 77]
+// ["aa=/[\\\\[]/", "lex_regexp_bracketed", "expected_a_before_b", "77a", 77]
 
                     warn_at("expected_a_before_b", line, column, "\\", char);
                     break;
@@ -1006,7 +1007,7 @@ function jslint_phase2_lex(state) {
                     if (mode_mega) {
 
 // test_cause:
-// ["`${/[`]/}`", "77f", "77c", "77a", 77]
+// ["`${/[`]/}`", "lex_regexp_bracketed", "unexpected_a", "77a", 77]
 
                         warn_at("unexpected_a", line, column, "`");
                     }
@@ -1040,9 +1041,9 @@ function jslint_phase2_lex(state) {
             case "]":
 
 // test_cause:
-// ["/ /", "77f", "77c", "77a", 77]
-// ["aa=/)", "77f", "77c", "77a", 77]
-// ["aa=/]", "77f", "77c", "77a", 77]
+// ["/ /", "lex_regexp_group", "expected_regexp_factor_a", "77a", 77]
+// ["aa=/)", "lex_regexp_group", "expected_regexp_factor_a", "77a", 77]
+// ["aa=/]", "lex_regexp_group", "expected_regexp_factor_a", "77a", 77]
 
                 warn_at("expected_regexp_factor_a", line, column, char);
                 break;
@@ -1057,7 +1058,7 @@ function jslint_phase2_lex(state) {
                 case " ":
 
 // test_cause:
-// ["aa=/ /", "77f", "77c", "77a", 77]
+// ["aa=/ /", "lex_regexp_group", "expected_a_b", "77a", 77]
 
                     warn_at("expected_a_b", line, column, "\\s", " ");
                     char_after();
@@ -1084,8 +1085,8 @@ function jslint_phase2_lex(state) {
                     } else if (char === ":") {
 
 // test_cause:
-// ["aa=/(:)/", "77f", "77c", "77a", 77]
-// ["aa=/?/", "77f", "77c", "77a", 77]
+// ["aa=/(:)/", "lex_regexp_group", "expected_a_before_b", "77a", 77]
+// ["aa=/?/", "lex_regexp_group", "expected_a_before_b", "77a", 77]
 
                         warn_at("expected_a_before_b", line, column, "?", ":");
                     }
@@ -1099,7 +1100,7 @@ function jslint_phase2_lex(state) {
                 case "*":
 
 // test_cause:
-// ["aa=/.**/", "77f", "77c", "77a", 77]
+// ["aa=/.**/", "lex_regexp_group", "expected_a_before_b", "77a", 77]
 
                     warn_at("expected_a_before_b", line, column, "\\", char);
                     char_after();
@@ -1107,7 +1108,7 @@ function jslint_phase2_lex(state) {
                 case "+":
 
 // test_cause:
-// ["aa=/+/", "77f", "77c", "77a", 77]
+// ["aa=/+/", "lex_regexp_group", "expected_a_before_b", "77a", 77]
 
                     warn_at("expected_a_before_b", line, column, "\\", char);
                     char_after();
@@ -1115,19 +1116,20 @@ function jslint_phase2_lex(state) {
                 case "?":
 
 // test_cause:
-// ["aa=/?/", "77f", "77c", "77a", 77]
+// ["aa=/?/", "lex_regexp_group", "expected_a_before_b", "77a", 77]
 
                     warn_at("expected_a_before_b", line, column, "\\", char);
                     char_after();
                     break;
                 case "[":
-                    lex_regexp_bracket();
+                    lex_regexp_bracketed();
                     break;
                 case "\\":
 
 // test_cause:
-// ["aa=/\\/", "77f", "77c", "77a", 77]
+// ["aa=/\\/", "lex_regexp_group", "escape", "77a", 77]
 
+                    test_cause("escape", line);
                     char_after_escape("BbDdSsWw^${}[]():=!.|*+?");
                     break;
                 case "^":
@@ -1140,7 +1142,7 @@ function jslint_phase2_lex(state) {
                     if (mode_mega) {
 
 // test_cause:
-// ["`${/`/}`", "77f", "77c", "77a", 77]
+// ["`${/`/}`", "lex_regexp_group", "unexpected_a", "77a", 77]
 
                         warn_at("unexpected_a", line, column, "`");
                     }
@@ -1149,7 +1151,7 @@ function jslint_phase2_lex(state) {
                 case "{":
 
 // test_cause:
-// ["aa=/{/", "77f", "77c", "77a", 77]
+// ["aa=/{/", "lex_regexp_group", "expected_a_before_b", "77a", 77]
 
                     warn_at("expected_a_before_b", line, column, "\\", char);
                     char_after();
@@ -1157,7 +1159,7 @@ function jslint_phase2_lex(state) {
                 case "}":
 
 // test_cause:
-// ["aa=/}/", "77f", "77c", "77a", 77]
+// ["aa=/}/", "lex_regexp_group", "expected_a_before_b", "77a", 77]
 
                     warn_at("expected_a_before_b", line, column, "\\", char);
                     char_after();
@@ -1184,7 +1186,7 @@ function jslint_phase2_lex(state) {
                     if (char_after("?") === "?") {
 
 // test_cause:
-// ["aa=/.??/", "77f", "77c", "77a", 77]
+// ["aa=/.??/", "lex_regexp_group", "unexpected_a", "77a", 77]
 
                         warn_at("unexpected_a", line, column, char);
                         char_after("?");
@@ -1194,21 +1196,22 @@ function jslint_phase2_lex(state) {
                     if (read_digits(rx_digits, true) === 0) {
 
 // test_cause:
-// ["aa=/aa{/", "77f", "77c", "77a", 77]
+// ["aa=/aa{/", "lex_regexp_group", "expected_a_before_b", "77a", 77]
 
                         warn_at("expected_a_before_b", line, column, "0", ",");
                     }
                     if (char === ",") {
 
 // test_cause:
-// ["aa=/.{,/", "77f", "77c", "77a", 77]
+// ["aa=/.{,/", "lex_regexp_group", "comma", "77a", 77]
 
+                        test_cause("comma", line);
                         read_digits(rx_digits, true);
                     }
                     if (char_after("}") === "?") {
 
 // test_cause:
-// ["aa=/.{0}?/", "77f", "77c", "77a", 77]
+// ["aa=/.{0}?/", "lex_regexp_group", "unexpected_a", "77a", 77]
 
                         warn_at("unexpected_a", line, column, char);
                         char_after("?");
