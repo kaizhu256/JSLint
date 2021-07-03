@@ -1438,7 +1438,7 @@ function jslint_phase2_lex(state) {
         if (!option_dict.single && quote === "'") {
 
 // test_cause:
-// ["''", "77f", "77c", "77a", 77]
+// ["''", "lex_string", "use_double", "77a", 77]
 
             warn_at("use_double", line, column);
         }
@@ -1452,7 +1452,7 @@ function jslint_phase2_lex(state) {
             case "":
 
 // test_cause:
-// ["\"", "77f", "77c", "77a", 77]
+// ["\"", "lex_string", "unclosed_string", "77a", 77]
 
                 return stop_at("unclosed_string", line, column);
             case "\\":
@@ -1462,7 +1462,7 @@ function jslint_phase2_lex(state) {
                 if (mode_mega) {
 
 // test_cause:
-// ["`${\"`\"}`", "77f", "77c", "77a", 77]
+// ["`${\"`\"}`", "lex_string", "unexpected_a", "77a", 77]
 
                     warn_at("unexpected_a", line, column, "`");
                 }
@@ -1499,13 +1499,13 @@ function jslint_phase2_lex(state) {
                         mode_mega
 
 // test_cause:
-// ["`${//}`", "77f", "77c", "77a", 77]
+// ["`${//}`", "lex_token", "unclosed_mega", "77a", 77]
 
                         ? stop_at("unclosed_mega", line_mega, from_mega)
                         : line_disable !== undefined
 
 // test_cause:
-// ["/*jslint-disable*/", "77f", "77c", "77a", 77]
+// ["/*jslint-disable*/", "lex_token", "unclosed_disable", "77a", 77]
 
                         ? stop_at("unclosed_disable", line_disable)
                         : token_create("(end)")
@@ -1524,7 +1524,7 @@ function jslint_phase2_lex(state) {
             if (!match) {
 
 // test_cause:
-// ["#", "77f", "77c", "77a", 77]
+// ["#", "lex_token", "unexpected_char_a", "77a", 77]
 
                 return stop_at(
                     "unexpected_char_a",
@@ -1742,12 +1742,12 @@ function jslint_phase3_parse(state) {
                 match === undefined
 
 // test_cause:
-// ["()", "77f", "77c", "77a", 77]
+// ["()", "advance", "expected_a_b", "77a", 77]
 
                 ? stop("expected_a_b", token_nxt, id, artifact())
 
 // test_cause:
-// ["{\"aa\":0", "77f", "77c", "77a", 77]
+// ["{\"aa\":0", "advance", "expected_a_b_from_c_d", "77a", 77]
 
                 : stop(
                     "expected_a_b_from_c_d",
@@ -1776,7 +1776,7 @@ function jslint_phase3_parse(state) {
             if (state.mode_json) {
 
 // test_cause:
-// ["[//]", "77f", "77c", "77a", 77]
+// ["[//]", "advance", "unexpected_a", "77a", 77]
 
                 warn("unexpected_a");
             }
@@ -1814,7 +1814,7 @@ function jslint_phase3_parse(state) {
         if (syntax_dict[id] !== undefined && id !== "ignore") {
 
 // test_cause:
-// ["let undefined", "77f", "77c", "77a", 77]
+// ["let undefined", "enroll", "reserved_a", "77a", 77]
 
             warn("reserved_a", name);
         } else {
@@ -1825,7 +1825,7 @@ function jslint_phase3_parse(state) {
             if (earlier) {
 
 // test_cause:
-// ["let aa;let aa", "77f", "77c", "77a", 77]
+// ["let aa;let aa", "enroll", "redefinition_a_b", "77a", 77]
 
                 warn("redefinition_a_b", name, name.id, earlier.line);
 
@@ -1843,7 +1843,7 @@ function jslint_phase3_parse(state) {
                         if (earlier.role === "variable") {
 
 // test_cause:
-// ["let ignore;function aa(ignore){}", "77f", "77c", "77a", 77]
+// ["let ignore;function aa(ignore){}", "enroll", "unexpected_a", "77a", 77]
 
                             warn("unexpected_a", name);
                         }
@@ -1857,8 +1857,10 @@ function jslint_phase3_parse(state) {
                         ) {
 
 // test_cause:
-// ["function aa(){try{aa();}catch(aa){aa();}}", "77f", "77c", "77a", 77]
-// ["function aa(){var aa;}", "77f", "77c", "77a", 77]
+// [`
+// function aa(){try{aa();}catch(aa){aa();}}
+// `, "enroll", "redefinition_a_b", "77a", 77]
+// ["function aa(){var aa;}", "enroll", "redefinition_a_b", "77a", 77]
 
                             warn(
                                 "redefinition_a_b",
