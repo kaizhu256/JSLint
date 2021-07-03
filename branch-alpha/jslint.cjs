@@ -527,7 +527,7 @@ function jslint_phase2_lex(state) {
 // [" \"\\r\"", "char_after_escape", "char_after", "r", 0]
 // [" \"\\t\"", "char_after_escape", "char_after", "t", 0]
 
-            test_cause("char_after", 0, char);
+            test_cause("char_after", char);
             return char_after();
         case "u":
             if (char_after("u") === "{") {
@@ -1241,7 +1241,7 @@ function jslint_phase2_lex(state) {
 // [" aa=/./u", "lex_regexp", "regexp_flag", "u", 0]
 // [" aa=/./y", "lex_regexp", "regexp_flag", "y", 0]
 
-                test_cause("regexp_flag", 0, char);
+                test_cause("regexp_flag", char);
                 break;
             default:
 
@@ -1368,7 +1368,7 @@ function jslint_phase2_lex(state) {
 // [" ?/./", "lex_slash_or_regexp", "lex_regexp", "?", 0]
 // [" aa[/./", "lex_slash_or_regexp", "lex_regexp", "[", 0]
 
-            test_cause("lex_regexp", 0, token_prv_expr.id);
+            test_cause("lex_regexp", token_prv_expr.id);
             return lex_regexp();
         }
         if (line_source[0] === "=") {
