@@ -504,7 +504,7 @@ body {
 <pre><span class="lineno"><a href="#line_375" id="line_375">  375.</a></span><span class="count                ">    337</span><span>        causeList = causeList.replace((</span></pre>
 <pre><span class="lineno"><a href="#line_376" id="line_376">  376.</a></span><span class="count                ">    337</span><span>            /^\/\/\u0020/gm</span></pre>
 <pre><span class="lineno"><a href="#line_377" id="line_377">  377.</a></span><span class="count                ">    337</span><span>        ), &quot;&quot;).replace((</span></pre>
-<pre><span class="lineno"><a href="#line_378" id="line_378">  378.</a></span><span class="count                ">    337</span><span>            /^\[`\n([\S\s]*?)\n`,/gm</span></pre>
+<pre><span class="lineno"><a href="#line_378" id="line_378">  378.</a></span><span class="count                ">    337</span><span>            /^\[&quot;\n([\S\s]*?)\n&quot;,/gm</span></pre>
 <pre><span class="lineno"><a href="#line_379" id="line_379">  379.</a></span><span class="count                ">     14</span><span>        ), function (ignore, source) {</span></pre>
 <pre><span class="lineno"><a href="#line_380" id="line_380">  380.</a></span><span class="count                ">     14</span><span>            return &quot;[&quot; + JSON.stringify(source) + &quot;,&quot;;</span></pre>
 <pre><span class="lineno"><a href="#line_381" id="line_381">  381.</a></span><span class="count                ">     14</span><span>        }).replace((</span></pre>

@@ -1858,9 +1858,9 @@ function jslint_phase3_parse(state) {
                         ) {
 
 // test_cause:
-// [`
+// ["
 // function aa(){try{aa();}catch(aa){aa();}}
-// `, "enroll", "redefinition_a_b", "7", 77]
+// ", "enroll", "redefinition_a_b", "7", 77]
 // ["function aa(){var aa;}", "enroll", "redefinition_a_b", "7", 77]
 
                             warn(
@@ -4023,9 +4023,9 @@ function jslint_phase3_parse(state) {
 
 // test_cause:
 // ["continue", "parse_continue", "unexpected_a", "7", 77]
-// [`
+// ["
 // function aa(){while(0){try{}finally{continue}}}
-// `, "parse_continue", "unexpected_a", "7", 77]
+// ", "parse_continue", "unexpected_a", "7", 77]
 
             warn("unexpected_a", the_continue);
         }
@@ -4969,9 +4969,9 @@ function jslint_phase4_walk(state) {
         if (blockage !== token_global) {
 
 // test_cause:
-// [`
+// ["
 // if(0){import aa from "aa";}
-// `, "warn_if_not_top_level", "misplaced_a", "7", 77]
+// ", "warn_if_not_top_level", "misplaced_a", "7", 77]
 
             warn("misplaced_a", the_thing);
         }
@@ -6200,12 +6200,12 @@ function jslint_phase5_whitage(state) {
             if (right.from < margin) {
 
 // test_cause:
-// [`
+// ["
 // let aa = aa(
 //     aa
 // ()
 // );
-// `, "77f", "77c", "7", 77]
+// ", "77f", "77c", "7", 77]
 
                 expected_at(margin);
             }
@@ -6392,7 +6392,7 @@ function jslint_phase5_whitage(state) {
                             if (right.from !== 0) {
 
 // test_cause:
-// [`
+// ["
 // function aa() {
 //  bb:
 //     while (aa) {
@@ -6401,7 +6401,7 @@ function jslint_phase5_whitage(state) {
 //         }
 //     }
 // }
-// `, "77f", "77c", "7", 77]
+// ", "77f", "77c", "7", 77]
 
                                 expected_at(0);
                             }
@@ -6414,12 +6414,12 @@ function jslint_phase5_whitage(state) {
                         if (right.statement || right.role === "label") {
 
 // test_cause:
-// [`
+// ["
 // function aa() {bb:
 //     while (aa) {aa();
 //     }
 // }
-// `, "77f", "77c", "7", 77]
+// ", "77f", "77c", "7", 77]
 
                             warn(
                                 "expected_line_break_a_b",
@@ -6450,14 +6450,14 @@ function jslint_phase5_whitage(state) {
                     if (left.id === "else") {
 
 // test_cause:
-// [`
+// ["
 // let aa = 0;
 // if (aa) {
 //     aa();
 // } else  if (aa) {
 //     aa();
 // }
-// `, "77f", "77c", "7", 77]
+// ", "77f", "77c", "7", 77]
 
                         one_space_only();
                     } else {
@@ -6492,7 +6492,7 @@ function jslint_phase5_whitage(state) {
                         if (right.from !== 0) {
 
 // test_cause:
-// [`
+// ["
 // function aa() {
 //     aa();cc:
 //     while (aa) {
@@ -6501,7 +6501,7 @@ function jslint_phase5_whitage(state) {
 //         }
 //     }
 // }
-// `, "77f", "77c", "7", 77]
+// ", "77f", "77c", "7", 77]
 
                             expected_at(0);
                         }
@@ -6518,13 +6518,13 @@ function jslint_phase5_whitage(state) {
                         } else {
 
 // test_cause:
-// [`
+// ["
 // function aa() {
 //     aa(
 //         0,0
 //     );
 // }
-// `, "77f", "77c", "7", 77]
+// ", "77f", "77c", "7", 77]
 
                             at_margin(0);
                         }
@@ -6535,13 +6535,13 @@ function jslint_phase5_whitage(state) {
                         if (open) {
 
 // test_cause:
-// [`
+// ["
 // let aa = (
 //     aa
 //     ? 0
 // : 1
 // );
-// `, "77f", "77c", "7", 77]
+// ", "77f", "77c", "7", 77]
 
                             at_margin(0);
                         } else {
@@ -6558,12 +6558,12 @@ function jslint_phase5_whitage(state) {
                     ) {
 
 // test_cause:
-// [`
+// ["
 // let aa = aa(
 //     aa
 // ()
 // );
-// `, "77f", "77c", "7", 77]
+// ", "77f", "77c", "7", 77]
 
                         no_space();
                     } else if (
@@ -6596,7 +6596,7 @@ function jslint_phase5_whitage(state) {
                     } else if (left.id === ";") {
 
 // test_cause:
-// [`
+// ["
 // /*jslint for*/
 // function aa() {
 //     for (
@@ -6607,7 +6607,7 @@ function jslint_phase5_whitage(state) {
 //         aa();
 //     }
 // }
-// `, "77f", "77c", "7", 77]
+// ", "77f", "77c", "7", 77]
 
                         if (open) {
                             at_margin(0);
@@ -6628,13 +6628,13 @@ function jslint_phase5_whitage(state) {
                     ) {
 
 // test_cause:
-// [`
+// ["
 // function aa() {
 //     do {
 //         aa();
 //     } while(aa());
 // }
-// `, "77f", "77c", "7", 77]
+// ", "77f", "77c", "7", 77]
 
                         one_space_only();
                     } else if (
@@ -6670,12 +6670,12 @@ function jslint_phase5_whitage(state) {
 
 // test_cause:
 // ["let aa=0;", "77f", "77c", "7", 77]
-// [`
+// ["
 // let aa={
 //     aa:
 // 0
 // };
-// `, "77f", "77c", "7", 77]
+// ", "77f", "77c", "7", 77]
 
                         one_space();
                     } else if (left.arity === "unary" && left.id !== "`") {

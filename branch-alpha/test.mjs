@@ -375,7 +375,7 @@ function noop() {
         causeList = causeList.replace((
             /^\/\/\u0020/gm
         ), "").replace((
-            /^\[`\n([\S\s]*?)\n`,/gm
+            /^\["\n([\S\s]*?)\n",/gm
         ), function (ignore, source) {
             return "[" + JSON.stringify(source) + ",";
         }).replace((
