@@ -6011,10 +6011,10 @@ function jslint_phase5_whitage(state) {
             const name = the_function.context[id];
             if (id !== "ignore" && name.parent === the_function) {
 
-// test_cause:
-// [" let aa=function bb(){return;};", "fnc", "cause_code", 0, null]
+// test_cause2:
+// [" let aa=function bb(){return;};", "delve", "not_ignore", 0, "bb"]
 
-                test_cause("cause_code", 0, "yy");
+                test_cause("not_ignore", 0, id);
                 if (
                     name.used === 0
 
@@ -6030,25 +6030,25 @@ function jslint_phase5_whitage(state) {
                     )
                 ) {
 
-// test_cause:
-// [" /*jslint node*/\nlet aa;","file","unused_a","id", "aa"]
-// [" function aa(aa){return;}","file","unused_a","id", "aa"]
-// [" let aa=0;try{aa();}catch(bb){aa();}","file","unused_a","id", "bb"]
+// test_cause2:
+// [" /*jslint node*/\n let aa;", "delve", "unused_a", 6, "aa"]
+// [" function aa(aa){return;}", "delve", "unused_a", 14, "aa"]
+// [" let aa=0;try{aa();}catch(bb){aa();}", "delve", "unused_a", 27, "bb"]
 
                     warn("unused_a", name);
                 } else if (!name.init) {
 
-// test_cause:
-// [" /*jslint node*/\nlet aa;aa();", "fnc", "cause_code", 0, null]
+// test_cause2:
+// [" /*jslint node*/\n let aa;aa();", "delve", "uninitialized_a", 6, "aa"]
 
                     warn("uninitialized_a", name);
                 }
             }
 
-// test_cause:
-// [" function aa(ignore){return;}", "fnc", "cause_code", 0, null]
+// test_cause2:
+// [" function aa(ignore){return;}", "delve", "ignore", 0, "ignore"]
 
-            test_cause("cause_code", 0, "yy");
+            test_cause("ignore", 0, id);
         });
     }
 
@@ -6063,7 +6063,7 @@ function jslint_phase5_whitage(state) {
             if (left.thru !== right.from && nr_comments_skipped === 0) {
 
 // test_cause:
-// [" let aa = aa( );", "fnc", "cause_code", 0, null]
+// [" let aa = aa( );", "jslint_phase5_whitage", "cause_code", 0, null]
 
                 warn(
                     "unexpected_space_a_b",
@@ -6214,10 +6214,10 @@ function jslint_phase5_whitage(state) {
             case "{":
 
 // test_cause:
-// [" let aa=(", "fnc", "cause_code", 0, null]
-// [" let aa=[", "fnc", "cause_code", 0, null]
-// [" let aa=`${", "fnc", "cause_code", 0, null]
-// [" let aa={", "fnc", "cause_code", 0, null]
+// [" let aa=(", "jslint_phase5_whitage", "cause_code", 0, null]
+// [" let aa=[", "jslint_phase5_whitage", "cause_code", 0, null]
+// [" let aa=`${", "jslint_phase5_whitage", "cause_code", 0, null]
+// [" let aa={", "jslint_phase5_whitage", "cause_code", 0, null]
 
                 test_cause("cause_code", 0, "yy");
                 noop();
@@ -6238,22 +6238,22 @@ function jslint_phase5_whitage(state) {
 // on the openness. Illegal pairs (like '{]') have already been detected.
 
 // test_cause:
-// [" let aa=[];", "fnc", "cause_code", 0, null]
-// [" let aa=aa();", "fnc", "cause_code", 0, null]
-// [" let aa={};", "fnc", "cause_code", 0, null]
+// [" let aa=[];", "jslint_phase5_whitage", "cause_code", 0, null]
+// [" let aa=aa();", "jslint_phase5_whitage", "cause_code", 0, null]
+// [" let aa={};", "jslint_phase5_whitage", "cause_code", 0, null]
 
                     test_cause("cause_code", 0, "yy");
                     if (left.line === right.line) {
 
 // test_cause:
-// [" let aa = aa( );", "fnc", "cause_code", 0, null]
+// [" let aa = aa( );", "jslint_phase5_whitage", "cause_code", 0, null]
 
                         test_cause("cause_code", 0, "yy");
                         no_space();
                     } else {
 
 // test_cause:
-// [" let aa = aa(\n );", "fnc", "cause_code", 0, null]
+// [" let aa = aa(\n );", "jslint_phase5_whitage", "cause_code", 0, null]
 
                         test_cause("cause_code", 0, "yy");
                         at_margin(0);
@@ -6262,10 +6262,10 @@ function jslint_phase5_whitage(state) {
                 default:
 
 // test_cause:
-// [" let aa=(0", "fnc", "cause_code", 0, null]
-// [" let aa=[0", "fnc", "cause_code", 0, null]
-// [" let aa=`${0", "fnc", "cause_code", 0, null]
-// [" let aa={0", "fnc", "cause_code", 0, null]
+// [" let aa=(0", "jslint_phase5_whitage", "cause_code", 0, null]
+// [" let aa=[0", "jslint_phase5_whitage", "cause_code", 0, null]
+// [" let aa=`${0", "jslint_phase5_whitage", "cause_code", 0, null]
+// [" let aa={0", "jslint_phase5_whitage", "cause_code", 0, null]
 
                     test_cause("cause_code", 0, "yy");
                     opening = left.open || (left.line !== right.line);
@@ -6334,10 +6334,10 @@ function jslint_phase5_whitage(state) {
                         }
 
 // test_cause:
-// [" ${0}", "fnc", "cause_code", 0, null]
-// [" (0)", "fnc", "cause_code", 0, null]
-// [" [0]", "fnc", "cause_code", 0, null]
-// [" {0}", "fnc", "cause_code", 0, null]
+// [" ${0}", "jslint_phase5_whitage", "cause_code", 0, null]
+// [" (0)", "jslint_phase5_whitage", "cause_code", 0, null]
+// [" [0]", "jslint_phase5_whitage", "cause_code", 0, null]
+// [" {0}", "jslint_phase5_whitage", "cause_code", 0, null]
 
                         test_cause("cause_code", 0, "yy");
                         free = false;
