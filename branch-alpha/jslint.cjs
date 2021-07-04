@@ -2734,15 +2734,15 @@ function jslint_phase3_parse(state) {
     infix("/", 140);
     infix("%", 140);
     infixr("**", 150);
-    infix("(", 160, function (left) {
+    infix("(", 160, function parse_left_paren(left) {
         const the_paren = token_now;
         let ellipsis;
         let the_argument;
         if (left.id !== "function") {
 
 // test_cause:
-// ["(0?0:0)()", "77f", "77c", "7", 77]
-// ["0()", "77f", "77c", "7", 77]
+// ["(0?0:0)()", "left_check", "unexpected_a", "7", 77]
+// ["0()", "left_check", "unexpected_a", "7", 77]
 
             left_check(left, the_paren);
         }
@@ -2774,13 +2774,14 @@ function jslint_phase3_parse(state) {
         if (the_paren.expression.length === 2) {
 
 // test_cause:
-// ["aa(0)", "77f", "77c", "7", 77]
+// ["aa(0)", "parse_left_paren", "free", "7", 77]
 
+            test_cause("free");
             the_paren.free = true;
             if (the_argument.wrapped === true) {
 
 // test_cause:
-// ["aa((0))", "77f", "77c", "7", 77]
+// ["aa((0))", "parse_left_paren", "unexpected_a", "7", 77]
 
                 warn("unexpected_a", the_paren);
             }
@@ -2790,9 +2791,10 @@ function jslint_phase3_parse(state) {
         } else {
 
 // test_cause:
-// ["aa()", "77f", "77c", "7", 77]
-// ["aa(0,0)", "77f", "77c", "7", 77]
+// ["aa()", "parse_left_paren", "not_free", "7", 77]
+// ["aa(0,0)", "parse_left_paren", "not_free", "7", 77]
 
+            test_cause("not_free");
             the_paren.free = false;
         }
         return the_paren;
