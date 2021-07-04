@@ -2216,7 +2216,7 @@ function jslint_phase3_parse(state) {
         if (functionage === token_global) {
 
 // test_cause:
-// ["while(0){}", "77f", "77c", "7", 77]
+// ["while(0){}", "warn_if_top_level", "unexpected_at_top_level_a", "7", 77]
 
             warn("unexpected_at_top_level_a", thing);
         }
@@ -2612,42 +2612,45 @@ function jslint_phase3_parse(state) {
     constant("(number)", "number");
     constant("(regexp)", "regexp");
     constant("(string)", "string");
-    constant("arguments", "object", function () {
+    constant("arguments", "object", function parse_arguments() {
 
 // test_cause:
-// ["arguments", "77f", "77c", "7", 77]
+// ["arguments", "parse_arguments", "unexpected_a", "7", 77]
 
         warn("unexpected_a", token_now);
         return token_now;
     });
-    constant("eval", "function", function () {
+    constant("eval", "function", function parse_eval() {
         if (!option_dict.eval) {
 
 // test_cause:
-// ["eval", "77f", "77c", "7", 77]
+// ["eval", "parse_eval", "unexpected_a", "7", 77]
 
             warn("unexpected_a", token_now);
         } else if (token_nxt.id !== "(") {
 
 // test_cause:
-// ["/*jslint eval*/\neval", "77f", "77c", "7", 77]
+// ["/*jslint eval*/\neval", "parse_eval", "expected_a_before_b", "7", 77]
 
             warn("expected_a_before_b", token_nxt, "(", artifact());
         }
         return token_now;
     });
     constant("false", "boolean", false);
-    constant("Function", "function", function () {
+    constant("Function", "function", function parse_Function() {
         if (!option_dict.eval) {
 
 // test_cause:
-// ["Function", "77f", "77c", "7", 77]
+// ["Function", "parse_Function", "unexpected_a", "7", 77]
 
             warn("unexpected_a", token_now);
         } else if (token_nxt.id !== "(") {
 
 // test_cause:
-// ["/*jslint eval*/\nFunction", "77f", "77c", "7", 77]
+// ["
+// /*jslint eval*/
+// Function
+// ", "parse_Function", "expected_a_before_b", "7", 77]
 
             warn("expected_a_before_b", token_nxt, "(", artifact());
         }
