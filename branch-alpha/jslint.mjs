@@ -4256,22 +4256,18 @@ function jslint_phase3_parse(state) {
         if (!option_dict.for) {
 
 // test_cause:
-// ["for", "77f", "77c", "7", 77]
+// ["for", "stmt_for", "unexpected_a", "7", 77]
 
             warn("unexpected_a", the_for);
         }
         warn_if_top_level(the_for);
         functionage.loop += 1;
         advance("(");
-
-// test_cause:
-// ["for(){}", "77f", "77c", "7", 77]
-
         token_now.free = true;
         if (token_nxt.id === ";") {
 
 // test_cause:
-// ["for(;;){}", "77f", "77c", "7", 77]
+// ["for(;;){}", "stmt_for", "expected_a_b", "7", 77]
 
             return stop("expected_a_b", the_for, "while (", "for (;");
         }
@@ -4282,7 +4278,7 @@ function jslint_phase3_parse(state) {
         ) {
 
 // test_cause:
-// ["for(const aa in aa){}", "77f", "77c", "7", 77]
+// ["for(const aa in aa){}", "stmt_for", "unexpected_a", "7", 77]
 
             return stop("unexpected_a");
         }
@@ -4291,7 +4287,7 @@ function jslint_phase3_parse(state) {
             if (first.expression[0].arity !== "variable") {
 
 // test_cause:
-// ["for(0 in aa){}", "77f", "77c", "7", 77]
+// ["for(0 in aa){}", "stmt_for", "bad_assignment_a", "7", 77]
 
                 warn("bad_assignment_a", first.expression[0]);
             }
@@ -4307,7 +4303,7 @@ function jslint_phase3_parse(state) {
             if (the_for.inc.id === "++") {
 
 // test_cause:
-// ["for(aa;aa;aa++){}", "77f", "77c", "7", 77]
+// ["for(aa;aa;aa++){}", "stmt_for", "expected_a_b", "7", 77]
 
                 warn("expected_a_b", the_for.inc, "+= 1", "++");
             }
@@ -4320,7 +4316,7 @@ function jslint_phase3_parse(state) {
 // ["
 // /*jslint for*/
 // function aa(bb,cc){for(0;0;0){break;}}
-// ", "77f", "77c", "7", 77]
+// ", "stmt_for", "weird_loop", "7", 77]
 
             warn("weird_loop", the_for);
         }
@@ -4338,28 +4334,27 @@ function jslint_phase3_parse(state) {
             the_else = token_now;
             the_if.else = (
                 token_nxt.id === "if"
-
-// test_cause:
-// ["if(0){0}else if(0){0}", "77f", "77c", "7", 77]
-
                 ? parse_statement()
-
-// test_cause:
-// ["if(0){0}else{0}", "77f", "77c", "7", 77]
-
                 : block()
             );
+
+// test_cause:
+// ["if(0){0}else if(0){0}", "stmt_if", "else", "7", 77]
+// ["if(0){0}else{0}", "stmt_if", "else", "7", 77]
+
+            test_cause("else");
             if (the_if.block.disrupt === true) {
                 if (the_if.else.disrupt === true) {
 
 // test_cause:
-// ["if(0){break;}else{break;}", "77f", "77c", "7", 77]
+// ["if(0){break;}else{break;}", "stmt_if", "disrupt", "7", 77]
 
+                    test_cause("disrupt");
                     the_if.disrupt = true;
                 } else {
 
 // test_cause:
-// ["if(0){break;}else{}", "77f", "77c", "7", 77]
+// ["if(0){break;}else{}", "stmt_if", "unexpected_a", "7", 77]
 
                     warn("unexpected_a", the_else);
                 }
@@ -4374,7 +4369,10 @@ function jslint_phase3_parse(state) {
         if (typeof state.mode_module === "object") {
 
 // test_cause:
-// ["/*global aa*/\nimport aa from \"aa\"", "77f", "77c", "7", 77]
+// ["
+// /*global aa*/
+// import aa from "aa"
+// ", "stmt_import", "unexpected_directive_a", "7", 77]
 
             warn(
                 "unexpected_directive_a",
@@ -4389,7 +4387,7 @@ function jslint_phase3_parse(state) {
             if (name.id === "ignore") {
 
 // test_cause:
-// ["import ignore from \"aa\"", "77f", "77c", "7", 77]
+// ["import ignore from \"aa\"", "stmt_import", "unexpected_a", "7", 77]
 
                 warn("unexpected_a", name);
             }
@@ -4403,7 +4401,7 @@ function jslint_phase3_parse(state) {
                     if (!token_nxt.identifier) {
 
 // test_cause:
-// ["import {", "77f", "77c", "7", 77]
+// ["import {", "stmt_import", "expected_identifier_a", "7", 77]
 
                         stop("expected_identifier_a");
                     }
@@ -4412,7 +4410,7 @@ function jslint_phase3_parse(state) {
                     if (name.id === "ignore") {
 
 // test_cause:
-// ["import {ignore} from \"aa\"", "77f", "77c", "7", 77]
+// ["import {ignore} from \"aa\"", "stmt_import", "unexpected_a", "7", 77]
 
                         warn("unexpected_a", name);
                     }
@@ -4436,7 +4434,7 @@ function jslint_phase3_parse(state) {
         ).test(token_now.value)) {
 
 // test_cause:
-// ["import aa from \"!aa\"", "77f", "77c", "7", 77]
+// ["import aa from \"!aa\"", "stmt_import", "bad_module_name_a", "7", 77]
 
             warn("bad_module_name_a", token_now);
         }
