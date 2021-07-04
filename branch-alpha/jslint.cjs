@@ -2612,36 +2612,36 @@ function jslint_phase3_parse(state) {
     constant("(number)", "number");
     constant("(regexp)", "regexp");
     constant("(string)", "string");
-    constant("arguments", "object", function parse_arguments() {
+    constant("arguments", "object", function constant_arguments() {
 
 // test_cause:
-// ["arguments", "parse_arguments", "unexpected_a", "7", 77]
+// ["arguments", "constant_arguments", "unexpected_a", "7", 77]
 
         warn("unexpected_a", token_now);
         return token_now;
     });
-    constant("eval", "function", function parse_eval() {
+    constant("eval", "function", function constant_eval() {
         if (!option_dict.eval) {
 
 // test_cause:
-// ["eval", "parse_eval", "unexpected_a", "7", 77]
+// ["eval", "constant_eval", "unexpected_a", "7", 77]
 
             warn("unexpected_a", token_now);
         } else if (token_nxt.id !== "(") {
 
 // test_cause:
-// ["/*jslint eval*/\neval", "parse_eval", "expected_a_before_b", "7", 77]
+// ["/*jslint eval*/\neval", "constant_eval", "expected_a_before_b", "7", 77]
 
             warn("expected_a_before_b", token_nxt, "(", artifact());
         }
         return token_now;
     });
     constant("false", "boolean", false);
-    constant("Function", "function", function parse_Function() {
+    constant("Function", "function", function constant_Function() {
         if (!option_dict.eval) {
 
 // test_cause:
-// ["Function", "parse_Function", "unexpected_a", "7", 77]
+// ["Function", "constant_Function", "unexpected_a", "7", 77]
 
             warn("unexpected_a", token_now);
         } else if (token_nxt.id !== "(") {
@@ -2650,44 +2650,44 @@ function jslint_phase3_parse(state) {
 // ["
 // /*jslint eval*/
 // Function
-// ", "parse_Function", "expected_a_before_b", "7", 77]
+// ", "constant_Function", "expected_a_before_b", "7", 77]
 
             warn("expected_a_before_b", token_nxt, "(", artifact());
         }
         return token_now;
     });
-    constant("ignore", "undefined", function parse_ignore() {
+    constant("ignore", "undefined", function constant_ignore() {
 
 // test_cause:
-// ["ignore", "parse_ignore", "unexpected_a", "7", 77]
+// ["ignore", "constant_ignore", "unexpected_a", "7", 77]
 
         warn("unexpected_a", token_now);
         return token_now;
     });
     constant("Infinity", "number", Infinity);
-    constant("isFinite", "function", function parse_isInfinite() {
+    constant("isFinite", "function", function constant_isInfinite() {
 
 // test_cause:
-// ["isFinite", "parse_isInfinite", "expected_a_b", "7", 77]
+// ["isFinite", "constant_isInfinite", "expected_a_b", "7", 77]
 
         warn("expected_a_b", token_now, "Number.isFinite", "isFinite");
         return token_now;
     });
-    constant("isNaN", "function", function parse_isNaN() {
+    constant("isNaN", "function", function constant_isNaN() {
 
 // test_cause:
-// ["isNaN(0)", "parse_isNaN", "number_isNaN", "7", 77]
+// ["isNaN(0)", "constant_isNaN", "number_isNaN", "7", 77]
 
         warn("number_isNaN", token_now);
         return token_now;
     });
     constant("NaN", "number", NaN);
     constant("null", "null", null);
-    constant("this", "object", function parse_this() {
+    constant("this", "object", function constant_this() {
         if (!option_dict.this) {
 
 // test_cause:
-// ["this", "parse_this", "unexpected_a", "7", 77]
+// ["this", "constant_this", "unexpected_a", "7", 77]
 
             warn("unexpected_a", token_now);
         }
@@ -2957,11 +2957,11 @@ function jslint_phase3_parse(state) {
         return the_tick;
     }
 
-    infix("`", 160, function (left) {
+    infix("`", 160, function parse_grave(left) {
         const the_tick = parse_tick();
 
 // test_cause:
-// ["0``", "77f", "77c", "7", 77]
+// ["0``", "left_check", "unexpected_a", "7", 77]
 
         left_check(left, the_tick);
         the_tick.expression = [left].concat(the_tick.expression);
@@ -7141,7 +7141,7 @@ function jslint(
                 String(new Error().stack).replace((
                     /^\u0020{4}at\u0020(?:file|stop|stop_at|test_cause|warn|warn_at)\b.*?\n/gm
                 ), "").match(
-                    /\n\u0020{4}at\u0020((?:Object\.parse_)?\w+?)\u0020/
+                    /\n\u0020{4}at\u0020((?:Object\.\w+?_)?\w+?)\u0020/
                 )[1].replace((
                     /^Object\./
                 ), ""),

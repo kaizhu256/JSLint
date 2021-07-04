@@ -19,6 +19,7 @@
 - vim - add vim plugin.
 
 # v2021.7.1-beta
+- bugfix - fix jslint not warning about function-redefinition when function is defined inside a call.
 - bugfix - fix website crashing when linting pure json-object.
 - jslint - comment out shebang in jslint.mjs so older ios devices can use website.
 - tests - revamp cause-based testing with more robust instrumentation.
