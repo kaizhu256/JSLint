@@ -2799,7 +2799,7 @@ function jslint_phase3_parse(state) {
         }
         return the_paren;
     });
-    infix(".", 170, function (left) {
+    infix(".", 170, function parse_dot(left) {
         const the_token = token_now;
         let name;
         name = token_nxt;
@@ -2825,14 +2825,14 @@ function jslint_phase3_parse(state) {
         ) {
 
 // test_cause:
-// ["\"\".aa", "77f", "77c", "7", 77]
+// ["\"\".aa", "left_check", "unexpected_a", "7", 77]
 
             left_check(left, the_token);
         }
         if (!name.identifier) {
 
 // test_cause:
-// ["aa.0", "77f", "77c", "7", 77]
+// ["aa.0", "parse_dot", "expected_identifier_a", "7", 77]
 
             stop("expected_identifier_a");
         }
@@ -2845,7 +2845,7 @@ function jslint_phase3_parse(state) {
         the_token.expression = left;
         return the_token;
     });
-    infix("?.", 170, function (left) {
+    infix("?.", 170, function parse_option_chain(left) {
         const the_token = token_now;
         let name;
         name = token_nxt;
@@ -2865,7 +2865,7 @@ function jslint_phase3_parse(state) {
             )
 
 // test_cause:
-// ["(0+0)?.0", "77f", "77c", "7", 77]
+// ["(0+0)?.0", "parse_option_chain", "left_check", "7", 77]
 
             && (left.id !== "+" || name.id !== "slice")
             && (
@@ -2873,18 +2873,19 @@ function jslint_phase3_parse(state) {
                 || (name.id !== "exec" && name.id !== "test")
             )
         ) {
+            test_cause("left_check");
 
 // test_cause:
-// ["(/./)?.0", "77f", "77c", "7", 77]
-// ["\"aa\"?.0", "77f", "77c", "7", 77]
-// ["aa=[]?.aa", "77f", "77c", "7", 77]
+// ["(/./)?.0", "left_check", "unexpected_a", "7", 77]
+// ["\"aa\"?.0", "left_check", "unexpected_a", "7", 77]
+// ["aa=[]?.aa", "left_check", "unexpected_a", "7", 77]
 
             left_check(left, the_token);
         }
         if (!name.identifier) {
 
 // test_cause:
-// ["aa?.0", "77f", "77c", "7", 77]
+// ["aa?.0", "parse_option_chain", "expected_identifier_a", "7", 77]
 
             stop("expected_identifier_a");
         }
@@ -2897,7 +2898,7 @@ function jslint_phase3_parse(state) {
         the_token.expression = left;
         return the_token;
     });
-    infix("[", 170, function (left) {
+    infix("[", 170, function parse_left_bracket(left) {
         const the_token = token_now;
         let name;
         let the_subscript = parse_expression(0);
@@ -2906,24 +2907,24 @@ function jslint_phase3_parse(state) {
             if (rx_identifier.test(name)) {
 
 // test_cause:
-// ["aa[`aa`]", "77f", "77c", "7", 77]
+// ["aa[`aa`]", "parse_left_bracket", "subscript_a", "7", 77]
 
                 warn("subscript_a", the_subscript, name);
             }
         }
 
 // test_cause:
-// ["0[0]", "77f", "77c", "7", 77]
+// ["0[0]", "left_check", "unexpected_a", "7", 77]
 
         left_check(left, the_token);
         the_token.expression = [left, the_subscript];
         advance("]");
         return the_token;
     });
-    infix("=>", 170, function (left) {
+    infix("=>", 170, function parse_fart_unwrapped(left) {
 
 // test_cause:
-// ["aa=>0", "77f", "77c", "7", 77]
+// ["aa=>0", "parse_fart_unwrapped", "wrap_parameter", "7", 77]
 
         return stop("wrap_parameter", left);
     });
