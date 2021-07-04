@@ -4449,7 +4449,9 @@ function jslint_phase3_parse(state) {
         if (functionage.finally > 0) {
 
 // test_cause:
-// ["function aa(){try{}finally{return;}}", "77f", "77c", "7", 77]
+// ["
+// function aa(){try{}finally{return;}}
+// ", "stmt_return", "unexpected_a", "7", 77]
 
             warn("unexpected_a", the_return);
         }
@@ -4464,69 +4466,77 @@ function jslint_phase3_parse(state) {
         const the_cases = [];
         const the_switch = token_now;
         let dups = [];
+        let exp;
         let last;
         let stmts;
+        let the_case;
         let the_default;
         let the_disrupt = true;
         let the_last;
+        function is_dup(thing) {
+            return is_equal(thing, exp);
+        }
         warn_if_top_level(the_switch);
         if (functionage.finally > 0) {
 
 // test_cause:
-// ["function aa(){try{}finally{switch(0){}}}", "77f", "77c", "7", 77]
+// ["
+// function aa(){try{}finally{switch(0){}}}
+// ", "stmt_switch", "unexpected_a", "7", 77]
 
             warn("unexpected_a", the_switch);
         }
         functionage.switch += 1;
         advance("(");
-
-// test_cause:
-// ["switch(){}", "77f", "77c", "7", 77]
-
         token_now.free = true;
         the_switch.expression = parse_expression(0);
         the_switch.block = the_cases;
         advance(")");
         advance("{");
-        (function major() {
-            const the_case = token_nxt;
-            let exp;
+        while (true) {
+
+// Loop through cases with breaks.
+
+            the_case = token_nxt;
             the_case.arity = "statement";
             the_case.expression = [];
-            (function minor() {
+            while (true) {
+
+// Loop through fallthrough cases.
+
                 advance("case");
                 token_now.switch = true;
                 exp = parse_expression(0);
-                if (dups.some(function (thing) {
-                    return is_equal(thing, exp);
-                })) {
+                if (dups.some(is_dup)) {
 
 // test_cause:
-// ["switch(0){case 0:break;case 0:break}", "77f", "77c", "7", 77]
+// ["
+// switch(0){case 0:break;case 0:break}
+// ", "stmt_switch", "unexpected_a", "7", 77]
 
                     warn("unexpected_a", exp);
                 }
                 dups.push(exp);
                 the_case.expression.push(exp);
                 advance(":");
-                if (token_nxt.id === "case") {
-                    return minor();
+                if (token_nxt.id !== "case") {
+                    break;
                 }
-            }());
+            }
 
 // test_cause:
-// ["switch(0){case 1:case 0:break;}", "77f", "77c", "7", 77]
-// ["switch(0){case \"aa\":case 0:break;}", "77f", "77c", "7", 77]
-// ["switch(0){case \"bb\":case \"aa\":break;}", "77f", "77c", "7", 77]
-// ["switch(0){case aa:case \"aa\":break;}", "77f", "77c", "7", 77]
-// ["switch(0){case bb:case aa:break;}", "77f", "77c", "7", 77]
+// ["switch(0){case 1:case 0:break;}", "warn_if_unordered_case_statement", "expected_a_b_ordered_before_c_d", "7", 77] //jslint-quiet
+// ["switch(0){case \"aa\":case 0:break;}", "warn_if_unordered_case_statement", "expected_a_b_ordered_before_c_d", "7", 77] //jslint-quiet
+// ["switch(0){case \"bb\":case \"aa\":break;}", "warn_if_unordered_case_statement", "expected_a_b_ordered_before_c_d", "7", 77] //jslint-quiet
+// ["switch(0){case aa:case \"aa\":break;}", "warn_if_unordered_case_statement", "expected_a_b_ordered_before_c_d", "7", 77] //jslint-quiet
+// ["switch(0){case bb:case aa:break;}", "warn_if_unordered_case_statement", "expected_a_b_ordered_before_c_d", "7", 77] //jslint-quiet
 
             warn_if_unordered_case_statement(the_case.expression);
             stmts = parse_statements();
             if (stmts.length < 1) {
 
 // test_cause:
-// ["switch(0){case 0:}", "77f", "77c", "7", 77]
+// ["switch(0){case 0:}", "stmt_switch", "expected_statements_a", "7", 77]
 
                 warn("expected_statements_a");
                 return;
@@ -4541,17 +4551,17 @@ function jslint_phase3_parse(state) {
             } else {
                 warn("expected_a_before_b", token_nxt, "break;", artifact());
             }
-            if (token_nxt.id === "case") {
-                return major();
+            if (token_nxt.id !== "case") {
+                break;
             }
-        }());
+        }
 
 // test_cause:
-// ["switch(0){case 1:break;case 0:break;}", "77f", "77c", "7", 77]
-// ["switch(0){case \"aa\":break;case 0:break;}", "77f", "77c", "7", 77]
-// ["switch(0){case \"bb\":break;case \"aa\":break;}", "77f", "77c", "7", 77]
-// ["switch(0){case aa:break;case \"aa\":break;}", "77f", "77c", "7", 77]
-// ["switch(0){case bb:break;case aa:break;}", "77f", "77c", "7", 77]
+// ["switch(0){case 1:break;case 0:break;}", "warn_if_unordered_case_statement", "expected_a_b_ordered_before_c_d", "7", 77] //jslint-quiet
+// ["switch(0){case \"aa\":break;case 0:break;}", "warn_if_unordered_case_statement", "expected_a_b_ordered_before_c_d", "7", 77] //jslint-quiet
+// ["switch(0){case \"bb\":break;case \"aa\":break;}", "warn_if_unordered_case_statement", "expected_a_b_ordered_before_c_d", "7", 77] //jslint-quiet
+// ["switch(0){case aa:break;case \"aa\":break;}", "warn_if_unordered_case_statement", "expected_a_b_ordered_before_c_d", "7", 77] //jslint-quiet
+// ["switch(0){case bb:break;case aa:break;}", "warn_if_unordered_case_statement", "expected_a_b_ordered_before_c_d", "7", 77] //jslint-quiet
 
         warn_if_unordered_case_statement(the_cases.map(function ({
             expression
@@ -4568,7 +4578,7 @@ function jslint_phase3_parse(state) {
             if (the_switch.else.length < 1) {
 
 // test_cause:
-// ["switch(0){case 0:break;default:}", "77f", "77c", "7", 77]
+// ["switch(0){case 0:break;default:}", "stmt_switch", "unexpected_a", "7", 77]
 
                 warn("unexpected_a", the_default);
                 the_disrupt = false;
@@ -4582,7 +4592,9 @@ function jslint_phase3_parse(state) {
                 ) {
 
 // test_cause:
-// ["switch(0){case 0:break;default:break;}", "77f", "77c", "7", 77]
+// ["
+// switch(0){case 0:break;default:break;}
+// ", "stmt_switch", "unexpected_a", "7", 77]
 
                     warn("unexpected_a", the_last);
                     the_last.disrupt = false;
@@ -4605,7 +4617,7 @@ function jslint_phase3_parse(state) {
         if (functionage.try > 0) {
 
 // test_cause:
-// ["try{throw 0}catch(){}", "77f", "77c", "7", 77]
+// ["try{throw 0}catch(){}", "stmt_throw", "unexpected_a", "7", 77]
 
             warn("unexpected_a", the_throw);
         }
@@ -4619,7 +4631,7 @@ function jslint_phase3_parse(state) {
         if (functionage.try > 0) {
 
 // test_cause:
-// ["try{try{}catch(){}}catch(){}", "77f", "77c", "7", 77]
+// ["try{try{}catch(){}}catch(){}", "stmt_try", "unexpected_a", "7", 77]
 
             warn("unexpected_a", the_try);
         }
@@ -4643,7 +4655,7 @@ function jslint_phase3_parse(state) {
                 if (!token_nxt.identifier) {
 
 // test_cause:
-// ["try{}catch(){}", "77f", "77c", "7", 77]
+// ["try{}catch(){}", "stmt_try", "expected_identifier_a", "7", 77]
 
                     return stop("expected_identifier_a");
                 }
@@ -4666,7 +4678,7 @@ function jslint_phase3_parse(state) {
         } else {
 
 // test_cause:
-// ["try{}finally{break;}", "77f", "77c", "7", 77]
+// ["try{}finally{break;}", "stmt_try", "expected_a_before_b", "7", 77]
 
             warn("expected_a_before_b", token_nxt, "catch", artifact());
 
@@ -4692,7 +4704,7 @@ function jslint_phase3_parse(state) {
         if (the_while.block.disrupt === true) {
 
 // test_cause:
-// ["function aa(){while(0){break;}}", "77f", "77c", "7", 77]
+// ["function aa(){while(0){break;}}", "stmt_while", "weird_loop", "7", 77]
 
             warn("weird_loop", the_while);
         }
@@ -4702,7 +4714,7 @@ function jslint_phase3_parse(state) {
     stmt("with", function stmt_with() {
 
 // test_cause:
-// ["with", "77f", "77c", "7", 77]
+// ["with", "stmt_with", "unexpected_a", "7", 77]
 
         stop("unexpected_a", token_now);
     });
@@ -4715,13 +4727,16 @@ function jslint_phase3_parse(state) {
 
     if (state.mode_json) {
         state.token_tree = (function parse_json() {
+            let container;
+            let is_dup;
+            let name;
             let negative;
             switch (token_nxt.id) {
             case "(number)":
                 if (!rx_json_number.test(token_nxt.value)) {
 
 // test_cause:
-// ["[0x0]", "77f", "77c", "7", 77]
+// ["[0x0]", "parse_json", "unexpected_a", "7", 77]
 
                     warn("unexpected_a");
                 }
@@ -4731,7 +4746,7 @@ function jslint_phase3_parse(state) {
                 if (token_nxt.quote !== "\"") {
 
 // test_cause:
-// ["['']", "77f", "77c", "7", 77]
+// ["['']", "parse_json", "unexpected_a", "7", 77]
 
                     warn("unexpected_a", token_nxt, token_nxt.quote);
                 }
@@ -4745,7 +4760,7 @@ function jslint_phase3_parse(state) {
                 if (!rx_json_number.test(token_now.value)) {
 
 // test_cause:
-// ["[-0x0]", "77f", "77c", "7", 77]
+// ["[-0x0]", "parse_json", "unexpected_a", "7", 77]
 
                     warn("unexpected_a", token_now);
                 }
@@ -4754,107 +4769,106 @@ function jslint_phase3_parse(state) {
             case "[":
 
 // test_cause:
-// ["[]", "77f", "77c", "7", 77]
+// ["[]", "parse_json", "bracket", "7", 77]
 
-                return (function json_list() {
-                    const bracket = token_nxt;
-                    const elements = [];
-                    bracket.expression = elements;
-                    advance("[");
-                    if (token_nxt.id !== "]") {
-                        while (true) {
-                            elements.push(parse_json());
-                            if (token_nxt.id !== ",") {
+                test_cause("bracket");
+                container = token_nxt;
+                container.expression = [];
+                advance("[");
+                if (token_nxt.id !== "]") {
+                    while (true) {
+                        container.expression.push(parse_json());
+                        if (token_nxt.id !== ",") {
 
 // test_cause:
-// ["[0,0]", "77f", "77c", "7", 77]
+// ["[0,0]", "parse_json", "comma", "7", 77]
 
-                                break;
-                            }
-                            advance(",");
+                            test_cause("comma");
+                            break;
                         }
+                        advance(",");
                     }
-                    advance("]", bracket);
-                    return bracket;
-                }());
+                }
+                advance("]", container);
+                return container;
             case "false":
-                advance();
-                return token_now;
             case "null":
-                advance();
-                return token_now;
             case "true":
 
 // test_cause:
-// ["[false]", "77f", "77c", "7", 77]
-// ["[null]", "77f", "77c", "7", 77]
-// ["[true]", "77f", "77c", "7", 77]
+// ["[false]", "parse_json", "advance", "7", 77]
+// ["[null]", "parse_json", "advance", "7", 77]
+// ["[true]", "parse_json", "advance", "7", 77]
 
+                test_cause("advance");
                 advance();
                 return token_now;
             case "{":
-                return (function json_object() {
-                    const brace = token_nxt;
+
+// test_cause:
+// ["{}", "parse_json", "brace", "7", 77]
+
+                test_cause("brace");
+                container = token_nxt;
 
 // Explicit empty-object required to detect "__proto__".
 
-                    const object = empty();
-                    const properties = [];
-                    let name;
-                    let value;
-                    brace.expression = properties;
-                    advance("{");
-                    if (token_nxt.id !== "}") {
+                is_dup = empty();
+                container.expression = [];
+                advance("{");
+                if (token_nxt.id !== "}") {
 
 // JSON
 // Parse/loop through each property in {...}.
 
-                        while (true) {
-                            if (token_nxt.quote !== "\"") {
+                    while (true) {
+                        if (token_nxt.quote !== "\"") {
 
 // test_cause:
-// ["{0:0}", "77f", "77c", "7", 77]
+// ["{0:0}", "parse_json", "unexpected_a", "7", 77]
 
-                                warn(
-                                    "unexpected_a",
-                                    token_nxt,
-                                    token_nxt.quote
-                                );
-                            }
-                            name = token_nxt;
-                            advance("(string)");
-                            if (object[token_now.value] !== undefined) {
-
-// test_cause:
-// ["{\"aa\":0,\"aa\":0}", "77f", "77c", "7", 77]
-
-                                warn("duplicate_a", token_now);
-                            } else if (token_now.value === "__proto__") {
-
-// test_cause:
-// ["{\"__proto__\":0}", "77f", "77c", "7", 77]
-
-                                warn("weird_property_a", token_now);
-                            } else {
-                                object[token_now.value] = token_now;
-                            }
-                            advance(":");
-                            value = parse_json();
-                            value.label = name;
-                            properties.push(value);
-                            if (token_nxt.id !== ",") {
-                                break;
-                            }
-                            advance(",");
+                            warn(
+                                "unexpected_a",
+                                token_nxt,
+                                token_nxt.quote
+                            );
                         }
+                        name = token_nxt;
+                        advance("(string)");
+                        if (is_dup[token_now.value] !== undefined) {
+
+// test_cause:
+// ["{\"aa\":0,\"aa\":0}", "parse_json", "duplicate_a", "7", 77]
+
+                            warn("duplicate_a", token_now);
+                        } else if (token_now.value === "__proto__") {
+
+// test_cause:
+// ["{\"__proto__\":0}", "parse_json", "weird_property_a", "7", 77]
+
+                            warn("weird_property_a", token_now);
+                        } else {
+                            is_dup[token_now.value] = token_now;
+                        }
+                        advance(":");
+                        container.expression.push(Object.assign(
+                            parse_json(),
+                            {
+                                label: name
+                            }
+                        ));
+                        if (token_nxt.id !== ",") {
+                            break;
+                        }
+                        advance(",");
                     }
-                    advance("}", brace);
-                    return brace;
-                }());
+                }
+                advance("}", container);
+                return container;
             default:
 
 // test_cause:
-// ["[undefined]", "77f", "77c", "7", 77]
+// ["[undefined]", "parse_json", "unexpected_a", "7", 77]
 
                 stop("unexpected_a");
             }
