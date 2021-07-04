@@ -3044,12 +3044,12 @@ function jslint_phase3_parse(state) {
         return the_new;
     });
     prefix("typeof");
-    prefix("void", function () {
+    prefix("void", function prefix_void() {
         const the_void = token_now;
 
 // test_cause:
-// ["void 0", "77f", "77c", "7", 77]
-// ["void", "77f", "77c", "7", 77]
+// ["void 0", "prefix_void", "unexpected_a", "7", 77]
+// ["void", "prefix_void", "unexpected_a", "7", 77]
 
         warn("unexpected_a", the_void);
         the_void.expression = parse_expression(0);
@@ -3497,7 +3497,7 @@ function jslint_phase3_parse(state) {
         return the_fart;
     }
 
-    prefix("(", function () {
+    prefix("(", function prefix_left_paren() {
         const cadet = lookahead().id;
         const the_paren = token_now;
         let the_value;
@@ -3512,21 +3512,23 @@ function jslint_phase3_parse(state) {
         ) {
 
 // test_cause:
-// ["()=>0", "77f", "77c", "7", 77]
+// ["()=>0", "prefix_left_paren", "fart", "7", 77]
 
+            test_cause("fart");
             the_paren.free = false;
             return parse_fart(parse_function_arg());
         }
 
 // test_cause:
-// ["(0)", "77f", "77c", "7", 77]
+// ["(0)", "prefix_left_paren", "expr", "7", 77]
 
+        test_cause("expr");
         the_paren.free = true;
         the_value = parse_expression(0);
         if (the_value.wrapped === true) {
 
 // test_cause:
-// ["((0))", "77f", "77c", "7", 77]
+// ["((0))", "prefix_left_paren", "unexpected_a", "7", 77]
 
             warn("unexpected_a", the_paren);
         }
@@ -3537,20 +3539,20 @@ function jslint_phase3_parse(state) {
                 if (the_value.id === "{" || the_value.id === "[") {
 
 // test_cause:
-// ["([])=>0", "77f", "77c", "7", 77]
-// ["({})=>0", "77f", "77c", "7", 77]
+// ["([])=>0", "prefix_left_paren", "expected_a_before_b", "7", 77]
+// ["({})=>0", "prefix_left_paren", "expected_a_before_b", "7", 77]
 
                     warn("expected_a_before_b", the_paren, "function", "(");
 
 // test_cause:
-// ["([])=>0", "77f", "77c", "7", 77]
-// ["({})=>0", "77f", "77c", "7", 77]
+// ["([])=>0", "prefix_left_paren", "expected_a_b", "7", 77]
+// ["({})=>0", "prefix_left_paren", "expected_a_b", "7", 77]
 
                     return stop("expected_a_b", token_nxt, "{", "=>");
                 }
 
 // test_cause:
-// ["(0)=>0", "77f", "77c", "7", 77]
+// ["(0)=>0", "prefix_left_paren", "expected_identifier_a", "7", 77]
 
                 return stop("expected_identifier_a", the_value);
             }
