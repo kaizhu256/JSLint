@@ -2656,38 +2656,38 @@ function jslint_phase3_parse(state) {
         }
         return token_now;
     });
-    constant("ignore", "undefined", function () {
+    constant("ignore", "undefined", function parse_ignore() {
 
 // test_cause:
-// ["ignore", "77f", "77c", "7", 77]
+// ["ignore", "parse_ignore", "unexpected_a", "7", 77]
 
         warn("unexpected_a", token_now);
         return token_now;
     });
     constant("Infinity", "number", Infinity);
-    constant("isFinite", "function", function () {
+    constant("isFinite", "function", function parse_isInfinite() {
 
 // test_cause:
-// ["isFinite", "77f", "77c", "7", 77]
+// ["isFinite", "parse_isInfinite", "expected_a_b", "7", 77]
 
         warn("expected_a_b", token_now, "Number.isFinite", "isFinite");
         return token_now;
     });
-    constant("isNaN", "function", function () {
+    constant("isNaN", "function", function parse_isNaN() {
 
 // test_cause:
-// ["isNaN(0)", "77f", "77c", "7", 77]
+// ["isNaN(0)", "parse_isNaN", "number_isNaN", "7", 77]
 
         warn("number_isNaN", token_now);
         return token_now;
     });
     constant("NaN", "number", NaN);
     constant("null", "null", null);
-    constant("this", "object", function () {
+    constant("this", "object", function parse_this() {
         if (!option_dict.this) {
 
 // test_cause:
-// ["this", "77f", "77c", "7", 77]
+// ["this", "parse_this", "unexpected_a", "7", 77]
 
             warn("unexpected_a", token_now);
         }
@@ -3346,8 +3346,8 @@ function jslint_phase3_parse(state) {
 
         advance("(");
 
-//!! // test_cause:
-//!! // ["function(){}", "parse_function", "opener", "7", 77]
+// test_cause:
+// ["function aa(){}", "parse_function", "opener", "7", 77]
 
         test_cause("opener");
         token_now.free = false;
