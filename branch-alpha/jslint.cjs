@@ -2479,12 +2479,12 @@ function jslint_phase3_parse(state) {
         return the_symbol;
     }
 
-    function stmt(id, f) {
+    function stmt(id, fud) {
 
 // Create a statement.
 
         const the_symbol = symbol(id);
-        the_symbol.fud = f;
+        the_symbol.fud = fud;
         return the_symbol;
     }
 
