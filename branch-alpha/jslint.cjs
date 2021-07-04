@@ -3060,6 +3060,7 @@ function jslint_phase3_parse(state) {
         const list = [];
         const signature = ["("];
         let optional;
+        let subparam;
         if (token_nxt.id !== ")" && token_nxt.id !== "(end)") {
             (function parameter() {
                 let ellipsis = false;
@@ -3081,13 +3082,13 @@ function jslint_phase3_parse(state) {
                     param.names = [];
                     advance("{");
                     signature.push("{");
-                    (function subparameter() {
-                        let subparam = token_nxt;
+                    while (true) {
+                        subparam = token_nxt;
                         if (!subparam.identifier) {
 
 // test_cause:
-// ["function aa(aa=0,{}){}", "subparameter", "expected_identifier_a", "7", 77]
-// ["function aa({0}){}", "subparameter", "expected_identifier_a", "7", 77]
+// ["function aa(aa=0,{}){}", "parameter", "expected_identifier_a", "7", 77]
+// ["function aa({0}){}", "parameter", "expected_identifier_a", "7", 77]
 
                             return stop("expected_identifier_a");
                         }
@@ -3102,7 +3103,7 @@ function jslint_phase3_parse(state) {
                             if (!subparam.identifier) {
 
 // test_cause:
-// ["function aa({aa:0}){}", "subparameter", "expected_identifier_a", "7", 77]
+// ["function aa({aa:0}){}", "parameter", "expected_identifier_a", "7", 77]
 
                                 return stop(
                                     "expected_identifier_a",
@@ -3112,7 +3113,7 @@ function jslint_phase3_parse(state) {
                         }
 
 // test_cause:
-// ["function aa({aa=aa},aa){}", "subparameter", "equal", "7", 77]
+// ["function aa({aa=aa},aa){}", "parameter", "equal", "7", 77]
 
                         test_cause("equal");
                         if (token_nxt.id === "=") {
@@ -3124,9 +3125,10 @@ function jslint_phase3_parse(state) {
                         if (token_nxt.id === ",") {
                             advance(",");
                             signature.push(", ");
-                            return subparameter();
+                        } else {
+                            break;
                         }
-                    }());
+                    }
                     list.push(param);
 
 // test_cause:
@@ -3159,12 +3161,12 @@ function jslint_phase3_parse(state) {
                     param.names = [];
                     advance("[");
                     signature.push("[]");
-                    (function subparameter() {
-                        const subparam = token_nxt;
+                    while (true) {
+                        subparam = token_nxt;
                         if (!subparam.identifier) {
 
 // test_cause:
-// ["function aa(aa=0,[]){}", "subparameter", "expected_identifier_a", "7", 77]
+// ["function aa(aa=0,[]){}", "parameter", "expected_identifier_a", "7", 77]
 
                             return stop("expected_identifier_a");
                         }
@@ -3172,7 +3174,7 @@ function jslint_phase3_parse(state) {
                         param.names.push(subparam);
 
 // test_cause:
-// ["function aa([aa=aa],aa){}", "subparameter", "id", "7", 77]
+// ["function aa([aa=aa],aa){}", "parameter", "id", "7", 77]
 
                         test_cause("id");
                         if (token_nxt.id === "=") {
@@ -3182,9 +3184,10 @@ function jslint_phase3_parse(state) {
                         }
                         if (token_nxt.id === ",") {
                             advance(",");
-                            return subparameter();
+                        } else {
+                            break;
                         }
-                    }());
+                    }
                     list.push(param);
                     advance("]");
                     if (token_nxt.id === ",") {
@@ -3327,12 +3330,6 @@ function jslint_phase3_parse(state) {
             switch: 0,
             try: 0
         });
-
-// Push the current function context and establish a new one.
-
-        function_stack.push(functionage);
-        function_list.push(the_function);
-        functionage = the_function;
         if (the_function.arity !== "statement" && typeof name === "object") {
 
 // test_cause:
@@ -3344,6 +3341,12 @@ function jslint_phase3_parse(state) {
             name.init = true;
             name.used = 1;
         }
+
+// Push the current function context and establish a new one.
+
+        function_stack.push(functionage);
+        function_list.push(the_function);
+        functionage = the_function;
 
 // Parse the parameter list.
 
@@ -6144,8 +6147,8 @@ function jslint_phase5_whitage(state) {
             const name = the_function.context[id];
             if (id !== "ignore" && name.parent === the_function) {
 
-// test_cause:
-// ["let aa=function bb(){return;};", "delve", "id", "7", 77]
+//!! // test_cause:
+//!! // ["let aa=function bb(){return;};", "delve", "id", "7", 77]
 
                 test_cause("id");
                 if (
