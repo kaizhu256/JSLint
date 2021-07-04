@@ -3562,7 +3562,7 @@ function jslint_phase3_parse(state) {
         return the_value;
     });
     prefix("`", parse_tick);
-    prefix("{", function () {
+    prefix("{", function prefix_left_brace() {
         const seen = empty();
         const the_brace = token_now;
         let extra;
@@ -3586,7 +3586,7 @@ function jslint_phase3_parse(state) {
                     if (!option_dict.getset) {
 
 // test_cause:
-// ["aa={get aa(){}}", "77f", "77c", "7", 77]
+// ["aa={get aa(){}}", "prefix_left_brace", "unexpected_a", "7", 77]
 
                         warn("unexpected_a", name);
                     }
@@ -3598,7 +3598,7 @@ function jslint_phase3_parse(state) {
                     if (seen[full] === true || seen[id] === true) {
 
 // test_cause:
-// ["aa={get aa(){},get aa(){}}", "77f", "77c", "7", 77]
+// ["aa={get aa(){},get aa(){}}", "prefix_left_brace", "duplicate_a", "7", 77]
 
                         warn("duplicate_a", name);
                     }
@@ -3609,7 +3609,7 @@ function jslint_phase3_parse(state) {
                     if (typeof seen[id] === "boolean") {
 
 // test_cause:
-// ["aa={aa,aa}", "77f", "77c", "7", 77]
+// ["aa={aa,aa}", "prefix_left_brace", "duplicate_a", "7", 77]
 
                         warn("duplicate_a", name);
                     }
@@ -3620,12 +3620,19 @@ function jslint_phase3_parse(state) {
                         if (typeof extra === "string") {
 
 // test_cause:
-// ["aa={get aa}", "77f", "77c", "7", 77]
+// ["aa={get aa}", "prefix_left_brace", "closer", "7", 77]
 
+                            test_cause("closer");
                             advance("(");
                         }
                         value = parse_expression(Infinity, true);
                     } else if (token_nxt.id === "(") {
+
+// test_cause:
+// ["aa={aa()}", "prefix_left_brace", "paren", "7", 77]
+// ["aa={get aa(){}}", "prefix_left_brace", "paren", "7", 77]
+
+                        test_cause("paren");
                         value = parse_function({
                             arity: "unary",
                             from: name.from,
@@ -3633,15 +3640,7 @@ function jslint_phase3_parse(state) {
                             line: name.line,
                             name: (
                                 typeof extra === "string"
-
-// test_cause:
-// ["aa={get aa(){}}", "77f", "77c", "7", 77]
-
                                 ? extra
-
-// test_cause:
-// ["aa={aa()}", "77f", "77c", "7", 77]
-
                                 : id
                             ),
                             thru: name.from
@@ -3650,8 +3649,9 @@ function jslint_phase3_parse(state) {
                         if (typeof extra === "string") {
 
 // test_cause:
-// ["aa={get aa.aa}", "77f", "77c", "7", 77]
+// ["aa={get aa.aa}", "prefix_left_brace", "paren", "7", 77]
 
+                            test_cause("paren");
                             advance("(");
                         }
                         the_colon = token_nxt;
@@ -3663,7 +3663,7 @@ function jslint_phase3_parse(state) {
                         ) {
 
 // test_cause:
-// ["aa={aa:aa}", "77f", "77c", "7", 77]
+// ["aa={aa:aa}", "prefix_left_brace", "unexpected_a", "7", 77]
 
                             warn("unexpected_a", the_colon, ": " + name.id);
                         }
@@ -3676,8 +3676,9 @@ function jslint_phase3_parse(state) {
                 } else {
 
 // test_cause:
-// ["aa={\"aa\":0}", "77f", "77c", "7", 77]
+// ["aa={\"aa\":0}", "prefix_left_brace", "colon", "7", 77]
 
+                    test_cause("colon");
                     advance(":");
                     value = parse_expression(0);
                     value.label = name;
@@ -3688,13 +3689,14 @@ function jslint_phase3_parse(state) {
                 }
 
 // test_cause:
-// ["aa={\"aa\":0,\"bb\":0}", "77f", "77c", "7", 77]
+// ["aa={\"aa\":0,\"bb\":0}", "prefix_left_brace", "comma", "7", 77]
 
+                test_cause("comma");
                 advance(",");
                 if (token_nxt.id === "}") {
 
 // test_cause:
-// ["let aa={aa:0,}", "77f", "77c", "7", 77]
+// ["let aa={aa:0,}", "prefix_left_brace", "unexpected_a", "7", 77]
 
                     warn("unexpected_a", token_now);
                     break;
@@ -3703,7 +3705,9 @@ function jslint_phase3_parse(state) {
         }
 
 // test_cause:
-// ["aa={bb,aa}", "77f", "77c", "7", 77]
+// ["
+// aa={bb,aa}
+// ", "warn_if_unordered", "expected_a_b_ordered_before_c_d", "7", 77]
 
         warn_if_unordered(
             "property",
