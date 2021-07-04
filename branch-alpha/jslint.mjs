@@ -4725,154 +4725,161 @@ function jslint_phase3_parse(state) {
 
 // Parsing of JSON is simple:
 
-    if (state.mode_json) {
-        state.token_tree = (function parse_json() {
-            let container;
-            let is_dup;
-            let name;
-            let negative;
-            switch (token_nxt.id) {
-            case "(number)":
-                if (!rx_json_number.test(token_nxt.value)) {
+    function parse_json() {
+        let container;
+        let is_dup;
+        let name;
+        let negative;
+        switch (token_nxt.id) {
+        case "(number)":
+            if (!rx_json_number.test(token_nxt.value)) {
 
 // test_cause:
 // ["[0x0]", "parse_json", "unexpected_a", "7", 77]
 
-                    warn("unexpected_a");
-                }
-                advance();
-                return token_now;
-            case "(string)":
-                if (token_nxt.quote !== "\"") {
+                warn("unexpected_a");
+            }
+            advance();
+            return token_now;
+        case "(string)":
+            if (token_nxt.quote !== "\"") {
 
 // test_cause:
 // ["['']", "parse_json", "unexpected_a", "7", 77]
 
-                    warn("unexpected_a", token_nxt, token_nxt.quote);
-                }
-                advance();
-                return token_now;
-            case "-":
-                negative = token_nxt;
-                negative.arity = "unary";
-                advance("-");
-                advance("(number)");
-                if (!rx_json_number.test(token_now.value)) {
+                warn("unexpected_a", token_nxt, token_nxt.quote);
+            }
+            advance();
+            return token_now;
+        case "-":
+            negative = token_nxt;
+            negative.arity = "unary";
+            advance("-");
+            advance("(number)");
+            if (!rx_json_number.test(token_now.value)) {
 
 // test_cause:
 // ["[-0x0]", "parse_json", "unexpected_a", "7", 77]
 
-                    warn("unexpected_a", token_now);
-                }
-                negative.expression = token_now;
-                return negative;
-            case "[":
+                warn("unexpected_a", token_now);
+            }
+            negative.expression = token_now;
+            return negative;
+        case "[":
 
 // test_cause:
 // ["[]", "parse_json", "bracket", "7", 77]
 
-                test_cause("bracket");
-                container = token_nxt;
-                container.expression = [];
-                advance("[");
-                if (token_nxt.id !== "]") {
-                    while (true) {
-                        container.expression.push(parse_json());
-                        if (token_nxt.id !== ",") {
+            test_cause("bracket");
+            container = token_nxt;
+            container.expression = [];
+            advance("[");
+            if (token_nxt.id !== "]") {
+                while (true) {
+
+// Recurse parse_json().
+
+                    container.expression.push(parse_json());
+                    if (token_nxt.id !== ",") {
 
 // test_cause:
 // ["[0,0]", "parse_json", "comma", "7", 77]
 
-                            test_cause("comma");
-                            break;
-                        }
-                        advance(",");
+                        test_cause("comma");
+                        break;
                     }
+                    advance(",");
                 }
-                advance("]", container);
-                return container;
-            case "false":
-            case "null":
-            case "true":
+            }
+            advance("]", container);
+            return container;
+        case "false":
+        case "null":
+        case "true":
 
 // test_cause:
 // ["[false]", "parse_json", "advance", "7", 77]
 // ["[null]", "parse_json", "advance", "7", 77]
 // ["[true]", "parse_json", "advance", "7", 77]
 
-                test_cause("advance");
-                advance();
-                return token_now;
-            case "{":
+            test_cause("advance");
+            advance();
+            return token_now;
+        case "{":
 
 // test_cause:
 // ["{}", "parse_json", "brace", "7", 77]
 
-                test_cause("brace");
-                container = token_nxt;
+            test_cause("brace");
+            container = token_nxt;
 
 // Explicit empty-object required to detect "__proto__".
 
-                is_dup = empty();
-                container.expression = [];
-                advance("{");
-                if (token_nxt.id !== "}") {
+            is_dup = empty();
+            container.expression = [];
+            advance("{");
+            if (token_nxt.id !== "}") {
 
 // JSON
 // Parse/loop through each property in {...}.
 
-                    while (true) {
-                        if (token_nxt.quote !== "\"") {
+                while (true) {
+                    if (token_nxt.quote !== "\"") {
 
 // test_cause:
 // ["{0:0}", "parse_json", "unexpected_a", "7", 77]
 
-                            warn(
-                                "unexpected_a",
-                                token_nxt,
-                                token_nxt.quote
-                            );
-                        }
-                        name = token_nxt;
-                        advance("(string)");
-                        if (is_dup[token_now.value] !== undefined) {
+                        warn(
+                            "unexpected_a",
+                            token_nxt,
+                            token_nxt.quote
+                        );
+                    }
+                    name = token_nxt;
+                    advance("(string)");
+                    if (is_dup[token_now.value] !== undefined) {
 
 // test_cause:
 // ["{\"aa\":0,\"aa\":0}", "parse_json", "duplicate_a", "7", 77]
 
-                            warn("duplicate_a", token_now);
-                        } else if (token_now.value === "__proto__") {
+                        warn("duplicate_a", token_now);
+                    } else if (token_now.value === "__proto__") {
 
 // test_cause:
 // ["{\"__proto__\":0}", "parse_json", "weird_property_a", "7", 77]
 
-                            warn("weird_property_a", token_now);
-                        } else {
-                            is_dup[token_now.value] = token_now;
-                        }
-                        advance(":");
-                        container.expression.push(Object.assign(
-                            parse_json(),
-                            {
-                                label: name
-                            }
-                        ));
-                        if (token_nxt.id !== ",") {
-                            break;
-                        }
-                        advance(",");
+                        warn("weird_property_a", token_now);
+                    } else {
+                        is_dup[token_now.value] = token_now;
                     }
+                    advance(":");
+                    container.expression.push(
+
+// Recurse parse_json().
+
+                        Object.assign(parse_json(), {
+                            label: name
+                        })
+                    );
+                    if (token_nxt.id !== ",") {
+                        break;
+                    }
+                    advance(",");
                 }
-                advance("}", container);
-                return container;
-            default:
+            }
+            advance("}", container);
+            return container;
+        default:
 
 // test_cause:
 // ["[undefined]", "parse_json", "unexpected_a", "7", 77]
 
-                stop("unexpected_a");
-            }
-        }());
+            stop("unexpected_a");
+        }
+    }
+
+    if (state.mode_json) {
+        state.token_tree = parse_json();
         advance("(end)");
         return;
     }
