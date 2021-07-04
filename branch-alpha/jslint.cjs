@@ -2203,7 +2203,7 @@ function jslint_phase3_parse(state) {
         }
     }
 
-    function not_top_level(thing) {
+    function warn_if_top_level(thing) {
 
 // Some features should not be at the outermost level.
 
@@ -2413,11 +2413,11 @@ function jslint_phase3_parse(state) {
 // Create a right associative infix operator.
 
         const the_symbol = symbol(id, bp);
-        the_symbol.led = function (left) {
+        the_symbol.led = function parse_infixr_led(left) {
             const the_token = token_now;
 
 // test_cause:
-// ["0**0", "parse_expression", "led", "7", 77]
+// ["0**0", "Object.parse_infixr_led", "led", "7", 77]
 
             test_cause("led");
             the_token.arity = "binary";
@@ -2557,7 +2557,7 @@ function jslint_phase3_parse(state) {
 // Create a ternary operator.
 
         const the_symbol = symbol(id1, 30);
-        the_symbol.led = function (left) {
+        the_symbol.led = function parse_ternary_led(left) {
             const the_token = token_now;
             let second;
             second = parse_expression(20);
@@ -2568,7 +2568,7 @@ function jslint_phase3_parse(state) {
             if (token_nxt.id !== ")") {
 
 // test_cause:
-// ["0?0:0", "parse_expression", "use_open", "7", 77]
+// ["0?0:0", "Object.parse_ternary_led", "use_open", "7", 77]
 
                 warn("use_open", the_token);
             }
@@ -4047,7 +4047,7 @@ function jslint_phase3_parse(state) {
 
             warn("unexpected_a", the_continue);
         }
-        not_top_level(the_continue);
+        warn_if_top_level(the_continue);
         the_continue.disrupt = true;
         warn("unexpected_a", the_continue);
         advance(";");
@@ -4084,7 +4084,7 @@ function jslint_phase3_parse(state) {
     });
     stmt("do", function () {
         const the_do = token_now;
-        not_top_level(the_do);
+        warn_if_top_level(the_do);
         functionage.loop += 1;
         the_do.block = block();
         advance("while");
@@ -4242,7 +4242,7 @@ function jslint_phase3_parse(state) {
 
             warn("unexpected_a", the_for);
         }
-        not_top_level(the_for);
+        warn_if_top_level(the_for);
         functionage.loop += 1;
         advance("(");
 
@@ -4429,7 +4429,7 @@ function jslint_phase3_parse(state) {
     stmt("let", parse_var);
     stmt("return", function () {
         const the_return = token_now;
-        not_top_level(the_return);
+        warn_if_top_level(the_return);
         if (functionage.finally > 0) {
 
 // test_cause:
@@ -4453,7 +4453,7 @@ function jslint_phase3_parse(state) {
         let the_default;
         let the_disrupt = true;
         let the_last;
-        not_top_level(the_switch);
+        warn_if_top_level(the_switch);
         if (functionage.finally > 0) {
 
 // test_cause:
@@ -4669,7 +4669,7 @@ function jslint_phase3_parse(state) {
     stmt("var", parse_var);
     stmt("while", function () {
         const the_while = token_now;
-        not_top_level(the_while);
+        warn_if_top_level(the_while);
         functionage.loop += 1;
         the_while.expression = condition();
         the_while.block = block();
@@ -7127,9 +7127,9 @@ function jslint(
         if (option_dict.test_cause) {
             cause_dict[JSON.stringify([
                 String(new Error().stack).replace((
-                    /^\u0020{4}at\u0020(?:file|stop|stop_at|test_cause|warn|warn_at|\w+?\.\w+?)\b.*?\n/gm
+                    /^\u0020{4}at\u0020(?:file|stop|stop_at|test_cause|warn|warn_at)\b.*?\n/gm
                 ), "").match(
-                    /^\u0020{4}at\u0020(\w+?)\b/m
+                    /\n\u0020{4}at\u0020((?:Object\.parse_)?\w+?)\u0020/
                 )[1],
                 code,
                 //!! (
