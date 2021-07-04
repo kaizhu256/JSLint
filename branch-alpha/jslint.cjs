@@ -3721,26 +3721,26 @@ function jslint_phase3_parse(state) {
         return the_brace;
     });
 
-    stmt(";", function () {
+    stmt(";", function stmt_semicolon() {
 
 // test_cause:
-// [";", "77f", "77c", "7", 77]
+// [";", "stmt_semicolon", "unexpected_a", "7", 77]
 
         warn("unexpected_a", token_now);
         return token_now;
     });
-    stmt("{", function () {
+    stmt("{", function stmt_left_brace() {
 
 // test_cause:
-// [";{}", "77f", "77c", "7", 77]
-// ["class aa{}", "77f", "77c", "7", 77]
+// [";{}", "stmt_left_brace", "naked_block", "7", 77]
+// ["class aa{}", "stmt_left_brace", "naked_block", "7", 77]
 
         warn("naked_block", token_now);
         return block("naked");
     });
     stmt("async", parse_async);
     stmt("await", parse_await);
-    stmt("break", function () {
+    stmt("break", function stmt_break() {
         const the_break = token_now;
         let the_label;
         if (
@@ -3749,7 +3749,7 @@ function jslint_phase3_parse(state) {
         ) {
 
 // test_cause:
-// ["break", "77f", "77c", "7", 77]
+// ["break", "stmt_break", "unexpected_a", "7", 77]
 
             warn("unexpected_a", the_break);
         }
@@ -3764,13 +3764,13 @@ function jslint_phase3_parse(state) {
                 if (the_label !== undefined && the_label.dead) {
 
 // test_cause:
-// ["aa:{function aa(aa){break aa;}}", "77f", "77c", "7", 77]
+// ["aa:{function aa(aa){break aa;}}", "stmt_break", "out_of_scope_a", "7", 77]
 
                     warn("out_of_scope_a");
                 } else {
 
 // test_cause:
-// ["aa:{break aa;}", "77f", "77c", "7", 77]
+// ["aa:{break aa;}", "stmt_break", "not_label_a", "7", 77]
 
                     warn("not_label_a");
                 }
@@ -4071,19 +4071,19 @@ function jslint_phase3_parse(state) {
         advance(";");
         return the_continue;
     });
-    stmt("debugger", function () {
+    stmt("debugger", function stmt_debugger() {
         const the_debug = token_now;
         if (!option_dict.devel) {
 
 // test_cause:
-// ["debugger", "77f", "77c", "7", 77]
+// ["debugger", "stmt_debugger", "unexpected_a", "7", 77]
 
             warn("unexpected_a", the_debug);
         }
         semicolon();
         return the_debug;
     });
-    stmt("delete", function () {
+    stmt("delete", function stmt_delete() {
         const the_token = token_now;
         const the_value = parse_expression(0);
         if (
@@ -4092,7 +4092,7 @@ function jslint_phase3_parse(state) {
         ) {
 
 // test_cause:
-// ["delete 0", "77f", "77c", "7", 77]
+// ["delete 0", "stmt_delete", "expected_a_b", "7", 77]
 
             stop("expected_a_b", the_value, ".", artifact(the_value));
         }
@@ -4100,7 +4100,7 @@ function jslint_phase3_parse(state) {
         semicolon();
         return the_token;
     });
-    stmt("do", function () {
+    stmt("do", function stmt_do() {
         const the_do = token_now;
         warn_if_top_level(the_do);
         functionage.loop += 1;
@@ -4111,7 +4111,7 @@ function jslint_phase3_parse(state) {
         if (the_do.block.disrupt === true) {
 
 // test_cause:
-// ["function aa(){do{break;}while(0)}", "77f", "77c", "7", 77]
+// ["function aa(){do{break;}while(0)}", "stmt_do", "weird_loop", "7", 77]
 
             warn("weird_loop", the_do);
         }
