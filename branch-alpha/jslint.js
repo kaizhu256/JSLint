@@ -4118,49 +4118,18 @@ function jslint_phase3_parse(state) {
         functionage.loop -= 1;
         return the_do;
     });
-    stmt("export", function () {
+    stmt("export", function stmt_export() {
         const the_export = token_now;
         let the_id;
         let the_name;
         let the_thing;
-
-        function export_id() {
-            if (!token_nxt.identifier) {
-
-// test_cause:
-// ["export {}", "77f", "77c", "7", 77]
-
-                stop("expected_identifier_a");
-            }
-            the_id = token_nxt.id;
-            the_name = token_global.context[the_id];
-            if (the_name === undefined) {
-
-// test_cause:
-// ["export {aa}", "77f", "77c", "7", 77]
-
-                warn("unexpected_a");
-            } else {
-                the_name.used += 1;
-                if (export_dict[the_id] !== undefined) {
-
-// test_cause:
-// ["let aa;export{aa,aa}", "77f", "77c", "7", 77]
-
-                    warn("duplicate_a");
-                }
-                export_dict[the_id] = the_name;
-            }
-            advance();
-            the_export.expression.push(the_thing);
-        }
 
         the_export.expression = [];
         if (token_nxt.id === "default") {
             if (export_dict.default !== undefined) {
 
 // test_cause:
-// ["export default 0;export default 0", "77f", "77c", "7", 77]
+// ["export default 0;export default 0", "stmt_export", "duplicate_a", "7", 77]
 
                 warn("duplicate_a");
             }
@@ -4174,7 +4143,7 @@ function jslint_phase3_parse(state) {
             ) {
 
 // test_cause:
-// ["export default {}", "77f", "77c", "7", 77]
+// ["export default {}", "stmt_export", "freeze_exports", "7", 77]
 
                 warn("freeze_exports", the_thing);
 
@@ -4183,7 +4152,7 @@ function jslint_phase3_parse(state) {
             } else {
 
 // test_cause:
-// ["export default Object.freeze({})", "77f", "77c", "7", 77]
+// ["export default Object.freeze({})", "semicolon", "expected_a_b", "7", 77]
 
                 semicolon();
             }
@@ -4193,18 +4162,20 @@ function jslint_phase3_parse(state) {
             if (token_nxt.id === "function") {
 
 // test_cause:
-// ["export function aa(){}", "77f", "77c", "7", 77]
+// ["export function aa(){}", "stmt_export", "freeze_exports", "7", 77]
 
                 warn("freeze_exports");
                 the_thing = parse_statement();
                 the_name = the_thing.name;
                 the_id = the_name.id;
                 the_name.used += 1;
+                if (export_dict[the_id] !== undefined) {
 
 // test_cause:
-// ["let aa;export{aa};export function aa(){}", "77f", "77c", "7", 77]
+// ["
+// let aa;export{aa};export function aa(){}
+// ", "stmt_export", "duplicate_a", "7", 77]
 
-                if (export_dict[the_id] !== undefined) {
                     warn("duplicate_a", the_name);
                 }
                 export_dict[the_id] = the_thing;
@@ -4218,31 +4189,60 @@ function jslint_phase3_parse(state) {
             ) {
 
 // test_cause:
-// ["export const", "77f", "77c", "7", 77]
-// ["export let", "77f", "77c", "7", 77]
-// ["export var", "77f", "77c", "7", 77]
+// ["export const", "stmt_export", "unexpected_a", "7", 77]
+// ["export let", "stmt_export", "unexpected_a", "7", 77]
+// ["export var", "stmt_export", "unexpected_a", "7", 77]
 
                 warn("unexpected_a");
                 parse_statement();
             } else if (token_nxt.id === "{") {
 
 // test_cause:
-// ["export {}", "77f", "77c", "7", 77]
+// ["export {}", "stmt_export", "advance{", "7", 77]
 
+                test_cause("advance{");
                 advance("{");
-                (function loop() {
-                    export_id();
+                while (true) {
+                    if (!token_nxt.identifier) {
+
+// test_cause:
+// ["export {}", "stmt_export", "expected_identifier_a", "7", 77]
+
+                        stop("expected_identifier_a");
+                    }
+                    the_id = token_nxt.id;
+                    the_name = token_global.context[the_id];
+                    if (the_name === undefined) {
+
+// test_cause:
+// ["export {aa}", "stmt_export", "unexpected_a", "7", 77]
+
+                        warn("unexpected_a");
+                    } else {
+                        the_name.used += 1;
+                        if (export_dict[the_id] !== undefined) {
+
+// test_cause:
+// ["let aa;export{aa,aa}", "stmt_export", "duplicate_a", "7", 77]
+
+                            warn("duplicate_a");
+                        }
+                        export_dict[the_id] = the_name;
+                    }
+                    advance();
+                    the_export.expression.push(the_thing);
                     if (token_nxt.id === ",") {
                         advance(",");
-                        return loop();
+                    } else {
+                        break;
                     }
-                }());
+                }
                 advance("}");
                 semicolon();
             } else {
 
 // test_cause:
-// ["export", "77f", "77c", "7", 77]
+// ["export", "stmt_export", "unexpected_a", "7", 77]
 
                 stop("unexpected_a");
             }
@@ -4250,7 +4250,7 @@ function jslint_phase3_parse(state) {
         state.mode_module = true;
         return the_export;
     });
-    stmt("for", function () {
+    stmt("for", function stmt_for() {
         const the_for = token_now;
         let first;
         if (!option_dict.for) {
@@ -4328,7 +4328,7 @@ function jslint_phase3_parse(state) {
         return the_for;
     });
     stmt("function", parse_function);
-    stmt("if", function () {
+    stmt("if", function stmt_if() {
         const the_if = token_now;
         let the_else;
         the_if.expression = condition();
@@ -4367,7 +4367,7 @@ function jslint_phase3_parse(state) {
         }
         return the_if;
     });
-    stmt("import", function () {
+    stmt("import", function stmt_import() {
         const the_import = token_now;
         let name;
         let names;
@@ -4445,7 +4445,7 @@ function jslint_phase3_parse(state) {
         return the_import;
     });
     stmt("let", parse_var);
-    stmt("return", function () {
+    stmt("return", function stmt_return() {
         const the_return = token_now;
         warn_if_top_level(the_return);
         if (functionage.finally > 0) {
@@ -4462,7 +4462,7 @@ function jslint_phase3_parse(state) {
         advance(";");
         return the_return;
     });
-    stmt("switch", function () {
+    stmt("switch", function stmt_switch() {
         const the_cases = [];
         const the_switch = token_now;
         let dups = [];
@@ -4599,7 +4599,7 @@ function jslint_phase3_parse(state) {
         the_switch.disrupt = the_disrupt;
         return the_switch;
     });
-    stmt("throw", function () {
+    stmt("throw", function stmt_throw() {
         const the_throw = token_now;
         the_throw.disrupt = true;
         the_throw.expression = parse_expression(10);
@@ -4613,7 +4613,7 @@ function jslint_phase3_parse(state) {
         }
         return the_throw;
     });
-    stmt("try", function () {
+    stmt("try", function stmt_try() {
         const the_try = token_now;
         let ignored;
         let the_catch;
@@ -4685,7 +4685,7 @@ function jslint_phase3_parse(state) {
         return the_try;
     });
     stmt("var", parse_var);
-    stmt("while", function () {
+    stmt("while", function stmt_while() {
         const the_while = token_now;
         warn_if_top_level(the_while);
         functionage.loop += 1;
@@ -4701,7 +4701,7 @@ function jslint_phase3_parse(state) {
         functionage.loop -= 1;
         return the_while;
     });
-    stmt("with", function () {
+    stmt("with", function stmt_with() {
 
 // test_cause:
 // ["with", "77f", "77c", "7", 77]
