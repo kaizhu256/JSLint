@@ -6172,8 +6172,8 @@ function jslint_phase5_whitage(state) {
             const name = the_function.context[id];
             if (id !== "ignore" && name.parent === the_function) {
 
-//!! // test_cause:
-//!! // ["function aa(aa) {return aa;}", "delve", "id", "7", 77]
+// test_cause:
+// ["function aa(aa) {return aa;}", "delve", "id", "7", 77]
 
                 test_cause("id");
                 if (
