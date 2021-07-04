@@ -2734,7 +2734,7 @@ function jslint_phase3_parse(state) {
     infix("/", 140);
     infix("%", 140);
     infixr("**", 150);
-    infix("(", 160, function parse_left_paren(left) {
+    infix("(", 160, function infix_left_paren(left) {
         const the_paren = token_now;
         let ellipsis;
         let the_argument;
@@ -2774,14 +2774,14 @@ function jslint_phase3_parse(state) {
         if (the_paren.expression.length === 2) {
 
 // test_cause:
-// ["aa(0)", "parse_left_paren", "free", "7", 77]
+// ["aa(0)", "infix_left_paren", "free", "7", 77]
 
             test_cause("free");
             the_paren.free = true;
             if (the_argument.wrapped === true) {
 
 // test_cause:
-// ["aa((0))", "parse_left_paren", "unexpected_a", "7", 77]
+// ["aa((0))", "infix_left_paren", "unexpected_a", "7", 77]
 
                 warn("unexpected_a", the_paren);
             }
@@ -2791,15 +2791,15 @@ function jslint_phase3_parse(state) {
         } else {
 
 // test_cause:
-// ["aa()", "parse_left_paren", "not_free", "7", 77]
-// ["aa(0,0)", "parse_left_paren", "not_free", "7", 77]
+// ["aa()", "infix_left_paren", "not_free", "7", 77]
+// ["aa(0,0)", "infix_left_paren", "not_free", "7", 77]
 
             test_cause("not_free");
             the_paren.free = false;
         }
         return the_paren;
     });
-    infix(".", 170, function parse_dot(left) {
+    infix(".", 170, function infix_dot(left) {
         const the_token = token_now;
         let name;
         name = token_nxt;
@@ -2832,7 +2832,7 @@ function jslint_phase3_parse(state) {
         if (!name.identifier) {
 
 // test_cause:
-// ["aa.0", "parse_dot", "expected_identifier_a", "7", 77]
+// ["aa.0", "infix_dot", "expected_identifier_a", "7", 77]
 
             stop("expected_identifier_a");
         }
@@ -2845,7 +2845,7 @@ function jslint_phase3_parse(state) {
         the_token.expression = left;
         return the_token;
     });
-    infix("?.", 170, function parse_option_chain(left) {
+    infix("?.", 170, function infix_option_chain(left) {
         const the_token = token_now;
         let name;
         name = token_nxt;
@@ -2865,7 +2865,7 @@ function jslint_phase3_parse(state) {
             )
 
 // test_cause:
-// ["(0+0)?.0", "parse_option_chain", "left_check", "7", 77]
+// ["(0+0)?.0", "infix_option_chain", "left_check", "7", 77]
 
             && (left.id !== "+" || name.id !== "slice")
             && (
@@ -2885,7 +2885,7 @@ function jslint_phase3_parse(state) {
         if (!name.identifier) {
 
 // test_cause:
-// ["aa?.0", "parse_option_chain", "expected_identifier_a", "7", 77]
+// ["aa?.0", "infix_option_chain", "expected_identifier_a", "7", 77]
 
             stop("expected_identifier_a");
         }
@@ -2898,7 +2898,7 @@ function jslint_phase3_parse(state) {
         the_token.expression = left;
         return the_token;
     });
-    infix("[", 170, function parse_left_bracket(left) {
+    infix("[", 170, function infix_left_bracket(left) {
         const the_token = token_now;
         let name;
         let the_subscript = parse_expression(0);
@@ -2907,7 +2907,7 @@ function jslint_phase3_parse(state) {
             if (rx_identifier.test(name)) {
 
 // test_cause:
-// ["aa[`aa`]", "parse_left_bracket", "subscript_a", "7", 77]
+// ["aa[`aa`]", "infix_left_bracket", "subscript_a", "7", 77]
 
                 warn("subscript_a", the_subscript, name);
             }
@@ -2921,10 +2921,10 @@ function jslint_phase3_parse(state) {
         advance("]");
         return the_token;
     });
-    infix("=>", 170, function parse_fart_unwrapped(left) {
+    infix("=>", 170, function infix_fart_unwrapped(left) {
 
 // test_cause:
-// ["aa=>0", "parse_fart_unwrapped", "wrap_parameter", "7", 77]
+// ["aa=>0", "infix_fart_unwrapped", "wrap_parameter", "7", 77]
 
         return stop("wrap_parameter", left);
     });
@@ -2957,7 +2957,7 @@ function jslint_phase3_parse(state) {
         return the_tick;
     }
 
-    infix("`", 160, function parse_grave(left) {
+    infix("`", 160, function infix_grave(left) {
         const the_tick = parse_tick();
 
 // test_cause:
@@ -2978,7 +2978,7 @@ function jslint_phase3_parse(state) {
     prefix("~");
     prefix("!");
     prefix("!!");
-    prefix("[", function () {
+    prefix("[", function prefix_left_bracket() {
         const the_token = token_now;
         let element;
         let ellipsis;
@@ -3005,7 +3005,7 @@ function jslint_phase3_parse(state) {
                 if (token_nxt.id === "]") {
 
 // test_cause:
-// ["let aa=[0,]", "77f", "77c", "7", 77]
+// ["let aa=[0,]", "prefix_left_bracket", "unexpected_a", "7", 77]
 
                     warn("unexpected_a", token_now);
                     break;
@@ -3015,28 +3015,28 @@ function jslint_phase3_parse(state) {
         advance("]");
         return the_token;
     });
-    prefix("/=", function () {
+    prefix("/=", function prefix_assign_divide() {
 
 // test_cause:
-// ["/=", "77f", "77c", "7", 77]
+// ["/=", "prefix_assign_divide", "expected_a_b", "7", 77]
 
         stop("expected_a_b", token_now, "/\\=", "/=");
     });
-    prefix("=>", function () {
+    prefix("=>", function prefix_fart() {
 
 // test_cause:
-// ["=>0", "77f", "77c", "7", 77]
+// ["=>0", "prefix_fart", "expected_a_before_b", "7", 77]
 
         return stop("expected_a_before_b", token_now, "()", "=>");
     });
-    prefix("new", function () {
+    prefix("new", function prefix_new() {
         const the_new = token_now;
         let right;
         right = parse_expression(160);
         if (token_nxt.id !== "(") {
 
 // test_cause:
-// ["new aa", "77f", "77c", "7", 77]
+// ["new aa", "prefix_new", "expected_a_before_b", "7", 77]
 
             warn("expected_a_before_b", token_nxt, "()", artifact());
         }
