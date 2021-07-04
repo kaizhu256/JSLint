@@ -1894,13 +1894,18 @@ function jslint_phase3_parse(state) {
 
     function parse_expression(rbp, initial) {
 
-// This is the heart of the Pratt-parser. I retained Pratt's nomenclature.
+// This is the heart of JSLINT, the Pratt parser. In addition to parsing, it
+// is looking for ad hoc lint patterns. We add .fud to Pratt's model, which is
+// like .nud except that it is only used on the first token of a statement.
+// Having .fud makes it much easier to define statement-oriented languages like
+// JavaScript. I retained Pratt's nomenclature.
 // They are elements of the parsing method called Top Down Operator Precedence.
 
-// nud     Null denotation
-// led     Left denotation
-// lbp     Left binding power
-// rbp     Right binding power
+// .nud     Null denotation
+// .fud     First null denotation
+// .led     Left denotation
+//  lbp     Left binding power
+//  rbp     Right binding power
 
 // It processes a nud (variable, constant, prefix operator). It will then
 // process leds (infix operators) until the bind powers cause it to stop. It
@@ -1910,7 +1915,7 @@ function jslint_phase3_parse(state) {
         let the_symbol;
 
 // Statements will have already advanced, so advance now only if the token is
-// not the first of a statement,
+// not the first of a statement.
 
         if (!initial) {
             advance();
@@ -2138,6 +2143,7 @@ function jslint_phase3_parse(state) {
         ) {
             the_symbol.disrupt = false;
             the_symbol.statement = true;
+            token_now.arity = "statement";
             the_statement = the_symbol.fud();
             functionage.last_statement = the_statement;
         } else {
@@ -2417,7 +2423,7 @@ function jslint_phase3_parse(state) {
             const the_token = token_now;
 
 // test_cause:
-// ["0**0", "Object.parse_infixr_led", "led", "7", 77]
+// ["0**0", "parse_infixr_led", "led", "7", 77]
 
             test_cause("led");
             the_token.arity = "binary";
@@ -2478,10 +2484,7 @@ function jslint_phase3_parse(state) {
 // Create a statement.
 
         const the_symbol = symbol(id);
-        the_symbol.fud = function () {
-            token_now.arity = "statement";
-            return f();
-        };
+        the_symbol.fud = f;
         return the_symbol;
     }
 
@@ -2568,7 +2571,7 @@ function jslint_phase3_parse(state) {
             if (token_nxt.id !== ")") {
 
 // test_cause:
-// ["0?0:0", "Object.parse_ternary_led", "use_open", "7", 77]
+// ["0?0:0", "parse_ternary_led", "use_open", "7", 77]
 
                 warn("use_open", the_token);
             }
@@ -7130,7 +7133,9 @@ function jslint(
                     /^\u0020{4}at\u0020(?:file|stop|stop_at|test_cause|warn|warn_at)\b.*?\n/gm
                 ), "").match(
                     /\n\u0020{4}at\u0020((?:Object\.parse_)?\w+?)\u0020/
-                )[1],
+                )[1].replace((
+                    /^Object\./
+                ), ""),
                 code,
                 //!! (
                     //!! (aa === undefined || (typeof aa === "object" && aa))
