@@ -6329,7 +6329,7 @@ function jslint_phase5_whitage(state) {
 // whitage();
 // Go through the token list, looking at usage of whitespace.
 
-    token_list.forEach(function (the_token) {
+    token_list.forEach(function whitage(the_token) {
         right = the_token;
         if (right.id === "(comment)" || right.id === "(end)") {
             nr_comments_skipped += 1;
@@ -6351,12 +6351,12 @@ function jslint_phase5_whitage(state) {
             case "{":
 
 // test_cause:
-// ["let aa=(", "77f", "77c", "7", 77]
-// ["let aa=[", "77f", "77c", "7", 77]
-// ["let aa=`${", "77f", "77c", "7", 77]
-// ["let aa={", "77f", "77c", "7", 77]
+// ["let aa=[];", "whitage", "opener", "7", 77]
+// ["let aa=`${0}`;", "whitage", "opener", "7", 77]
+// ["let aa=aa();", "whitage", "opener", "7", 77]
+// ["let aa={};", "whitage", "opener", "7", 77]
 
-                noop();
+                test_cause("opener");
 
 // Probably deadcode.
 // case "${}":
@@ -6374,20 +6374,21 @@ function jslint_phase5_whitage(state) {
 // on the openness. Illegal pairs (like '{]') have already been detected.
 
 // test_cause:
-// ["let aa=[];", "77f", "77c", "7", 77]
-// ["let aa=aa();", "77f", "77c", "7", 77]
-// ["let aa={};", "77f", "77c", "7", 77]
+// ["let aa=[];", "whitage", "opener_closer", "7", 77]
+// ["let aa=aa();", "whitage", "opener_closer", "7", 77]
+// ["let aa={};", "whitage", "opener_closer", "7", 77]
 
+                    test_cause("opener_closer");
                     if (left.line === right.line) {
 
 // test_cause:
-// ["let aa = aa( );", "77f", "77c", "7", 77]
+// ["let aa = aa( );", "no_space", "unexpected_space_a_b", "7", 77]
 
                         no_space();
                     } else {
 
 // test_cause:
-// ["let aa = aa(\n );", "77f", "77c", "7", 77]
+// ["let aa = aa(\n );", "expected_at", "expected_a_at_b_c", "7", 77]
 
                         at_margin(0);
                     }
@@ -6395,11 +6396,13 @@ function jslint_phase5_whitage(state) {
                 default:
 
 // test_cause:
-// ["let aa=(0", "77f", "77c", "7", 77]
-// ["let aa=[0", "77f", "77c", "7", 77]
-// ["let aa=`${0", "77f", "77c", "7", 77]
-// ["let aa={0", "77f", "77c", "7", 77]
+// ["let aa=(0);", "whitage", "opener_operand", "7", 77]
+// ["let aa=[0];", "whitage", "opener_operand", "7", 77]
+// ["let aa=`${0}`;", "whitage", "opener_operand", "7", 77]
+// ["let aa=aa(0);", "whitage", "opener_operand", "7", 77]
+// ["let aa={aa:0};", "whitage", "opener_operand", "7", 77]
 
+                    test_cause("opener_operand");
                     opening = left.open || (left.line !== right.line);
                     push();
                     switch (left.id) {
@@ -6419,11 +6422,13 @@ function jslint_phase5_whitage(state) {
                     if (opening) {
 
 // test_cause:
-// ["function aa(){\nreturn;\n}", "77f", "77c", "7", 77]
-// ["let aa=(\n0\n)", "77f", "77c", "7", 77]
-// ["let aa=[\n0\n]", "77f", "77c", "7", 77]
-// ["let aa=`${\n0\n}`", "77f", "77c", "7", 77]
+// ["function aa(){\nreturn;\n}", "whitage", "opening", "7", 77]
+// ["let aa=(\n0\n);", "whitage", "opening", "7", 77]
+// ["let aa=[\n0\n];", "whitage", "opening", "7", 77]
+// ["let aa=`${\n0\n}`;", "whitage", "opening", "7", 77]
+// ["let aa={\naa:0\n};", "whitage", "opening", "7", 77]
 
+                        test_cause("opening");
                         free = closer === ")" && left.free;
                         open = true;
                         margin += mode_indent;
@@ -6440,7 +6445,7 @@ function jslint_phase5_whitage(state) {
 //         }
 //     }
 // }
-// ", "77f", "77c", "7", 77]
+// ", "expected_at", "expected_a_at_b_c", "7", 77]
 
                                 expected_at(0);
                             }
@@ -6458,7 +6463,7 @@ function jslint_phase5_whitage(state) {
 //     while (aa) {aa();
 //     }
 // }
-// ", "77f", "77c", "7", 77]
+// ", "whitage", "expected_line_break_a_b", "7", 77]
 
                             warn(
                                 "expected_line_break_a_b",
@@ -6469,16 +6474,17 @@ function jslint_phase5_whitage(state) {
                         }
 
 // test_cause:
-// ["${0}", "77f", "77c", "7", 77]
-// ["(0)", "77f", "77c", "7", 77]
-// ["[0]", "77f", "77c", "7", 77]
-// ["{0}", "77f", "77c", "7", 77]
+// ["let aa=(0);", "whitage", "not_free", "7", 77]
+// ["let aa=[0];", "whitage", "not_free", "7", 77]
+// ["let aa=`${0}`;", "whitage", "not_free", "7", 77]
+// ["let aa={aa:0};", "whitage", "not_free", "7", 77]
 
+                        test_cause("not_free");
                         free = false;
                         open = false;
 
 // test_cause:
-// ["let aa = ( 0 );", "77f", "77c", "7", 77]
+// ["let aa = ( 0 );", "no_space_only", "unexpected_space_a_b", "7", 77]
 
                         no_space_only();
                     }
@@ -6496,13 +6502,13 @@ function jslint_phase5_whitage(state) {
 // } else  if (aa) {
 //     aa();
 // }
-// ", "77f", "77c", "7", 77]
+// ", "one_space_only", "expected_space_a_b", "7", 77]
 
                         one_space_only();
                     } else {
 
 // test_cause:
-// [" let aa = 0;", "77f", "77c", "7", 77]
+// [" let aa = 0;", "expected_at", "expected_a_at_b_c", "7", 77]
 
                         at_margin(0);
                         open = false;
@@ -6540,7 +6546,7 @@ function jslint_phase5_whitage(state) {
 //         }
 //     }
 // }
-// ", "77f", "77c", "7", 77]
+// ", "expected_at", "expected_a_at_b_c", "7", 77]
 
                             expected_at(0);
                         }
@@ -6551,7 +6557,7 @@ function jslint_phase5_whitage(state) {
                         )) {
 
 // test_cause:
-// ["let {aa,bb} = 0;", "77f", "77c", "7", 77]
+// ["let {aa,bb} = 0;", "one_space", "expected_space_a_b", "7", 77]
 
                             one_space();
                         } else {
@@ -6563,7 +6569,7 @@ function jslint_phase5_whitage(state) {
 //         0,0
 //     );
 // }
-// ", "77f", "77c", "7", 77]
+// ", "expected_at", "expected_a_at_b_c", "7", 77]
 
                             at_margin(0);
                         }
@@ -6580,13 +6586,13 @@ function jslint_phase5_whitage(state) {
 //     ? 0
 // : 1
 // );
-// ", "77f", "77c", "7", 77]
+// ", "expected_at", "expected_a_at_b_c", "7", 77]
 
                             at_margin(0);
                         } else {
 
 // test_cause:
-// ["let aa = (aa ? 0 : 1);", "77f", "77c", "7", 77]
+// ["let aa = (aa ? 0 : 1);", "whitage", "use_open", "7", 77]
 
                             warn("use_open", right);
                         }
@@ -6599,10 +6605,9 @@ function jslint_phase5_whitage(state) {
 // test_cause:
 // ["
 // let aa = aa(
-//     aa
-// ()
+//     aa ()
 // );
-// ", "77f", "77c", "7", 77]
+// ", "no_space", "unexpected_space_a_b", "7", 77]
 
                         no_space();
                     } else if (
@@ -6620,16 +6625,12 @@ function jslint_phase5_whitage(state) {
                             right.arity === "function"
                             && left.id !== "function"
                         )
+                        || (right.id === "." || right.id === "?.")
                     ) {
 
 // test_cause:
-// ["let aa = 0 ;", "77f", "77c", "7", 77]
-
-                        no_space_only();
-                    } else if (right.id === "." || right.id === "?.") {
-
-// test_cause:
-// ["let aa = aa ?.aa;", "77f", "77c", "7", 77]
+// ["let aa = 0 ;", "no_space_only", "unexpected_space_a_b", "7", 77]
+// ["let aa = aa ?.aa;", "no_space_only", "unexpected_space_a_b", "7", 77]
 
                         no_space_only();
                     } else if (left.id === ";") {
@@ -6646,7 +6647,7 @@ function jslint_phase5_whitage(state) {
 //         aa();
 //     }
 // }
-// ", "77f", "77c", "7", 77]
+// ", "expected_at", "expected_a_at_b_c", "7", 77]
 
                         if (open) {
                             at_margin(0);
@@ -6673,7 +6674,7 @@ function jslint_phase5_whitage(state) {
 //         aa();
 //     } while(aa());
 // }
-// ", "77f", "77c", "7", 77]
+// ", "one_space_only", "expected_space_a_b", "7", 77]
 
                         one_space_only();
                     } else if (
@@ -6708,13 +6709,13 @@ function jslint_phase5_whitage(state) {
                     ) {
 
 // test_cause:
-// ["let aa=0;", "77f", "77c", "7", 77]
+// ["let aa=0;", "one_space", "expected_space_a_b", "7", 77]
 // ["
 // let aa={
 //     aa:
 // 0
 // };
-// ", "77f", "77c", "7", 77]
+// ", "one_space", "expected_space_a_b", "7", 77]
 
                         one_space();
                     } else if (left.arity === "unary" && left.id !== "`") {
@@ -7020,9 +7021,9 @@ function jslint(
         let bb_value;
 
 // test_cause:
-// ["0&&0", "77f", "77c", "7", 77]
+// ["0&&0", "is_equal", "", "7", 77]
 
-        noop();
+        test_cause("");
 
 // Probably deadcode.
 // if (aa === bb) {
@@ -7037,8 +7038,9 @@ function jslint(
                 && aa.every(function (value, index) {
 
 // test_cause:
-// ["`${0}`&&`${0}`", "77f", "77c", "7", 77]
+// ["`${0}`&&`${0}`", "is_equal", "recurse_isArray", "7", 77]
 
+                    test_cause("recurse_isArray");
                     return is_equal(value, bb[index]);
                 })
             );
@@ -7067,31 +7069,39 @@ function jslint(
             return aa_value === bb_value;
         }
         if (is_weird(aa) || is_weird(bb)) {
+
+//!! // test_cause:
+//!! // ["/./&&/./", "is_equal", "false", "7", 77]
+
+            //!! test_cause("is_equal_false");
             return false;
         }
         if (aa.arity === bb.arity && aa.id === bb.id) {
+            if (aa.id === ".") {
 
 // test_cause:
-// ["aa.bb&&aa.bb", "77f", "77c", "7", 77]
+// ["aa.bb&&aa.bb", "is_equal", "recurse_arity_id", "7", 77]
 
-            if (aa.id === ".") {
+                test_cause("recurse_arity_id");
                 return (
                     is_equal(aa.expression, bb.expression)
                     && is_equal(aa.name, bb.name)
                 );
             }
+            if (aa.arity === "unary") {
 
 // test_cause:
-// ["+0&&+0", "77f", "77c", "7", 77]
+// ["+0&&+0", "is_equal", "recurse_unary", "7", 77]
 
-            if (aa.arity === "unary") {
+                test_cause("recurse_unary");
                 return is_equal(aa.expression, bb.expression);
             }
             if (aa.arity === "binary") {
 
 // test_cause:
-// ["aa[0]&&aa[0]", "77f", "77c", "7", 77]
+// ["aa[0]&&aa[0]", "is_equal", "recurse_binary", "7", 77]
 
+                test_cause("recurse_binary");
                 return (
                     aa.id !== "("
                     && is_equal(aa.expression[0], bb.expression[0])
@@ -7101,8 +7111,9 @@ function jslint(
             if (aa.arity === "ternary") {
 
 // test_cause:
-// ["aa=(``?``:``)&&(``?``:``)", "77f", "77c", "7", 77]
+// ["aa=(``?``:``)&&(``?``:``)", "is_equal", "recurse_ternary", "7", 77]
 
+                test_cause("recurse_ternary");
                 return (
                     is_equal(aa.expression[0], bb.expression[0])
                     && is_equal(aa.expression[1], bb.expression[1])
@@ -7121,14 +7132,16 @@ function jslint(
             );
 
 // test_cause:
-// ["undefined&&undefined", "77f", "77c", "7", 77]
+// ["undefined&&undefined", "is_equal", "true", "7", 77]
 
+            test_cause("true");
             return true;
         }
 
 // test_cause:
-// ["null&&undefined", "77f", "77c", "7", 77]
+// ["null&&undefined", "is_equal", "false", "7", 77]
 
+        test_cause("false");
         return false;
     }
 
@@ -7154,6 +7167,9 @@ function jslint(
                 "7",
                 77
             ])] = true;
+            //!! if (code === "is_equal_false") {
+                //!! console.error(source);
+            //!! }
         }
     }
 
@@ -7481,8 +7497,9 @@ function jslint(
         if (warning.directive_quiet) {
 
 // test_cause:
-// ["0 //jslint-quiet", "77f", "77c", "7", 77]
+// ["0 //jslint-quiet", "semicolon", "directive_quiet", "7", 77]
 
+            test_cause("directive_quiet");
             return warning;
         }
         warning_list.push(warning);
@@ -7639,7 +7656,7 @@ function jslint(
                 if (comment.directive === "global") {
 
 // test_cause:
-// ["/*global aa*/", "77f", "77c", "7", 77]
+// ["/*global aa*/", "jslint", "missing_browser", "7", 77]
 
                     warn("missing_browser", comment);
                 }
