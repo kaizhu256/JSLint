@@ -397,13 +397,15 @@ function noop() {
                 test_cause: true
             }).causes;
             // Validate cause.
+            /*
             assertOrThrow(
-                cause[1] === "77f" || tmp[JSON.stringify(cause.slice(1))],
+                tmp[JSON.stringify(cause.slice(1))],
                 (
                     "\n" + JSON.stringify(cause) + "\n\n"
                     + Object.keys(tmp).sort().join("\n")
                 )
             );
+            */
         });
         return "";
     });
