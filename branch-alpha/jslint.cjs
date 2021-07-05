@@ -5215,18 +5215,18 @@ function jslint_phase4_walk(state) {
         blockage.live.push(name);
     }
 
-    function pre_fnc(thing) {
+    function pre_function(thing) {
 
 // test_cause:
-// ["()=>0", "pre_fnc", "", "7", 77]
-// ["(function (){}())", "pre_fnc", "", "7", 77]
-// ["function aa(){}", "pre_fnc", "", "7", 77]
+// ["()=>0", "pre_function", "", "7", 77]
+// ["(function (){}())", "pre_function", "", "7", 77]
+// ["function aa(){}", "pre_function", "", "7", 77]
 
         test_cause("");
         if (thing.arity === "statement" && blockage.body !== true) {
 
 // test_cause:
-// ["if(0){function aa(){}\n}", "pre_fnc", "unexpected_a", "7", 77]
+// ["if(0){function aa(){}\n}", "pre_function", "unexpected_a", "7", 77]
 
             warn("unexpected_a", thing);
         }
@@ -5243,7 +5243,7 @@ function jslint_phase4_walk(state) {
             if (thing.parameters.length !== 0) {
 
 // test_cause:
-// ["/*jslint getset*/\naa={get aa(aa){}}", "pre_fnc", "bad_get", "7", 77]
+// ["/*jslint getset*/\naa={get aa(aa){}}", "pre_function", "bad_get", "7", 77]
 
                 warn("bad_get", thing);
             }
@@ -5251,7 +5251,7 @@ function jslint_phase4_walk(state) {
             if (thing.parameters.length !== 1) {
 
 // test_cause:
-// ["/*jslint getset*/\naa={set aa(){}}", "pre_fnc", "bad_set", "7", 77]
+// ["/*jslint getset*/\naa={set aa(){}}", "pre_function", "bad_set", "7", 77]
 
                 warn("bad_set", thing);
             }
@@ -5366,7 +5366,7 @@ function jslint_phase4_walk(state) {
         warn("bad_assignment_a", name);
     }
 
-    function post_fnc(thing) {
+    function post_function(thing) {
         delete functionage.async;
         delete functionage.finally;
         delete functionage.loop;
@@ -5376,7 +5376,7 @@ function jslint_phase4_walk(state) {
         if (thing.wrapped) {
 
 // test_cause:
-// ["aa=(function(){})", "post_fnc", "unexpected_parens", "7", 77]
+// ["aa=(function(){})", "post_function", "unexpected_parens", "7", 77]
 
             warn("unexpected_parens", thing);
         }
@@ -5452,7 +5452,7 @@ function jslint_phase4_walk(state) {
 
         warn("expected_a_b", thing, "!==", "!=");
     });
-    preaction("binary", "=>", pre_fnc);
+    preaction("binary", "=>", pre_function);
     preaction("binary", "||", function pre_bin_or(thing) {
         thing.expression.forEach(function (thang) {
             if (thang.id === "&&" && !thang.wrapped) {
@@ -5525,7 +5525,7 @@ function jslint_phase4_walk(state) {
         }
         walk_statement(thing.initial);
     });
-    preaction("statement", "function", pre_fnc);
+    preaction("statement", "function", pre_function);
     preaction("statement", "try", function (thing) {
         if (thing.catch !== undefined) {
 
@@ -5536,7 +5536,7 @@ function jslint_phase4_walk(state) {
         }
     });
     preaction("unary", "~", pre_bitwise);
-    preaction("unary", "function", pre_fnc);
+    preaction("unary", "function", pre_function);
     preaction("variable", function (thing) {
         const the_variable = lookup(thing);
         if (the_variable !== undefined) {
@@ -5755,7 +5755,7 @@ function jslint_phase4_walk(state) {
             warn("weird_condition_a", thing);
         }
     });
-    postaction("binary", "=>", post_fnc);
+    postaction("binary", "=>", post_function);
     postaction("binary", "(", function post_bin_left_paren(thing) {
         let arg;
         let array;
@@ -5920,7 +5920,7 @@ function jslint_phase4_walk(state) {
     postaction("statement", "for", function (thing) {
         walk_statement(thing.inc);
     });
-    postaction("statement", "function", post_fnc);
+    postaction("statement", "function", post_function);
     postaction("statement", "import", function (the_thing) {
         const name = the_thing.name;
         if (name) {
@@ -6036,7 +6036,7 @@ function jslint_phase4_walk(state) {
             }
         }
     });
-    postaction("unary", "function", post_fnc);
+    postaction("unary", "function", post_function);
     postaction("unary", "+", function post_unary_plus(thing) {
         const right = thing.expression;
         if (!option_dict.convert) {

@@ -5344,18 +5344,18 @@ body {
 <pre><span class="lineno"><a href="#line_5215" id="line_5215"> 5215.</a></span><span class="count                ">    212</span><span>        blockage.live.push(name);</span></pre>
 <pre><span class="lineno"><a href="#line_5216" id="line_5216"> 5216.</a></span><span class="count                ">    212</span><span>    }</span></pre>
 <pre><span class="lineno"><a href="#line_5217" id="line_5217"> 5217.</a></span><span class="count                ">    454</span><span></span></pre>
-<pre><span class="lineno"><a href="#line_5218" id="line_5218"> 5218.</a></span><span class="count                ">   1426</span><span>    function pre_fnc(thing) {</span></pre>
+<pre><span class="lineno"><a href="#line_5218" id="line_5218"> 5218.</a></span><span class="count                ">   1426</span><span>    function pre_function(thing) {</span></pre>
 <pre><span class="lineno"><a href="#line_5219" id="line_5219"> 5219.</a></span><span class="count                ">   1426</span><span></span></pre>
 <pre><span class="lineno"><a href="#line_5220" id="line_5220"> 5220.</a></span><span class="count                ">   1426</span><span>// test_cause:</span></pre>
-<pre><span class="lineno"><a href="#line_5221" id="line_5221"> 5221.</a></span><span class="count                ">   1426</span><span>// [&quot;()=&gt;0&quot;, &quot;pre_fnc&quot;, &quot;&quot;, &quot;7&quot;, 77]</span></pre>
-<pre><span class="lineno"><a href="#line_5222" id="line_5222"> 5222.</a></span><span class="count                ">   1426</span><span>// [&quot;(function (){}())&quot;, &quot;pre_fnc&quot;, &quot;&quot;, &quot;7&quot;, 77]</span></pre>
-<pre><span class="lineno"><a href="#line_5223" id="line_5223"> 5223.</a></span><span class="count                ">   1426</span><span>// [&quot;function aa(){}&quot;, &quot;pre_fnc&quot;, &quot;&quot;, &quot;7&quot;, 77]</span></pre>
+<pre><span class="lineno"><a href="#line_5221" id="line_5221"> 5221.</a></span><span class="count                ">   1426</span><span>// [&quot;()=&gt;0&quot;, &quot;pre_function&quot;, &quot;&quot;, &quot;7&quot;, 77]</span></pre>
+<pre><span class="lineno"><a href="#line_5222" id="line_5222"> 5222.</a></span><span class="count                ">   1426</span><span>// [&quot;(function (){}())&quot;, &quot;pre_function&quot;, &quot;&quot;, &quot;7&quot;, 77]</span></pre>
+<pre><span class="lineno"><a href="#line_5223" id="line_5223"> 5223.</a></span><span class="count                ">   1426</span><span>// [&quot;function aa(){}&quot;, &quot;pre_function&quot;, &quot;&quot;, &quot;7&quot;, 77]</span></pre>
 <pre><span class="lineno"><a href="#line_5224" id="line_5224"> 5224.</a></span><span class="count                ">   1426</span><span></span></pre>
 <pre><span class="lineno"><a href="#line_5225" id="line_5225"> 5225.</a></span><span class="count                ">   1426</span><span>        test_cause(&quot;&quot;);</span></pre>
 <pre><span class="lineno"><a href="#line_5226" id="line_5226"> 5226.</a></span><span class="count                ">    622</span><span>        if (thing.arity === &quot;statement&quot; &amp;&amp; blockage.body !== true) {</span></pre>
 <pre><span class="lineno"><a href="#line_5227" id="line_5227"> 5227.</a></span><span class="count                ">      1</span><span></span></pre>
 <pre><span class="lineno"><a href="#line_5228" id="line_5228"> 5228.</a></span><span class="count                ">      1</span><span>// test_cause:</span></pre>
-<pre><span class="lineno"><a href="#line_5229" id="line_5229"> 5229.</a></span><span class="count                ">      1</span><span>// [&quot;if(0){function aa(){}\n}&quot;, &quot;pre_fnc&quot;, &quot;unexpected_a&quot;, &quot;7&quot;, 77]</span></pre>
+<pre><span class="lineno"><a href="#line_5229" id="line_5229"> 5229.</a></span><span class="count                ">      1</span><span>// [&quot;if(0){function aa(){}\n}&quot;, &quot;pre_function&quot;, &quot;unexpected_a&quot;, &quot;7&quot;, 77]</span></pre>
 <pre><span class="lineno"><a href="#line_5230" id="line_5230"> 5230.</a></span><span class="count                ">      1</span><span></span></pre>
 <pre><span class="lineno"><a href="#line_5231" id="line_5231"> 5231.</a></span><span class="count                ">      1</span><span>            warn(&quot;unexpected_a&quot;, thing);</span></pre>
 <pre><span class="lineno"><a href="#line_5232" id="line_5232"> 5232.</a></span><span class="count                ">      1</span><span>        }</span></pre>
@@ -5372,7 +5372,7 @@ body {
 <pre><span class="lineno"><a href="#line_5243" id="line_5243"> 5243.</a></span><span class="count                ">      7</span><span>            if (thing.parameters.length !== 0) {</span></pre>
 <pre><span class="lineno"><a href="#line_5244" id="line_5244"> 5244.</a></span><span class="count                ">      7</span><span></span></pre>
 <pre><span class="lineno"><a href="#line_5245" id="line_5245"> 5245.</a></span><span class="count                ">      7</span><span>// test_cause:</span></pre>
-<pre><span class="lineno"><a href="#line_5246" id="line_5246"> 5246.</a></span><span class="count                ">      7</span><span>// [&quot;/*jslint getset*/\naa={get aa(aa){}}&quot;, &quot;pre_fnc&quot;, &quot;bad_get&quot;, &quot;7&quot;, 77]</span></pre>
+<pre><span class="lineno"><a href="#line_5246" id="line_5246"> 5246.</a></span><span class="count                ">      7</span><span>// [&quot;/*jslint getset*/\naa={get aa(aa){}}&quot;, &quot;pre_function&quot;, &quot;bad_get&quot;, &quot;7&quot;, 77]</span></pre>
 <pre><span class="lineno"><a href="#line_5247" id="line_5247"> 5247.</a></span><span class="count                ">      7</span><span></span></pre>
 <pre><span class="lineno"><a href="#line_5248" id="line_5248"> 5248.</a></span><span class="count                ">      7</span><span>                warn(&quot;bad_get&quot;, thing);</span></pre>
 <pre><span class="lineno"><a href="#line_5249" id="line_5249"> 5249.</a></span><span class="count                ">      7</span><span>            }</span></pre>
@@ -5380,7 +5380,7 @@ body {
 <pre><span class="lineno"><a href="#line_5251" id="line_5251"> 5251.</a></span><span class="count                ">   1419</span><span>            if (thing.parameters.length !== 1) {</span></pre>
 <pre><span class="lineno"><a href="#line_5252" id="line_5252"> 5252.</a></span><span class="count                ">   1419</span><span></span></pre>
 <pre><span class="lineno"><a href="#line_5253" id="line_5253"> 5253.</a></span><span class="count                ">   1419</span><span>// test_cause:</span></pre>
-<pre><span class="lineno"><a href="#line_5254" id="line_5254"> 5254.</a></span><span class="count                ">   1419</span><span>// [&quot;/*jslint getset*/\naa={set aa(){}}&quot;, &quot;pre_fnc&quot;, &quot;bad_set&quot;, &quot;7&quot;, 77]</span></pre>
+<pre><span class="lineno"><a href="#line_5254" id="line_5254"> 5254.</a></span><span class="count                ">   1419</span><span>// [&quot;/*jslint getset*/\naa={set aa(){}}&quot;, &quot;pre_function&quot;, &quot;bad_set&quot;, &quot;7&quot;, 77]</span></pre>
 <pre><span class="lineno"><a href="#line_5255" id="line_5255"> 5255.</a></span><span class="count                ">   1419</span><span></span></pre>
 <pre><span class="lineno"><a href="#line_5256" id="line_5256"> 5256.</a></span><span class="count                ">   1419</span><span>                warn(&quot;bad_set&quot;, thing);</span></pre>
 <pre><span class="lineno"><a href="#line_5257" id="line_5257"> 5257.</a></span><span class="count                ">   1419</span><span>            }</span></pre>
@@ -5495,7 +5495,7 @@ body {
 <pre><span class="lineno"><a href="#line_5366" id="line_5366"> 5366.</a></span><span class="count                ">     57</span><span>        warn(&quot;bad_assignment_a&quot;, name);</span></pre>
 <pre><span class="lineno"><a href="#line_5367" id="line_5367"> 5367.</a></span><span class="count                ">     57</span><span>    }</span></pre>
 <pre><span class="lineno"><a href="#line_5368" id="line_5368"> 5368.</a></span><span class="count                ">    454</span><span></span></pre>
-<pre><span class="lineno"><a href="#line_5369" id="line_5369"> 5369.</a></span><span class="count                ">   1426</span><span>    function post_fnc(thing) {</span></pre>
+<pre><span class="lineno"><a href="#line_5369" id="line_5369"> 5369.</a></span><span class="count                ">   1426</span><span>    function post_function(thing) {</span></pre>
 <pre><span class="lineno"><a href="#line_5370" id="line_5370"> 5370.</a></span><span class="count                ">   1426</span><span>        delete functionage.async;</span></pre>
 <pre><span class="lineno"><a href="#line_5371" id="line_5371"> 5371.</a></span><span class="count                ">   1426</span><span>        delete functionage.finally;</span></pre>
 <pre><span class="lineno"><a href="#line_5372" id="line_5372"> 5372.</a></span><span class="count                ">   1426</span><span>        delete functionage.loop;</span></pre>
@@ -5505,7 +5505,7 @@ body {
 <pre><span class="lineno"><a href="#line_5376" id="line_5376"> 5376.</a></span><span class="count                ">      3</span><span>        if (thing.wrapped) {</span></pre>
 <pre><span class="lineno"><a href="#line_5377" id="line_5377"> 5377.</a></span><span class="count                ">      3</span><span></span></pre>
 <pre><span class="lineno"><a href="#line_5378" id="line_5378"> 5378.</a></span><span class="count                ">      3</span><span>// test_cause:</span></pre>
-<pre><span class="lineno"><a href="#line_5379" id="line_5379"> 5379.</a></span><span class="count                ">      3</span><span>// [&quot;aa=(function(){})&quot;, &quot;post_fnc&quot;, &quot;unexpected_parens&quot;, &quot;7&quot;, 77]</span></pre>
+<pre><span class="lineno"><a href="#line_5379" id="line_5379"> 5379.</a></span><span class="count                ">      3</span><span>// [&quot;aa=(function(){})&quot;, &quot;post_function&quot;, &quot;unexpected_parens&quot;, &quot;7&quot;, 77]</span></pre>
 <pre><span class="lineno"><a href="#line_5380" id="line_5380"> 5380.</a></span><span class="count                ">      3</span><span></span></pre>
 <pre><span class="lineno"><a href="#line_5381" id="line_5381"> 5381.</a></span><span class="count                ">      3</span><span>            warn(&quot;unexpected_parens&quot;, thing);</span></pre>
 <pre><span class="lineno"><a href="#line_5382" id="line_5382"> 5382.</a></span><span class="count                ">      3</span><span>        }</span></pre>
@@ -5581,7 +5581,7 @@ body {
 <pre><span class="lineno"><a href="#line_5452" id="line_5452"> 5452.</a></span><span class="count                ">      1</span><span></span></pre>
 <pre><span class="lineno"><a href="#line_5453" id="line_5453"> 5453.</a></span><span class="count                ">      1</span><span>        warn(&quot;expected_a_b&quot;, thing, &quot;!==&quot;, &quot;!=&quot;);</span></pre>
 <pre><span class="lineno"><a href="#line_5454" id="line_5454"> 5454.</a></span><span class="count                ">      1</span><span>    });</span></pre>
-<pre><span class="lineno"><a href="#line_5455" id="line_5455"> 5455.</a></span><span class="count                ">    454</span><span>    preaction(&quot;binary&quot;, &quot;=&gt;&quot;, pre_fnc);</span></pre>
+<pre><span class="lineno"><a href="#line_5455" id="line_5455"> 5455.</a></span><span class="count                ">    454</span><span>    preaction(&quot;binary&quot;, &quot;=&gt;&quot;, pre_function);</span></pre>
 <pre><span class="lineno"><a href="#line_5456" id="line_5456"> 5456.</a></span><span class="count                ">   1004</span><span>    preaction(&quot;binary&quot;, &quot;||&quot;, function pre_bin_or(thing) {</span></pre>
 <pre><span class="lineno"><a href="#line_5457" id="line_5457"> 5457.</a></span><span class="count                ">   2008</span><span>        thing.expression.forEach(function (thang) {</span></pre>
 <pre><span class="lineno"><a href="#line_5458" id="line_5458"> 5458.</a></span><span class="count                ">    192</span><span>            if (thang.id === &quot;&amp;&amp;&quot; &amp;&amp; !thang.wrapped) {</span></pre>
@@ -5654,7 +5654,7 @@ body {
 <pre><span class="lineno"><a href="#line_5525" id="line_5525"> 5525.</a></span><span class="count                ">      2</span><span>        }</span></pre>
 <pre><span class="lineno"><a href="#line_5526" id="line_5526"> 5526.</a></span><span class="count                ">      7</span><span>        walk_statement(thing.initial);</span></pre>
 <pre><span class="lineno"><a href="#line_5527" id="line_5527"> 5527.</a></span><span class="count                ">      7</span><span>    });</span></pre>
-<pre><span class="lineno"><a href="#line_5528" id="line_5528"> 5528.</a></span><span class="count                ">    454</span><span>    preaction(&quot;statement&quot;, &quot;function&quot;, pre_fnc);</span></pre>
+<pre><span class="lineno"><a href="#line_5528" id="line_5528"> 5528.</a></span><span class="count                ">    454</span><span>    preaction(&quot;statement&quot;, &quot;function&quot;, pre_function);</span></pre>
 <pre><span class="lineno"><a href="#line_5529" id="line_5529"> 5529.</a></span><span class="count                ">     49</span><span>    preaction(&quot;statement&quot;, &quot;try&quot;, function (thing) {</span></pre>
 <pre><span class="lineno"><a href="#line_5530" id="line_5530"> 5530.</a></span><span class="count                ">     47</span><span>        if (thing.catch !== undefined) {</span></pre>
 <pre><span class="lineno"><a href="#line_5531" id="line_5531"> 5531.</a></span><span class="count                ">     47</span><span></span></pre>
@@ -5665,7 +5665,7 @@ body {
 <pre><span class="lineno"><a href="#line_5536" id="line_5536"> 5536.</a></span><span class="count                ">     47</span><span>        }</span></pre>
 <pre><span class="lineno"><a href="#line_5537" id="line_5537"> 5537.</a></span><span class="count                ">     49</span><span>    });</span></pre>
 <pre><span class="lineno"><a href="#line_5538" id="line_5538"> 5538.</a></span><span class="count                ">    454</span><span>    preaction(&quot;unary&quot;, &quot;~&quot;, pre_bitwise);</span></pre>
-<pre><span class="lineno"><a href="#line_5539" id="line_5539"> 5539.</a></span><span class="count                ">    454</span><span>    preaction(&quot;unary&quot;, &quot;function&quot;, pre_fnc);</span></pre>
+<pre><span class="lineno"><a href="#line_5539" id="line_5539"> 5539.</a></span><span class="count                ">    454</span><span>    preaction(&quot;unary&quot;, &quot;function&quot;, pre_function);</span></pre>
 <pre><span class="lineno"><a href="#line_5540" id="line_5540"> 5540.</a></span><span class="count                ">  24995</span><span>    preaction(&quot;variable&quot;, function (thing) {</span></pre>
 <pre><span class="lineno"><a href="#line_5541" id="line_5541"> 5541.</a></span><span class="count                ">  24995</span><span>        const the_variable = lookup(thing);</span></pre>
 <pre><span class="lineno"><a href="#line_5542" id="line_5542"> 5542.</a></span><span class="count                ">  24926</span><span>        if (the_variable !== undefined) {</span></pre>
@@ -5884,7 +5884,7 @@ body {
 <pre><span class="lineno"><a href="#line_5755" id="line_5755"> 5755.</a></span><span class="count                ">      2</span><span>            warn(&quot;weird_condition_a&quot;, thing);</span></pre>
 <pre><span class="lineno"><a href="#line_5756" id="line_5756"> 5756.</a></span><span class="count                ">      2</span><span>        }</span></pre>
 <pre><span class="lineno"><a href="#line_5757" id="line_5757"> 5757.</a></span><span class="count                ">   1004</span><span>    });</span></pre>
-<pre><span class="lineno"><a href="#line_5758" id="line_5758"> 5758.</a></span><span class="count                ">    454</span><span>    postaction(&quot;binary&quot;, &quot;=&gt;&quot;, post_fnc);</span></pre>
+<pre><span class="lineno"><a href="#line_5758" id="line_5758"> 5758.</a></span><span class="count                ">    454</span><span>    postaction(&quot;binary&quot;, &quot;=&gt;&quot;, post_function);</span></pre>
 <pre><span class="lineno"><a href="#line_5759" id="line_5759"> 5759.</a></span><span class="count                ">   8806</span><span>    postaction(&quot;binary&quot;, &quot;(&quot;, function post_bin_left_paren(thing) {</span></pre>
 <pre><span class="lineno"><a href="#line_5760" id="line_5760"> 5760.</a></span><span class="count                ">   8806</span><span>        let arg;</span></pre>
 <pre><span class="lineno"><a href="#line_5761" id="line_5761"> 5761.</a></span><span class="count                ">   8806</span><span>        let array;</span></pre>
@@ -6049,7 +6049,7 @@ body {
 <pre><span class="lineno"><a href="#line_5920" id="line_5920"> 5920.</a></span><span class="count                ">      7</span><span>    postaction(&quot;statement&quot;, &quot;for&quot;, function (thing) {</span></pre>
 <pre><span class="lineno"><a href="#line_5921" id="line_5921"> 5921.</a></span><span class="count                ">      7</span><span>        walk_statement(thing.inc);</span></pre>
 <pre><span class="lineno"><a href="#line_5922" id="line_5922"> 5922.</a></span><span class="count                ">      7</span><span>    });</span></pre>
-<pre><span class="lineno"><a href="#line_5923" id="line_5923"> 5923.</a></span><span class="count                ">    454</span><span>    postaction(&quot;statement&quot;, &quot;function&quot;, post_fnc);</span></pre>
+<pre><span class="lineno"><a href="#line_5923" id="line_5923"> 5923.</a></span><span class="count                ">    454</span><span>    postaction(&quot;statement&quot;, &quot;function&quot;, post_function);</span></pre>
 <pre><span class="lineno"><a href="#line_5924" id="line_5924"> 5924.</a></span><span class="count                ">     38</span><span>    postaction(&quot;statement&quot;, &quot;import&quot;, function (the_thing) {</span></pre>
 <pre><span class="lineno"><a href="#line_5925" id="line_5925"> 5925.</a></span><span class="count                ">     38</span><span>        const name = the_thing.name;</span></pre>
 <pre><span class="lineno"><a href="#line_5926" id="line_5926"> 5926.</a></span><span class="count                ">     38</span><span>        if (name) {</span></pre>
@@ -6165,7 +6165,7 @@ body {
 <pre><span class="lineno"><a href="#line_6036" id="line_6036"> 6036.</a></span><span class="count                ">   2423</span><span>            }</span></pre>
 <pre><span class="lineno"><a href="#line_6037" id="line_6037"> 6037.</a></span><span class="count                ">   2423</span><span>        }</span></pre>
 <pre><span class="lineno"><a href="#line_6038" id="line_6038"> 6038.</a></span><span class="count                ">   3174</span><span>    });</span></pre>
-<pre><span class="lineno"><a href="#line_6039" id="line_6039"> 6039.</a></span><span class="count                ">    454</span><span>    postaction(&quot;unary&quot;, &quot;function&quot;, post_fnc);</span></pre>
+<pre><span class="lineno"><a href="#line_6039" id="line_6039"> 6039.</a></span><span class="count                ">    454</span><span>    postaction(&quot;unary&quot;, &quot;function&quot;, post_function);</span></pre>
 <pre><span class="lineno"><a href="#line_6040" id="line_6040"> 6040.</a></span><span class="count                ">      7</span><span>    postaction(&quot;unary&quot;, &quot;+&quot;, function post_unary_plus(thing) {</span></pre>
 <pre><span class="lineno"><a href="#line_6041" id="line_6041"> 6041.</a></span><span class="count                ">      7</span><span>        const right = thing.expression;</span></pre>
 <pre><span class="lineno"><a href="#line_6042" id="line_6042"> 6042.</a></span><span class="count                ">      7</span><span>        if (!option_dict.convert) {</span></pre>
