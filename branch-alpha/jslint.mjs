@@ -525,7 +525,9 @@ function jslint_phase2_lex(state) {
         case "t":
 
 // test_cause:
-// ["\"\\/\\\\\\`\\b\\f\\n\\r\\t\"", "char_after_escape", "char_after", "7", 77] //jslint-quiet
+// ["
+// "\/\\\`\b\f\n\r\t"
+// ", "char_after_escape", "char_after", "7", 77]
 
             test_cause("char_after");
             return char_after();
@@ -1671,7 +1673,7 @@ function jslint_phase3_parse(state) {
         }, "");
     }
 
-    function warn_if_unordered_case_statement(case_list) {
+    function warn_if_unordered_case(case_list) {
 
 // This function will warn if <case_list> is unordered.
 
@@ -2137,7 +2139,7 @@ function jslint_phase3_parse(state) {
             the_symbol !== undefined
             && the_symbol.fud !== undefined
 
-// Fixes issues #316, #317 - dynamic-import().
+// Bugfix - Fixes issues #316, #317 - dynamic-import().
 
             && !(the_symbol.id === "import" && token_nxt.id === "(")
         ) {
@@ -3280,7 +3282,7 @@ function jslint_phase3_parse(state) {
                 the_function.name = Object.assign(name, {
                     calls: empty(),
 
-// Fixes issue #272 - function hoisting not allowed.
+// Bugfix - Fixes issue #272 - function hoisting not allowed.
 
                     dead: false,
                     init: true
@@ -3342,6 +3344,7 @@ function jslint_phase3_parse(state) {
             name.used = 1;
         }
 
+// Bugfix - fix function-redefinitions not warned inside function-calls.
 // Push the current function context and establish a new one.
 
         function_stack.push(functionage);
@@ -4147,7 +4150,7 @@ function jslint_phase3_parse(state) {
 
                 warn("freeze_exports", the_thing);
 
-// Fixes issues #282 - optional-semicolon.
+// Bugfix - Fixes issues #282 - optional-semicolon.
 
             } else {
 
@@ -4525,13 +4528,23 @@ function jslint_phase3_parse(state) {
             }
 
 // test_cause:
-// ["switch(0){case 1:case 0:break;}", "warn_if_unordered_case_statement", "expected_a_b_ordered_before_c_d", "7", 77] //jslint-quiet
-// ["switch(0){case \"aa\":case 0:break;}", "warn_if_unordered_case_statement", "expected_a_b_ordered_before_c_d", "7", 77] //jslint-quiet
-// ["switch(0){case \"bb\":case \"aa\":break;}", "warn_if_unordered_case_statement", "expected_a_b_ordered_before_c_d", "7", 77] //jslint-quiet
-// ["switch(0){case aa:case \"aa\":break;}", "warn_if_unordered_case_statement", "expected_a_b_ordered_before_c_d", "7", 77] //jslint-quiet
-// ["switch(0){case bb:case aa:break;}", "warn_if_unordered_case_statement", "expected_a_b_ordered_before_c_d", "7", 77] //jslint-quiet
+// ["
+// switch(0){case 1:case 0:break;}
+// ", "warn_if_unordered_case", "expected_a_b_ordered_before_c_d", "7", 77]
+// ["
+// switch(0){case "aa":case 0:break;}
+// ", "warn_if_unordered_case", "expected_a_b_ordered_before_c_d", "7", 77]
+// ["
+// switch(0){case "bb":case "aa":break;}
+// ", "warn_if_unordered_case", "expected_a_b_ordered_before_c_d", "7", 77]
+// ["
+// switch(0){case aa:case "aa":break;}
+// ", "warn_if_unordered_case", "expected_a_b_ordered_before_c_d", "7", 77]
+// ["
+// switch(0){case bb:case aa:break;}
+// ", "warn_if_unordered_case", "expected_a_b_ordered_before_c_d", "7", 77]
 
-            warn_if_unordered_case_statement(the_case.expression);
+            warn_if_unordered_case(the_case.expression);
             stmts = parse_statements();
             if (stmts.length < 1) {
 
@@ -4557,13 +4570,23 @@ function jslint_phase3_parse(state) {
         }
 
 // test_cause:
-// ["switch(0){case 1:break;case 0:break;}", "warn_if_unordered_case_statement", "expected_a_b_ordered_before_c_d", "7", 77] //jslint-quiet
-// ["switch(0){case \"aa\":break;case 0:break;}", "warn_if_unordered_case_statement", "expected_a_b_ordered_before_c_d", "7", 77] //jslint-quiet
-// ["switch(0){case \"bb\":break;case \"aa\":break;}", "warn_if_unordered_case_statement", "expected_a_b_ordered_before_c_d", "7", 77] //jslint-quiet
-// ["switch(0){case aa:break;case \"aa\":break;}", "warn_if_unordered_case_statement", "expected_a_b_ordered_before_c_d", "7", 77] //jslint-quiet
-// ["switch(0){case bb:break;case aa:break;}", "warn_if_unordered_case_statement", "expected_a_b_ordered_before_c_d", "7", 77] //jslint-quiet
+// ["
+// switch(0){case 1:break;case 0:break;}
+// ", "warn_if_unordered_case", "expected_a_b_ordered_before_c_d", "7", 77]
+// ["
+// switch(0){case "aa":break;case 0:break;}
+// ", "warn_if_unordered_case", "expected_a_b_ordered_before_c_d", "7", 77]
+// ["
+// switch(0){case "bb":break;case "aa":break;}
+// ", "warn_if_unordered_case", "expected_a_b_ordered_before_c_d", "7", 77]
+// ["
+// switch(0){case aa:break;case "aa":break;}
+// ", "warn_if_unordered_case", "expected_a_b_ordered_before_c_d", "7", 77]
+// ["
+// switch(0){case bb:break;case aa:break;}
+// ", "warn_if_unordered_case", "expected_a_b_ordered_before_c_d", "7", 77]
 
-        warn_if_unordered_case_statement(the_cases.map(function ({
+        warn_if_unordered_case(the_cases.map(function ({
             expression
         }) {
             return expression[0];
