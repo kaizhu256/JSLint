@@ -5390,7 +5390,7 @@ function jslint_phase4_walk(state) {
 
     preaction("assignment", pre_bitwise);
     preaction("binary", pre_bitwise);
-    preaction("binary", function pre_binary(thing) {
+    preaction("binary", function pre_bin(thing) {
         let left;
         let right;
         let value;
@@ -5400,7 +5400,7 @@ function jslint_phase4_walk(state) {
             if (left.id === "NaN" || right.id === "NaN") {
 
 // test_cause:
-// ["NaN===NaN", "pre_binary", "number_isNaN", "7", 77]
+// ["NaN===NaN", "pre_bin", "number_isNaN", "7", 77]
 
                 warn("number_isNaN", thing);
             } else if (left.id === "typeof") {
@@ -5408,7 +5408,7 @@ function jslint_phase4_walk(state) {
                     if (right.id !== "typeof") {
 
 // test_cause:
-// ["typeof 0===0", "pre_binary", "expected_string_a", "7", 77]
+// ["typeof 0===0", "pre_bin", "expected_string_a", "7", 77]
 
                         warn("expected_string_a", right);
                     }
@@ -5417,7 +5417,7 @@ function jslint_phase4_walk(state) {
                     if (value === "null" || value === "undefined") {
 
 // test_cause:
-// ["typeof aa===\"undefined\"", "pre_binary", "unexpected_typeof_a", "7", 77]
+// ["typeof aa===\"undefined\"", "pre_bin", "unexpected_typeof_a", "7", 77]
 
                         warn("unexpected_typeof_a", right, value);
                     } else if (
@@ -5430,7 +5430,7 @@ function jslint_phase4_walk(state) {
                     ) {
 
 // test_cause:
-// ["typeof 0===\"aa\"", "pre_binary", "expected_type_string_a", "7", 77]
+// ["typeof 0===\"aa\"", "pre_bin", "expected_type_string_a", "7", 77]
 
                         warn("expected_type_string_a", right, value);
                     }
@@ -5438,33 +5438,33 @@ function jslint_phase4_walk(state) {
             }
         }
     });
-    preaction("binary", "==", function (thing) {
+    preaction("binary", "==", function pre_bin_eqeq(thing) {
 
 // test_cause:
-// ["0==0", "77f", "77c", "7", 77]
+// ["0==0", "pre_bin_eqeq", "expected_a_b", "7", 77]
 
         warn("expected_a_b", thing, "===", "==");
     });
-    preaction("binary", "!=", function (thing) {
+    preaction("binary", "!=", function pre_bin_noteq(thing) {
 
 // test_cause:
-// ["0!=0", "77f", "77c", "7", 77]
+// ["0!=0", "pre_bin_noteq", "expected_a_b", "7", 77]
 
         warn("expected_a_b", thing, "!==", "!=");
     });
     preaction("binary", "=>", pre_fnc);
-    preaction("binary", "||", function (thing) {
+    preaction("binary", "||", function pre_bin_or(thing) {
         thing.expression.forEach(function (thang) {
             if (thang.id === "&&" && !thang.wrapped) {
 
 // test_cause:
-// ["0&&0||0", "77f", "77c", "7", 77]
+// ["0&&0||0", "pre_bin_or", "and", "7", 77]
 
                 warn("and", thang);
             }
         });
     });
-    preaction("binary", "(", function (thing) {
+    preaction("binary", "(", function pre_bin_left_paren(thing) {
         const left = thing.expression[0];
         let left_variable;
         let parent;
@@ -5489,26 +5489,26 @@ function jslint_phase4_walk(state) {
             }
         }
     });
-    preaction("binary", "in", function (thing) {
+    preaction("binary", "in", function pre_bin_in(thing) {
 
 // test_cause:
-// ["aa in aa", "77f", "77c", "7", 77]
+// ["aa in aa", "pre_bin_in", "infix_in", "7", 77]
 
         warn("infix_in", thing);
     });
-    preaction("binary", "instanceof", function (thing) {
+    preaction("binary", "instanceof", function pre_bin_instanceof(thing) {
 
 // test_cause:
-// ["0 instanceof 0", "77f", "77c", "7", 77]
+// ["0 instanceof 0", "pre_bin_instanceof", "unexpected_a", "7", 77]
 
         warn("unexpected_a", thing);
     });
-    preaction("statement", "{", function (thing) {
+    preaction("statement", "{", function pre_stmt_left_brace(thing) {
         block_stack.push(blockage);
         blockage = thing;
         thing.live = [];
     });
-    preaction("statement", "for", function (thing) {
+    preaction("statement", "for", function pre_stmt_for(thing) {
         let the_variable;
         if (thing.name !== undefined) {
             the_variable = lookup(thing.name);
@@ -5517,7 +5517,7 @@ function jslint_phase4_walk(state) {
                 if (!the_variable.writable) {
 
 // test_cause:
-// ["const aa=0;for(aa in aa){}", "77f", "77c", "7", 77]
+// ["const aa=0;for(aa in aa){}", "pre_stmt_for", "bad_assignment_a", "7", 77]
 
                     warn("bad_assignment_a", thing.name);
                 }
@@ -5560,7 +5560,7 @@ function jslint_phase4_walk(state) {
             }
         }
     });
-    postaction("assignment", function (thing) {
+    postaction("assignment", function post_assign(thing) {
 
 // Assignment using = sets the init property of a variable. No other assignment
 // operator can do this. A = token keeps that variable (or array of variables
@@ -5572,9 +5572,9 @@ function jslint_phase4_walk(state) {
             if (thing.names !== undefined) {
 
 // test_cause:
-// ["if(0){aa=0}", "77f", "77c", "7", 77]
+// ["if(0){aa=0}", "post_assign", "=", "7", 77]
 
-                noop();
+                test_cause("=");
 
 // Probably deadcode.
 // if (Array.isArray(thing.names)) {
@@ -5601,7 +5601,7 @@ function jslint_phase4_walk(state) {
                 ) {
 
 // test_cause:
-// ["aa.aa=undefined", "77f", "77c", "7", 77]
+// ["aa.aa=undefined", "post_assign", "expected_a_b", "7", 77]
 
                     warn(
                         "expected_a_b",
@@ -5632,14 +5632,14 @@ function jslint_phase4_walk(state) {
             ) {
 
 // test_cause:
-// ["aa+=undefined", "77f", "77c", "7", 77]
+// ["aa+=undefined", "post_assign", "unexpected_a", "7", 77]
 
                 warn("unexpected_a", thing.expression[1]);
             }
         }
     });
 
-    postaction("binary", function (thing) {
+    postaction("binary", function post_bin(thing) {
         let right;
         if (relationop[thing.id]) {
             if (
@@ -5653,7 +5653,7 @@ function jslint_phase4_walk(state) {
             ) {
 
 // test_cause:
-// ["if(0===0){0}", "77f", "77c", "7", 77]
+// ["if(0===0){0}", "post_bin", "weird_relation_a", "7", 77]
 
                 warn("weird_relation_a", thing);
             }
@@ -5663,13 +5663,13 @@ function jslint_phase4_walk(state) {
                 if (thing.expression[0].value === "") {
 
 // test_cause:
-// ["\"\"+0", "77f", "77c", "7", 77]
+// ["\"\"+0", "post_bin", "expected_a_b", "7", 77]
 
                     warn("expected_a_b", thing, "String(...)", "\"\" +");
                 } else if (thing.expression[1].value === "") {
 
 // test_cause:
-// ["0+\"\"", "77f", "77c", "7", 77]
+// ["0+\"\"", "post_bin", "expected_a_b", "7", 77]
 
                     warn("expected_a_b", thing, "String(...)", "+ \"\"");
                 }
@@ -5678,14 +5678,14 @@ function jslint_phase4_walk(state) {
             if (thing.expression[0].id === "window") {
 
 // test_cause:
-// ["aa=window[0]", "77f", "77c", "7", 77]
+// ["aa=window[0]", "post_bin", "weird_expression_a", "7", 77]
 
                 warn("weird_expression_a", thing, "window[...]");
             }
             if (thing.expression[0].id === "self") {
 
 // test_cause:
-// ["aa=self[0]", "77f", "77c", "7", 77]
+// ["aa=self[0]", "post_bin", "weird_expression_a", "7", 77]
 
                 warn("weird_expression_a", thing, "self[...]");
             }
@@ -5693,7 +5693,7 @@ function jslint_phase4_walk(state) {
             if (thing.expression.id === "RegExp") {
 
 // test_cause:
-// ["aa=RegExp.aa", "77f", "77c", "7", 77]
+// ["aa=RegExp.aa", "post_bin", "weird_expression_a", "7", 77]
 
                 warn("weird_expression_a", thing);
             }
@@ -5707,7 +5707,7 @@ function jslint_phase4_walk(state) {
             ) {
 
 // test_cause:
-// ["0- -0", "77f", "77c", "7", 77]
+// ["0- -0", "post_bin", "wrap_unary", "7", 77]
 
                 warn("wrap_unary", right);
             }
