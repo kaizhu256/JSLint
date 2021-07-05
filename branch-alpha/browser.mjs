@@ -47,7 +47,7 @@
     warnings, width
 */
 
-import jslint from "./jslint.mjs?cc=mhzh";
+import jslint from "./jslint.mjs?cc=drbt";
 
 // This is the web script companion file for JSLint. It includes code for
 // interacting with the browser and displaying the reports.
@@ -581,6 +581,9 @@ body {
             level,
             line,
             name,
+
+// Bugfix - fix html-report from crashing if parameters is undefined.
+
             parameters = [],
             signature
         } = the_function;
