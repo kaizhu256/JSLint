@@ -5215,17 +5215,18 @@ function jslint_phase4_walk(state) {
         blockage.live.push(name);
     }
 
-    function preaction_function(thing) {
+    function pre_fnc(thing) {
 
 // test_cause:
-// ["()=>0", "77f", "77c", "7", 77]
-// ["(function (){}())", "77f", "77c", "7", 77]
-// ["function aa(){}", "77f", "77c", "7", 77]
+// ["()=>0", "pre_fnc", "", "7", 77]
+// ["(function (){}())", "pre_fnc", "", "7", 77]
+// ["function aa(){}", "pre_fnc", "", "7", 77]
 
+        test_cause("");
         if (thing.arity === "statement" && blockage.body !== true) {
 
 // test_cause:
-// ["if(0){function aa(){}\n}", "77f", "77c", "7", 77]
+// ["if(0){function aa(){}\n}", "pre_fnc", "unexpected_a", "7", 77]
 
             warn("unexpected_a", thing);
         }
@@ -5242,7 +5243,7 @@ function jslint_phase4_walk(state) {
             if (thing.parameters.length !== 0) {
 
 // test_cause:
-// ["/*jslint getset*/\naa={get aa(aa){}}", "77f", "77c", "7", 77]
+// ["/*jslint getset*/\naa={get aa(aa){}}", "pre_fnc", "bad_get", "7", 77]
 
                 warn("bad_get", thing);
             }
@@ -5250,7 +5251,7 @@ function jslint_phase4_walk(state) {
             if (thing.parameters.length !== 1) {
 
 // test_cause:
-// ["/*jslint getset*/\naa={set aa(){}}", "77f", "77c", "7", 77]
+// ["/*jslint getset*/\naa={set aa(){}}", "pre_fnc", "bad_set", "7", 77]
 
                 warn("bad_set", thing);
             }
@@ -5266,63 +5267,39 @@ function jslint_phase4_walk(state) {
         });
     }
 
-    function bitwise_check(thing) {
+    function pre_bitwise(thing) {
 
 // These are the bitwise operators.
 
         switch (!option_dict.bitwise && thing.id) {
         case "&":
-            warn("unexpected_a", thing);
-            break;
         case "&=":
-            warn("unexpected_a", thing);
-            break;
         case "<<":
-            warn("unexpected_a", thing);
-            break;
         case "<<=":
-            warn("unexpected_a", thing);
-            break;
         case ">>":
-            warn("unexpected_a", thing);
-            break;
         case ">>=":
-            warn("unexpected_a", thing);
-            break;
         case ">>>":
-            warn("unexpected_a", thing);
-            break;
         case ">>>=":
-            warn("unexpected_a", thing);
-            break;
         case "^":
-            warn("unexpected_a", thing);
-            break;
         case "^=":
-            warn("unexpected_a", thing);
-            break;
         case "|":
-            warn("unexpected_a", thing);
-            break;
         case "|=":
-            warn("unexpected_a", thing);
-            break;
         case "~":
 
 // test_cause:
-// ["0&0", "77f", "77c", "7", 77]
-// ["0&=0", "77f", "77c", "7", 77]
-// ["0<<0", "77f", "77c", "7", 77]
-// ["0<<=0", "77f", "77c", "7", 77]
-// ["0>>0", "77f", "77c", "7", 77]
-// ["0>>=0", "77f", "77c", "7", 77]
-// ["0>>>0", "77f", "77c", "7", 77]
-// ["0>>>=0", "77f", "77c", "7", 77]
-// ["0^0", "77f", "77c", "7", 77]
-// ["0^=0", "77f", "77c", "7", 77]
-// ["0|0", "77f", "77c", "7", 77]
-// ["0|=0", "77f", "77c", "7", 77]
-// ["~0", "77f", "77c", "7", 77]
+// ["0&0", "pre_bitwise", "unexpected_a", "7", 77]
+// ["0&=0", "pre_bitwise", "unexpected_a", "7", 77]
+// ["0<<0", "pre_bitwise", "unexpected_a", "7", 77]
+// ["0<<=0", "pre_bitwise", "unexpected_a", "7", 77]
+// ["0>>0", "pre_bitwise", "unexpected_a", "7", 77]
+// ["0>>=0", "pre_bitwise", "unexpected_a", "7", 77]
+// ["0>>>0", "pre_bitwise", "unexpected_a", "7", 77]
+// ["0>>>=0", "pre_bitwise", "unexpected_a", "7", 77]
+// ["0^0", "pre_bitwise", "unexpected_a", "7", 77]
+// ["0^=0", "pre_bitwise", "unexpected_a", "7", 77]
+// ["0|0", "pre_bitwise", "unexpected_a", "7", 77]
+// ["0|=0", "pre_bitwise", "unexpected_a", "7", 77]
+// ["~0", "pre_bitwise", "unexpected_a", "7", 77]
 
             warn("unexpected_a", thing);
             break;
@@ -5341,7 +5318,7 @@ function jslint_phase4_walk(state) {
         ) {
 
 // test_cause:
-// ["0<0<0", "77f", "77c", "7", 77]
+// ["0<0<0", "pre_bitwise", "unexpected_a", "7", 77]
 
             warn("unexpected_a", thing);
         }
@@ -5389,7 +5366,7 @@ function jslint_phase4_walk(state) {
         warn("bad_assignment_a", name);
     }
 
-    function postaction_function(thing) {
+    function post_fnc(thing) {
         delete functionage.async;
         delete functionage.finally;
         delete functionage.loop;
@@ -5399,7 +5376,7 @@ function jslint_phase4_walk(state) {
         if (thing.wrapped) {
 
 // test_cause:
-// ["aa=(function(){})", "77f", "77c", "7", 77]
+// ["aa=(function(){})", "post_fnc", "unexpected_parens", "7", 77]
 
             warn("unexpected_parens", thing);
         }
@@ -5411,9 +5388,9 @@ function jslint_phase4_walk(state) {
     preamble = amble(pres);
     postamble = amble(posts);
 
-    preaction("assignment", bitwise_check);
-    preaction("binary", bitwise_check);
-    preaction("binary", function (thing) {
+    preaction("assignment", pre_bitwise);
+    preaction("binary", pre_bitwise);
+    preaction("binary", function pre_binary(thing) {
         let left;
         let right;
         let value;
@@ -5423,7 +5400,7 @@ function jslint_phase4_walk(state) {
             if (left.id === "NaN" || right.id === "NaN") {
 
 // test_cause:
-// ["NaN===NaN", "77f", "77c", "7", 77]
+// ["NaN===NaN", "pre_binary", "number_isNaN", "7", 77]
 
                 warn("number_isNaN", thing);
             } else if (left.id === "typeof") {
@@ -5431,7 +5408,7 @@ function jslint_phase4_walk(state) {
                     if (right.id !== "typeof") {
 
 // test_cause:
-// ["typeof 0===0", "77f", "77c", "7", 77]
+// ["typeof 0===0", "pre_binary", "expected_string_a", "7", 77]
 
                         warn("expected_string_a", right);
                     }
@@ -5440,7 +5417,7 @@ function jslint_phase4_walk(state) {
                     if (value === "null" || value === "undefined") {
 
 // test_cause:
-// ["typeof aa===\"undefined\"", "77f", "77c", "7", 77]
+// ["typeof aa===\"undefined\"", "pre_binary", "unexpected_typeof_a", "7", 77]
 
                         warn("unexpected_typeof_a", right, value);
                     } else if (
@@ -5453,7 +5430,7 @@ function jslint_phase4_walk(state) {
                     ) {
 
 // test_cause:
-// ["typeof 0===\"aa\"", "77f", "77c", "7", 77]
+// ["typeof 0===\"aa\"", "pre_binary", "expected_type_string_a", "7", 77]
 
                         warn("expected_type_string_a", right, value);
                     }
@@ -5475,7 +5452,7 @@ function jslint_phase4_walk(state) {
 
         warn("expected_a_b", thing, "!==", "!=");
     });
-    preaction("binary", "=>", preaction_function);
+    preaction("binary", "=>", pre_fnc);
     preaction("binary", "||", function (thing) {
         thing.expression.forEach(function (thang) {
             if (thang.id === "&&" && !thang.wrapped) {
@@ -5548,7 +5525,7 @@ function jslint_phase4_walk(state) {
         }
         walk_statement(thing.initial);
     });
-    preaction("statement", "function", preaction_function);
+    preaction("statement", "function", pre_fnc);
     preaction("statement", "try", function (thing) {
         if (thing.catch !== undefined) {
 
@@ -5558,8 +5535,8 @@ function jslint_phase4_walk(state) {
             catchage = thing.catch;
         }
     });
-    preaction("unary", "~", bitwise_check);
-    preaction("unary", "function", preaction_function);
+    preaction("unary", "~", pre_bitwise);
+    preaction("unary", "function", pre_fnc);
     preaction("variable", function (thing) {
         const the_variable = lookup(thing);
         if (the_variable !== undefined) {
@@ -5776,7 +5753,7 @@ function jslint_phase4_walk(state) {
             warn("weird_condition_a", thing);
         }
     });
-    postaction("binary", "=>", postaction_function);
+    postaction("binary", "=>", post_fnc);
     postaction("binary", "(", function (thing) {
         let arg;
         let array;
@@ -5940,7 +5917,7 @@ function jslint_phase4_walk(state) {
     postaction("statement", "for", function (thing) {
         walk_statement(thing.inc);
     });
-    postaction("statement", "function", postaction_function);
+    postaction("statement", "function", post_fnc);
     postaction("statement", "import", function (the_thing) {
         const name = the_thing.name;
         if (name) {
@@ -6056,7 +6033,7 @@ function jslint_phase4_walk(state) {
             }
         }
     });
-    postaction("unary", "function", postaction_function);
+    postaction("unary", "function", post_fnc);
     postaction("unary", "+", function (thing) {
         const right = thing.expression;
         if (!option_dict.convert) {
