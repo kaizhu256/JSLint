@@ -31,6 +31,7 @@
 
 /*property
     dom_style_report_unmatched,
+    slice,
     CodeMirror, Pos, Tab, addEventListener, checked, click, closest, closure,
     column, context, ctrlKey, currentTarget, dispatchEvent, display, edition,
     editor, error, exports, extraKeys, filter, forEach, from, fromTextArea,
@@ -46,7 +47,7 @@
     warnings, width
 */
 
-import jslint from "./jslint.mjs?cc=fgni";
+import jslint from "./jslint.mjs?cc=530f";
 
 // This is the web script companion file for JSLint. It includes code for
 // interacting with the browser and displaying the reports.
@@ -505,7 +506,9 @@ body {
             + "<address>" + entityify(line + ": " + column) + "</address>"
             + entityify((ii + 1) + ". " + message)
             + "</cite>"
-            + "<samp>" + entityify(line_source + "\n" + stack_trace) + "</samp>"
+            + "<samp>"
+            + entityify(line_source.slice(0, 400) + "\n" + stack_trace)
+            + "</samp>"
         );
     });
     if (warnings.length === 0) {
@@ -578,7 +581,7 @@ body {
             level,
             line,
             name,
-            parameters,
+            parameters = [],
             signature
         } = the_function;
         let list = Object.keys(context);
