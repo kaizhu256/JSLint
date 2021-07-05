@@ -47,7 +47,7 @@
     warnings, width
 */
 
-import jslint from "./jslint.mjs?cc=530f";
+import jslint from "./jslint.mjs?cc=mhzh";
 
 // This is the web script companion file for JSLint. It includes code for
 // interacting with the browser and displaying the reports.
@@ -685,24 +685,28 @@ async function jslint_ui_call() {
 // Show ui-loader-animation.
 
     document.querySelector("#uiLoader1").style.display = "flex";
+    try {
 
 // Wait awhile before running cpu-intensive linter so ui-loader doesn't jank.
 
-    await new Promise(function (resolve) {
-        setTimeout(resolve);
-    });
+        await new Promise(function (resolve) {
+            setTimeout(resolve);
+        });
 
 // Execute linter.
 
-    editor.performLint();
+        editor.performLint();
 
 // Generate the reports.
 // Display the reports.
 
-    document.querySelector(
-        "#JSLINT_REPORT_HTML"
-    ).outerHTML = jslint_report_html(jslint_option_dict.result);
-    jslint_ui_onresize();
+        document.querySelector(
+            "#JSLINT_REPORT_HTML"
+        ).outerHTML = jslint_report_html(jslint_option_dict.result);
+        jslint_ui_onresize();
+    } catch (err) {
+        console.error(err); //jslint-quiet
+    }
 
 // Hide ui-loader-animation.
 
