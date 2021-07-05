@@ -6076,28 +6076,27 @@ function jslint_phase5_whitage(state) {
         warn
     } = state;
     let closer = "(end)";
+    let free = false;
 
 // free = false
 
-// test_cause:
-// ["()=>0", "77f", "77c", "7", 77]
-// ["aa()", "77f", "77c", "7", 77]
-// ["aa(0,0)", "77f", "77c", "7", 77]
-// ["function(){}", "77f", "77c", "7", 77]
-
-    let free = false;
+// cause:
+// "()=>0"
+// "aa()"
+// "aa(0,0)"
+// "function(){}"
 
 // free = true
 
-// test_cause:
-// ["(0)", "77f", "77c", "7", 77]
-// ["(aa)", "77f", "77c", "7", 77]
-// ["aa(0)", "77f", "77c", "7", 77]
-// ["do{}while()", "77f", "77c", "7", 77]
-// ["for(){}", "77f", "77c", "7", 77]
-// ["if(){}", "77f", "77c", "7", 77]
-// ["switch(){}", "77f", "77c", "7", 77]
-// ["while(){}", "77f", "77c", "7", 77]
+// cause:
+// "(0)"
+// "(aa)"
+// "aa(0)"
+// "do{}while()"
+// "for(){}"
+// "if(){}"
+// "switch(){}"
+// "while(){}"
 
     let left = token_global;
     let margin = 0;
@@ -6172,23 +6171,19 @@ function jslint_phase5_whitage(state) {
                 ) {
 
 // test_cause:
-// ["/*jslint node*/\nlet aa;", "77f", "77c", "7", 77]
-// ["function aa(aa){return;}", "77f", "77c", "7", 77]
-// ["let aa=0;try{aa();}catch(bb){aa();}", "77f", "77c", "7", 77]
+// ["/*jslint node*/\nlet aa;", "delve", "unused_a", "7", 77]
+// ["function aa(aa){return;}", "delve", "unused_a", "7", 77]
+// ["let aa=0;try{aa();}catch(bb){aa();}", "delve", "unused_a", "7", 77]
 
                     warn("unused_a", name);
                 } else if (!name.init) {
 
 // test_cause:
-// ["/*jslint node*/\nlet aa;aa();", "77f", "77c", "7", 77]
+// ["/*jslint node*/\nlet aa;aa();", "delve", "uninitialized_a", "7", 77]
 
                     warn("uninitialized_a", name);
                 }
             }
-
-// test_cause:
-// ["function aa(ignore){return;}", "77f", "77c", "7", 77]
-
         });
     }
 
@@ -6203,7 +6198,7 @@ function jslint_phase5_whitage(state) {
             if (left.thru !== right.from && nr_comments_skipped === 0) {
 
 // test_cause:
-// ["let aa = aa( );", "77f", "77c", "7", 77]
+// ["let aa = aa( );", "no_space", "unexpected_space_a_b", "7", 77]
 
                 warn(
                     "unexpected_space_a_b",
@@ -6249,7 +6244,7 @@ function jslint_phase5_whitage(state) {
 //     aa
 // ()
 // );
-// ", "77f", "77c", "7", 77]
+// ", "expected_at", "expected_a_at_b_c", "7", 77]
 
                 expected_at(margin);
             }
