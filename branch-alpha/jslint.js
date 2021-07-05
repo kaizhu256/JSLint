@@ -6006,7 +6006,7 @@ function jslint_phase4_walk(state) {
             warn("wrap_condition", thing.expression[0]);
         }
     });
-    postaction("unary", function (thing) {
+    postaction("unary", function post_unary(thing) {
         if (thing.id === "`") {
             if (thing.expression.every(function (thing) {
                 return thing.constant;
@@ -6021,7 +6021,7 @@ function jslint_phase4_walk(state) {
             if (!option_dict.convert) {
 
 // test_cause:
-// ["!!0", "77f", "77c", "7", 77]
+// ["!!0", "post_unary", "expected_a_b", "7", 77]
 
                 warn("expected_a_b", thing, "Boolean(...)", "!!");
             }
@@ -6037,12 +6037,12 @@ function jslint_phase4_walk(state) {
         }
     });
     postaction("unary", "function", post_fnc);
-    postaction("unary", "+", function (thing) {
+    postaction("unary", "+", function post_unary_plus(thing) {
         const right = thing.expression;
         if (!option_dict.convert) {
 
 // test_cause:
-// ["aa=+0", "77f", "77c", "7", 77]
+// ["aa=+0", "post_unary_plus", "expected_a_b", "7", 77]
 
             warn("expected_a_b", thing, "Number(...)", "+");
         }
