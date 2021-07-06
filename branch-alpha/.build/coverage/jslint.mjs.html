@@ -5137,7 +5137,7 @@ body {
 <pre><span class="lineno"><a href="#line_5008" id="line_5008"> 5008.</a></span><span class="count                "> 182794</span><span>        };</span></pre>
 <pre><span class="lineno"><a href="#line_5009" id="line_5009"> 5009.</a></span><span class="count                ">    912</span><span>    }</span></pre>
 <pre><span class="lineno"><a href="#line_5010" id="line_5010"> 5010.</a></span><span class="count                ">    456</span><span></span></pre>
-<pre><span class="lineno"><a href="#line_5011" id="line_5011"> 5011.</a></span><span class="count                ">     53</span><span>    function check_top_level(the_thing) {</span></pre>
+<pre><span class="lineno"><a href="#line_5011" id="line_5011"> 5011.</a></span><span class="count                ">     53</span><span>    function post_export_import(the_thing) {</span></pre>
 <pre><span class="lineno"><a href="#line_5012" id="line_5012"> 5012.</a></span><span class="count                ">     53</span><span></span></pre>
 <pre><span class="lineno"><a href="#line_5013" id="line_5013"> 5013.</a></span><span class="count                ">     53</span><span>// Some features must be at the most outermost level.</span></pre>
 <pre><span class="lineno"><a href="#line_5014" id="line_5014"> 5014.</a></span><span class="count                ">     53</span><span></span></pre>
@@ -5146,7 +5146,7 @@ body {
 <pre><span class="lineno"><a href="#line_5017" id="line_5017"> 5017.</a></span><span class="count                ">      1</span><span>// test_cause:</span></pre>
 <pre><span class="lineno"><a href="#line_5018" id="line_5018"> 5018.</a></span><span class="count                ">      1</span><span>// [&quot;</span></pre>
 <pre><span class="lineno"><a href="#line_5019" id="line_5019"> 5019.</a></span><span class="count                ">      1</span><span>// if(0){import aa from &quot;aa&quot;;}</span></pre>
-<pre><span class="lineno"><a href="#line_5020" id="line_5020"> 5020.</a></span><span class="count                ">      1</span><span>// &quot;, &quot;check_top_level&quot;, &quot;misplaced_a&quot;, &quot;import&quot;, 7]</span></pre>
+<pre><span class="lineno"><a href="#line_5020" id="line_5020"> 5020.</a></span><span class="count                ">      1</span><span>// &quot;, &quot;post_export_import&quot;, &quot;misplaced_a&quot;, &quot;import&quot;, 7]</span></pre>
 <pre><span class="lineno"><a href="#line_5021" id="line_5021"> 5021.</a></span><span class="count                ">      1</span><span></span></pre>
 <pre><span class="lineno"><a href="#line_5022" id="line_5022"> 5022.</a></span><span class="count                ">      1</span><span>            warn(&quot;misplaced_a&quot;, the_thing);</span></pre>
 <pre><span class="lineno"><a href="#line_5023" id="line_5023"> 5023.</a></span><span class="count                ">      1</span><span>        }</span></pre>
@@ -6043,7 +6043,7 @@ body {
 <pre><span class="lineno"><a href="#line_5914" id="line_5914"> 5914.</a></span><span class="count                ">   1194</span><span>    });</span></pre>
 <pre><span class="lineno"><a href="#line_5915" id="line_5915"> 5915.</a></span><span class="count                ">    456</span><span>    postaction(&quot;statement&quot;, &quot;{&quot;, pop_block);</span></pre>
 <pre><span class="lineno"><a href="#line_5916" id="line_5916"> 5916.</a></span><span class="count                ">    456</span><span>    postaction(&quot;statement&quot;, &quot;const&quot;, action_var);</span></pre>
-<pre><span class="lineno"><a href="#line_5917" id="line_5917"> 5917.</a></span><span class="count                ">    456</span><span>    postaction(&quot;statement&quot;, &quot;export&quot;, check_top_level);</span></pre>
+<pre><span class="lineno"><a href="#line_5917" id="line_5917"> 5917.</a></span><span class="count                ">    456</span><span>    postaction(&quot;statement&quot;, &quot;export&quot;, post_export_import);</span></pre>
 <pre><span class="lineno"><a href="#line_5918" id="line_5918"> 5918.</a></span><span class="count                ">      7</span><span>    postaction(&quot;statement&quot;, &quot;for&quot;, function (thing) {</span></pre>
 <pre><span class="lineno"><a href="#line_5919" id="line_5919"> 5919.</a></span><span class="count                ">      7</span><span>        walk_statement(thing.inc);</span></pre>
 <pre><span class="lineno"><a href="#line_5920" id="line_5920"> 5920.</a></span><span class="count                ">      7</span><span>    });</span></pre>
@@ -6062,7 +6062,7 @@ body {
 <pre><span class="lineno"><a href="#line_5933" id="line_5933"> 5933.</a></span><span class="count                ">     35</span><span>                name.init = true;</span></pre>
 <pre><span class="lineno"><a href="#line_5934" id="line_5934"> 5934.</a></span><span class="count                ">     35</span><span>                blockage.live.push(name);</span></pre>
 <pre><span class="lineno"><a href="#line_5935" id="line_5935"> 5935.</a></span><span class="count                ">     35</span><span>            }</span></pre>
-<pre><span class="lineno"><a href="#line_5936" id="line_5936"> 5936.</a></span><span class="count                ">     38</span><span>            return check_top_level(the_thing);</span></pre>
+<pre><span class="lineno"><a href="#line_5936" id="line_5936"> 5936.</a></span><span class="count                ">     38</span><span>            return post_export_import(the_thing);</span></pre>
 <pre><span class="lineno"><a href="#line_5937" id="line_5937"> 5937.</a></span><span class="count                ">     38</span><span>        }</span></pre>
 <pre><span class="lineno"><a href="#line_5938" id="line_5938"> 5938.</a></span><span class="count                ">     38</span><span>    });</span></pre>
 <pre><span class="lineno"><a href="#line_5939" id="line_5939"> 5939.</a></span><span class="count                ">    456</span><span>    postaction(&quot;statement&quot;, &quot;let&quot;, action_var);</span></pre>
