@@ -7168,8 +7168,6 @@ function jslint(
                 String(
                     (aa === undefined || aa === token_global)
                     ? ""
-                    : (typeof aa === "object" && aa)
-                    ? artifact(aa)
                     : aa
                 ),
                 77
@@ -7524,6 +7522,7 @@ function jslint(
 // likely that the first warning will be the most meaningful.
 
         the_token = the_token || state.token_nxt;
+        a = a || artifact(the_token);
         if (the_token.warning === undefined) {
             the_token.warning = warn_at(
                 code,
@@ -7536,7 +7535,7 @@ function jslint(
             );
             return the_token.warning;
         }
-        test_cause(code, b || a || artifact(the_token));
+        test_cause(code, b || a);
     }
 
     function stop(code, the_token, a, b, c, d) {
