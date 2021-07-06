@@ -7149,7 +7149,7 @@ function jslint(
                     ? ""
                     : aa
                 ),
-                // column
+                //!! column
                 77
             ])] = true;
         }
@@ -7517,7 +7517,6 @@ function jslint(
         } else {
             warning_list.pop();
         }
-        test_cause(code, the_warning.b || the_warning.a, the_warning.column);
         return the_warning;
     }
 
