@@ -177,9 +177,6 @@ function noop() {
     return;
 }
 
-// Coverage-hack.
-noop(jslint_charset_ascii);
-
 function populate(array, object = empty(), value = true) {
 
 // Augment an object by taking property names from an array of strings.
@@ -8021,3 +8018,6 @@ module.exports = jslint_export;
         cjs_require
     });
 }());
+
+// Coverage-hack.
+noop(jslint_charset_ascii);
