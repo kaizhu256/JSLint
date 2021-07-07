@@ -655,24 +655,6 @@ import moduleUrl from "url";
         return argList[0];
     };
 }());
-(function jslintDir() {
-/*
- * this function will jslint current-directory
- */
-    moduleFs.stat((
-        process.env.HOME + "/jslint.mjs"
-    ), function (ignore, exists) {
-        if (exists) {
-            moduleChildProcess.spawn("node", [
-                process.env.HOME + "/jslint.mjs", "."
-            ], {
-                stdio: [
-                    "ignore", 1, 2
-                ]
-            });
-        }
-    });
-}());
 (async function httpFileServer() {
 /*
  * this function will start http-file-server
@@ -760,6 +742,24 @@ import moduleUrl from "url";
             res.end(data);
         });
     }).listen(process.env.PORT);
+}());
+(function jslintDir() {
+/*
+ * this function will jslint current-directory
+ */
+    moduleFs.stat((
+        process.env.HOME + "/jslint.mjs"
+    ), function (ignore, exists) {
+        if (exists) {
+            moduleChildProcess.spawn("node", [
+                process.env.HOME + "/jslint.mjs", "."
+            ], {
+                stdio: [
+                    "ignore", 1, 2
+                ]
+            });
+        }
+    });
 }());
 (function replStart() {
 /*
@@ -1013,6 +1013,12 @@ shJsonNormalize() {(set -e
     node --input-type=module -e '
 import moduleFs from "fs";
 (async function () {
+    function identity(val) {
+
+// This function will return <val>.
+
+        return val;
+    }
     function objectDeepCopyWithKeysSorted(obj) {
 
 // this function will recursively deep-copy <obj> with keys sorted
@@ -1035,12 +1041,6 @@ import moduleFs from "fs";
             sorted[key] = objectDeepCopyWithKeysSorted(obj[key]);
         });
         return sorted;
-    }
-    function identity(val) {
-
-// This function will return <val>.
-
-        return val;
     }
     console.error("shJsonNormalize - " + process.argv[1]);
     moduleFs.promises.writeFile(

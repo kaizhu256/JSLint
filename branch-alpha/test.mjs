@@ -81,137 +81,6 @@ function noop() {
     });
 }());
 
-(function testCaseJslintMisc() {
-/*
- * this function will test jslint's misc handling-behavior
- */
-    // test assertOrThrow's throw handling-behavior
-    try {
-        assertOrThrow(undefined, new Error());
-    } catch (ignore) {}
-}());
-
-(async function testCaseJslintOption() {
-/*
- * this function will test jslint's option handling-behavior
- */
-    let elemPrv = "";
-    [
-        [
-            "let aa = aa | 0;", {bitwise: true}, []
-        ], [
-            ";\naa(new XMLHttpRequest());", {browser: true}, ["aa"]
-        ], [
-            "let aa = \"aa\" + 0;", {convert: true}, []
-        ], [
-            "registerType();", {couch: true}, []
-        ], [
-            "", {debug: true}, []
-        ], [
-            "debugger;", {devel: true}, []
-        ], [
-            "new Function();\neval();", {eval: true}, []
-        ], [
-            (
-                "function aa(aa) {\n"
-                + "    for (aa = 0; aa < 0; aa += 1) {\n"
-                + "        aa();\n"
-                + "    }\n"
-                + "}\n"
-            ), {for: true}, []
-        ], [
-            "let aa = {get aa() {\n    return;\n}};", {getset: true}, []
-        ], [
-            "let aa = {set aa(aa) {\n    return aa;\n}};", {getset: true}, []
-        ], [
-            String(
-                await moduleFs.promises.readFile("jslint.mjs", "utf8")
-            ).replace((
-                /\u0020{4}/g
-            ), "  "),
-            {indent2: true},
-            []
-        ], [
-            "function aa() {\n  return;\n}", {indent2: true}, []
-        ], [
-            "/".repeat(100), {long: true}, []
-        ], [
-            "let aa = aa._;", {name: true}, []
-        ], [
-            "require();", {node: true}, []
-        ], [
-            "let aa = 'aa';", {single: true}, []
-        ], [
-            "let aa = this;", {this: true}, []
-        ], [
-            (
-                "function aa({bb, aa}) {\n"
-                + "    switch (aa) {\n"
-                + "    case 1:\n"
-                + "        break;\n"
-                + "    case 0:\n"
-                + "        break;\n"
-                + "    default:\n"
-                + "        return {bb, aa};\n"
-                + "    }\n"
-                + "}\n"
-            ), {unordered: true}, []
-        ], [
-            "let {bb, aa} = 0;", {unordered: true}, []
-        ], [
-            (
-                "function aa() {\n"
-                + "    if (aa) {\n"
-                + "        let bb = 0;\n"
-                + "        return bb;\n"
-                + "    }\n"
-                + "}\n"
-            ), {variable: true}, []
-        ], [
-            "let bb = 0;\nlet aa = 0;", {variable: true}, []
-        ], [
-            "\t", {white: true}, []
-        ]
-    ].forEach(function ([
-        source, option_dict, global_list
-    ]) {
-        let elemNow = JSON.stringify([
-            option_dict, source, global_list
-        ]);
-        // Assert list is sorted.
-        assertOrThrow(elemPrv < elemNow, JSON.stringify([
-            elemPrv, elemNow
-        ], undefined, 4));
-        elemPrv = elemNow;
-        option_dict.beta = true;
-        // test jslint's option handling-behavior
-        assertOrThrow(
-            jslint(source, option_dict, global_list).warnings.length === 0,
-            "jslint(" + JSON.stringify([
-                source, option_dict, global_list
-            ]) + ")"
-        );
-        // test jslint's directive handling-behavior
-        source = (
-            "/*jslint " + JSON.stringify(option_dict).slice(1, -1).replace((
-                /"/g
-            ), "") + "*/\n"
-            + (
-                global_list.length === 0
-                ? ""
-                : "/*global " + global_list.join(",") + "*/\n"
-            )
-            + source.replace((
-                /^#!/
-            ), "//")
-        );
-        assertOrThrow(jslint(source).warnings.length === 0, source);
-    });
-    assertOrThrow(jslint("", {
-        test_internal_error: true
-    }).warnings.length === 1);
-}());
-
 (function testCaseJslintCodeValidate() {
 /*
  * this function will validate each code is valid in jslint
@@ -361,6 +230,137 @@ function noop() {
             );
         });
     });
+}());
+
+(function testCaseJslintMisc() {
+/*
+ * this function will test jslint's misc handling-behavior
+ */
+    // test assertOrThrow's throw handling-behavior
+    try {
+        assertOrThrow(undefined, new Error());
+    } catch (ignore) {}
+}());
+
+(async function testCaseJslintOption() {
+/*
+ * this function will test jslint's option handling-behavior
+ */
+    let elemPrv = "";
+    [
+        [
+            "let aa = aa | 0;", {bitwise: true}, []
+        ], [
+            ";\naa(new XMLHttpRequest());", {browser: true}, ["aa"]
+        ], [
+            "let aa = \"aa\" + 0;", {convert: true}, []
+        ], [
+            "registerType();", {couch: true}, []
+        ], [
+            "", {debug: true}, []
+        ], [
+            "debugger;", {devel: true}, []
+        ], [
+            "new Function();\neval();", {eval: true}, []
+        ], [
+            (
+                "function aa(aa) {\n"
+                + "    for (aa = 0; aa < 0; aa += 1) {\n"
+                + "        aa();\n"
+                + "    }\n"
+                + "}\n"
+            ), {for: true}, []
+        ], [
+            "let aa = {get aa() {\n    return;\n}};", {getset: true}, []
+        ], [
+            "let aa = {set aa(aa) {\n    return aa;\n}};", {getset: true}, []
+        ], [
+            String(
+                await moduleFs.promises.readFile("jslint.mjs", "utf8")
+            ).replace((
+                /\u0020{4}/g
+            ), "  "),
+            {indent2: true},
+            []
+        ], [
+            "function aa() {\n  return;\n}", {indent2: true}, []
+        ], [
+            "/".repeat(100), {long: true}, []
+        ], [
+            "let aa = aa._;", {name: true}, []
+        ], [
+            "require();", {node: true}, []
+        ], [
+            "let aa = 'aa';", {single: true}, []
+        ], [
+            "let aa = this;", {this: true}, []
+        ], [
+            (
+                "function aa({bb, aa}) {\n"
+                + "    switch (aa) {\n"
+                + "    case 1:\n"
+                + "        break;\n"
+                + "    case 0:\n"
+                + "        break;\n"
+                + "    default:\n"
+                + "        return {bb, aa};\n"
+                + "    }\n"
+                + "}\n"
+            ), {unordered: true}, []
+        ], [
+            "let {bb, aa} = 0;", {unordered: true}, []
+        ], [
+            (
+                "function aa() {\n"
+                + "    if (aa) {\n"
+                + "        let bb = 0;\n"
+                + "        return bb;\n"
+                + "    }\n"
+                + "}\n"
+            ), {variable: true}, []
+        ], [
+            "let bb = 0;\nlet aa = 0;", {variable: true}, []
+        ], [
+            "\t", {white: true}, []
+        ]
+    ].forEach(function ([
+        source, option_dict, global_list
+    ]) {
+        let elemNow = JSON.stringify([
+            option_dict, source, global_list
+        ]);
+        // Assert list is sorted.
+        assertOrThrow(elemPrv < elemNow, JSON.stringify([
+            elemPrv, elemNow
+        ], undefined, 4));
+        elemPrv = elemNow;
+        option_dict.beta = true;
+        // test jslint's option handling-behavior
+        assertOrThrow(
+            jslint(source, option_dict, global_list).warnings.length === 0,
+            "jslint(" + JSON.stringify([
+                source, option_dict, global_list
+            ]) + ")"
+        );
+        // test jslint's directive handling-behavior
+        source = (
+            "/*jslint " + JSON.stringify(option_dict).slice(1, -1).replace((
+                /"/g
+            ), "") + "*/\n"
+            + (
+                global_list.length === 0
+                ? ""
+                : "/*global " + global_list.join(",") + "*/\n"
+            )
+            + source.replace((
+                /^#!/
+            ), "//")
+        );
+        assertOrThrow(jslint(source).warnings.length === 0, source);
+    });
+    assertOrThrow(jslint("", {
+        test_internal_error: true
+    }).warnings.length === 1);
 }());
 
 (async function testCaseJslintWarningsValidate() {
