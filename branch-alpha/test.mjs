@@ -326,10 +326,17 @@ function noop() {
             + "aa();\n"
         ],
         use_strict: [
-            "function aa() {\n    \"use strict\";\n    return;\n}"
+            (
+                "/*jslint beta*/\n"
+                + "\"use strict\";\n"
+                + "let aa = 0;\n"
+                + "function bb() {\n"
+                + "    \"use strict\";\n"
+                + "    return aa;\n"
+                + "}\n"
+            )
         ],
         var: [
-            "\"use strict\";\nvar aa = 0;",
             "let [\n    aa, bb = 0\n] = 0;",
             "let [...aa] = [...aa];",
             "let constructor = 0;",

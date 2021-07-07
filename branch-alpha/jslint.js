@@ -5323,7 +5323,7 @@ function jslint_phase4_walk(state) {
         blockage = block_stack.pop();
     }
 
-    function action_var(thing) {
+    function post_var(thing) {
         thing.names.forEach(function (name) {
             name.dead = false;
             if (name.expression !== undefined) {
@@ -5910,7 +5910,7 @@ function jslint_phase4_walk(state) {
         }
     });
     postaction("statement", "{", pop_block);
-    postaction("statement", "const", action_var);
+    postaction("statement", "const", post_var);
     postaction("statement", "export", post_export_import);
     postaction("statement", "for", function (thing) {
         walk_statement(thing.inc);
@@ -5933,7 +5933,7 @@ function jslint_phase4_walk(state) {
             return post_export_import(the_thing);
         }
     });
-    postaction("statement", "let", action_var);
+    postaction("statement", "let", post_var);
     postaction("statement", "try", function (thing) {
         if (thing.catch) {
             if (thing.catch.name) {
@@ -5949,7 +5949,7 @@ function jslint_phase4_walk(state) {
             catchage = catch_stack.pop();
         }
     });
-    postaction("statement", "var", action_var);
+    postaction("statement", "var", post_var);
     postaction("ternary", function post_ternary(thing) {
         if (
             is_weird(thing.expression[0])
