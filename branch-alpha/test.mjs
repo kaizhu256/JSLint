@@ -327,8 +327,7 @@ function noop() {
         ],
         use_strict: [
             (
-                "/*jslint beta*/\n"
-                + "\"use strict\";\n"
+                "\"use strict\";\n"
                 + "let aa = 0;\n"
                 + "function bb() {\n"
                 + "    \"use strict\";\n"
@@ -353,7 +352,9 @@ function noop() {
                 elemPrv, code
             ], undefined, 4));
             elemPrv = code;
-            warnings = jslint(code).warnings;
+            warnings = jslint(code, {
+                beta: true
+            }).warnings;
             assertOrThrow(
                 warnings.length === 0,
                 JSON.stringify([code, warnings])

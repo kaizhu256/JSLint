@@ -227,8 +227,11 @@ var cacheKey = Math.random().toString(36).slice(-4);
 
     result.replace((
         /\n<link\u0020rel="stylesheet"\u0020href="([^"]+?)">\n/g
-    ), async function (match0, url) {
-        var data = await moduleFs.promises.readFile(url.split("?")[0], "utf8");
+    ), function (match0, url) {
+        var data = moduleFs.readFileSync( //jslint-quiet
+            url.split("?")[0],
+            "utf8"
+        );
         result = result.replace(match0, function () {
             return `\n<style>\n${data.trim()}\n</style>\n`;
         });
@@ -236,8 +239,8 @@ var cacheKey = Math.random().toString(36).slice(-4);
     });
     result.replace((
         `\n<style id="#JSLINT_REPORT_STYLE"></style>\n`
-    ), async function (match0) {
-        var data = await moduleFs.promises.readFile("browser.mjs", "utf8");
+    ), function (match0) {
+        var data = moduleFs.readFileSync("browser.mjs", "utf8"); //jslint-quiet
         result = result.replace(match0, function () {
             return data.match(
                 /\n<style\sid="#JSLINT_REPORT_STYLE">\n[\S\s]*?\n<\/style>\n/

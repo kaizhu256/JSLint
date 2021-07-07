@@ -3786,19 +3786,19 @@ function jslint_phase3_parse(state) {
         case "var":
 
 // test_cause:
-// ["const aa=0;const bb=0;", "parse_var", "declare", "", 0]
-// ["let aa=0;let bb=0;", "parse_var", "declare", "", 0]
-// ["var aa=0;var bb=0;", "parse_var", "declare", "", 0]
+// ["const aa=0;const bb=0;", "parse_var", "last_var", "const", 0]
+// ["let aa=0;let bb=0;", "parse_var", "last_var", "let", 0]
+// ["var aa=0;var bb=0;", "parse_var", "last_var", "var", 0]
 
-            test_cause("declare");
+            test_cause("last_var", functionage.last_statement.id);
             variable_prv = functionage.last_statement;
             break;
         case "import":
 
 // test_cause:
-// ["import aa from \"aa\";\nlet bb=0;", "parse_var", "import", "", 0]
+// ["import aa from \"aa\";\nlet bb=0;", "parse_var", "last_import", "", 0]
 
-            test_cause("import");
+            test_cause("last_import");
             break;
         case false:
             break;
