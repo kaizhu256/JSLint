@@ -375,9 +375,11 @@ function noop() {
         causeList = causeList.replace((
             /^\/\/\u0020/gm
         ), "").replace((
-            /^\["\n([\S\s]*?)\n",/gm
-        ), function (ignore, source) {
-            return "[" + JSON.stringify(source) + ",";
+            /^\["\n([\S\s]*?)\n"(,.*?)$/gm
+        ), function (ignore, source, param) {
+            source = "[" + JSON.stringify(source) + param;
+            assertOrThrow(source.length > (80 - 3), source);
+            return source;
         }).replace((
             /\u0020\/\/jslint-quiet$/gm
         ), "");
@@ -397,7 +399,6 @@ function noop() {
                 test_cause: true
             }).causes;
             // Validate cause.
-            /*
             assertOrThrow(
                 tmp[JSON.stringify(cause.slice(1))],
                 (
@@ -405,7 +406,6 @@ function noop() {
                     + Object.keys(tmp).sort().join("\n")
                 )
             );
-            */
         });
         return "";
     });
