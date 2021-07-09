@@ -11,31 +11,31 @@
     textLength="768"
     x="10"
     y="32"
->$ #!/bin/sh                                                                                      </tspan>
+>&gt; #!/bin/sh                                                                                      </tspan>
 <tspan
     lengthAdjust="spacingAndGlyphs"
     textLength="768"
     x="10"
     y="54"
->$                                                                                                </tspan>
+>&gt;                                                                                                </tspan>
 <tspan
     lengthAdjust="spacingAndGlyphs"
     textLength="768"
     x="10"
     y="76"
->$ printf "console.log('hello world');\n" &gt; hello.js                                              </tspan>
+>&gt; printf "console.log('hello world');\n" &gt; hello.js                                              </tspan>
 <tspan
     lengthAdjust="spacingAndGlyphs"
     textLength="768"
     x="10"
     y="98"
->$                                                                                                </tspan>
+>&gt;                                                                                                </tspan>
 <tspan
     lengthAdjust="spacingAndGlyphs"
     textLength="768"
     x="10"
     y="120"
->$ node jslint.mjs hello.js                                                                       </tspan>
+>&gt; node jslint.mjs hello.js                                                                       </tspan>
 <tspan
     lengthAdjust="spacingAndGlyphs"
     textLength="768"

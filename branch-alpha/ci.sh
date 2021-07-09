@@ -172,7 +172,7 @@ import moduleChildProcess from "child_process";
                 /\u0027/g
             ), "\u0027\"\u0027\"\u0027").replace((
                 /^/gm
-            ), "$ ")
+            ), "> ")
             + "\n\n\n\u0027\n"
             + script
         ));

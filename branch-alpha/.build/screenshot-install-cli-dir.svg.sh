@@ -1,6 +1,6 @@
-printf '$ #!/bin/sh
-$ 
-$ node jslint.mjs .
+printf '> #!/bin/sh
+> 
+> node jslint.mjs .
 
 
 '
