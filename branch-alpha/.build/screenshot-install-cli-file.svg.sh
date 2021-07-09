@@ -1,8 +1,8 @@
-printf '> #!/bin/sh
-> 
-> printf "console.log('"'"'hello world'"'"');\\n" > hello.js
-> 
-> node jslint.mjs hello.js
+printf '$ #!/bin/sh
+$ 
+$ printf "console.log('"'"'hello world'"'"');\\n" > hello.js
+$ 
+$ node jslint.mjs hello.js
 
 
 '
