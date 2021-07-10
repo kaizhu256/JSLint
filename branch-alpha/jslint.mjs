@@ -1439,12 +1439,6 @@ async function jslint_cli({
     return exit_code;
 }
 
-jslint_export = Object.freeze(Object.assign(jslint, {
-    cli: Object.freeze(jslint_cli),
-    edition: jslint_edition,
-    jslint: Object.freeze(jslint.bind(undefined))
-}));
-
 function jslint_phase1_split() {
 
 // PHASE 1. Split <source> by newlines into <line_list>.
@@ -8129,6 +8123,12 @@ function populate(array, object = empty(), value = true) {
     });
     return object;
 }
+
+jslint_export = Object.freeze(Object.assign(jslint, {
+    cli: Object.freeze(jslint_cli),
+    edition: jslint_edition,
+    jslint: Object.freeze(jslint.bind(undefined))
+}));
 
 // Export jslint as commonjs/es-module.
 
