@@ -24,7 +24,8 @@
 - jslint - add new beta-warning if functions are unordered.
 - jslint - add new warning disallowing string-literal as property-name, e.g. {`aa`:0}.
 - jslint - comment out shebang in jslint.mjs so older ios devices can use website.
-- tests - revamp cause-based testing with more robust instrumentation.
+- jslint-revamp - rearrange functions in jslint.mjs to comply with ordered-functions beta-warning.
+- jslint-revamp - revamp cause-based testing with more robust instrumentation.
 - tests - test artifact and column-position in warnings are correct.
 
 # v2021.6.30
