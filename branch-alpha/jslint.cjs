@@ -1696,8 +1696,8 @@ function jslint_phase3_parse(state) {
             }
             if (
                 right.arity === "assignment"
-                || right.arity === "pre"
-                || right.arity === "post"
+                || right.arity === "preassign"
+                || right.arity === "postassign"
             ) {
                 warn("unexpected_a", right);
             }
@@ -2849,28 +2849,28 @@ function jslint_phase3_parse(state) {
         }
     }
 
-    function post(id) {
+    function postassign(id) {
 
-// Create one of the post operators.
+// Create one of the postassign operators.
 
         const the_symbol = symbol(id, 150);
         the_symbol.led = function (left) {
             token_now.expression = left;
-            token_now.arity = "post";
+            token_now.arity = "postassign";
             check_mutation(token_now.expression);
             return token_now;
         };
         return the_symbol;
     }
 
-    function pre(id) {
+    function preassign(id) {
 
-// Create one of the pre operators.
+// Create one of the preassign operators.
 
         const the_symbol = symbol(id);
         the_symbol.nud = function () {
             const the_token = token_now;
-            the_token.arity = "pre";
+            the_token.arity = "preassign";
             the_token.expression = parse_expression(150);
             check_mutation(the_token.expression);
             return the_token;
@@ -4873,10 +4873,10 @@ function jslint_phase3_parse(state) {
     infix(80, "^");
     infix(90, "&");
     infixr(150, "**");
-    post("++");
-    post("--");
-    pre("++");
-    pre("--");
+    postassign("++");
+    postassign("--");
+    preassign("++");
+    preassign("--");
     prefix("!!");
     prefix("!");
     prefix("(", prefix_lparen);
@@ -6059,7 +6059,9 @@ function jslint_phase4_walk(state) {
                     test_cause("function");
                     walk_statement(thing.block);
                 }
-                if (thing.arity === "pre" || thing.arity === "post") {
+                if (
+                    thing.arity === "preassign" || thing.arity === "postassign"
+                ) {
 
 // test_cause:
 // ["aa=++aa", "walk_expression", "unexpected_a", "++", 4]
