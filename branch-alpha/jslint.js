@@ -4945,6 +4945,8 @@ function jslint_phase3_parse(state) {
     symbol("}");
     ternary("?", ":");
 
+// Init token_nxt.
+
     advance();
 
 // Parsing of JSON is simple:
@@ -4962,14 +4964,12 @@ function jslint_phase3_parse(state) {
         if (token_nxt.id === ";") {
             advance(";");
         }
-    } else {
 
 // If we are not in a browser, then the file form of strict pragma may be used.
 
-        if (token_nxt.value === "use strict") {
-            advance("(string)");
-            advance(";");
-        }
+    } else if (token_nxt.value === "use strict") {
+        advance("(string)");
+        advance(";");
     }
     state.token_tree = parse_statements();
     advance("(end)");
