@@ -170,22 +170,1280 @@ function identity(val) {
     return val;
 }
 
-function noop() {
+function jslint(
+    source = "",                // A text to analyze.
+    option_dict = empty(),      // An object whose keys correspond to option
+                                // ... names.
+    global_list = []            // An array of strings containing global
+                                // ... variables that the file is allowed
+                                // ... readonly access.
+) {
 
-// This function will do nothing.
+// The jslint function itself.
 
-    return;
-}
+    let allowed_option = {
 
-function populate(array, object = empty(), value = true) {
+// These are the options that are recognized in the option object or that may
+// appear in a /*jslint*/ directive. Most options will have a boolean value,
+// usually true. Some options will also predefine some number of global
+// variables.
 
-// Augment an object by taking property names from an array of strings.
-
-    array.forEach(function (name) {
-        object[name] = value;
+        beta: true,             // Enable experimental warnings.
+        bitwise: true,          // Allow bitwise operators.
+        browser: [              // Assume browser environment.
+            "CharacterData",
+            "DOMException",
+            "DocumentType",
+            "Element",
+            "Event",
+            "FileReader",
+            "FontFace",
+            "FormData",
+            "IntersectionObserver",
+            "MutationObserver",
+            "Storage",
+            "TextDecoder",
+            "TextEncoder",
+            "URL",
+            "Worker",
+            "XMLHttpRequest",
+            "clearInterval",
+            "clearTimeout",
+            "document",
+            "fetch",
+            "localStorage",
+            "location",
+            "navigator",
+            "screen",
+            "sessionStorage",
+            "setInterval",
+            "setTimeout",
+            "window"
+        ],
+        convert: true,          // Allow conversion operators.
+        couch: [                // Assume CouchDb environment.
+            "emit",
+            "getRow",
+            "isArray",
+            "log",
+            "provides",
+            "registerType",
+            "require",
+            "send",
+            "start",
+            "sum",
+            "toJSON"
+        ],
+        debug: true,            // Include jslint stack-trace in warnings.
+        devel: [                // Allow console.log() and friends.
+            "alert", "confirm", "console", "prompt"
+        ],
+        eval: true,             // Allow eval().
+        for: true,              // Allow for-statement.
+        getset: true,           // Allow get() and set().
+        indent2: true,          // Allow 2-space indent.
+        long: true,             // Allow long lines.
+        name: true,             // Allow weird property names.
+        node: [                 // Assume Node.js environment.
+            "Buffer",
+            "TextDecoder",
+            "TextEncoder",
+            "URL",
+            "URLSearchParams",
+            "__dirname",
+            "__filename",
+            "clearImmediate",
+            "clearInterval",
+            "clearTimeout",
+            "console",
+            "exports",
+            "module",
+            "process",
+            "require",
+            "setImmediate",
+            "setInterval",
+            "setTimeout"
+        ],
+        single: true,           // Allow single-quote strings.
+        test_cause: true,       // Test jslint's causes.
+        test_internal_error: true,      // Test jslint's internal-error
+                                        // ... handling-ability.
+        this: true,             // Allow 'this'.
+        unordered: true,        // Allow unordered cases, params, properties,
+                                // ... and variables.
+        variable: true,         // Allow unordered const and let declarations
+                                // ... that are not at top of function-scope.
+        white: true             // Allow messy whitespace.
+    };
+    let catch_list = [];        // The array containing all catch-blocks.
+    let catch_stack = [         // The stack of catch-blocks.
+        {
+            context: empty()
+        }
+    ];
+    let cause_dict = empty();   // The object of test-causes.
+    let directive_list = [];    // The directive comments.
+    let export_dict = empty();  // The exported names and values.
+    let function_list = [];     // The array containing all functions.
+    let function_stack = [];    // The stack of functions.
+    let global_dict = empty();  // The object containing the global
+                                // ... declarations.
+    let import_list = [];       // The array collecting all import-from strings.
+    let line_list = String(     // The array containing source lines.
+        "\n" + source
+    ).split(
+        // rx_crlf
+        /\n|\r\n?/
+    ).map(function (line_source) {
+        return {
+            line_source
+        };
     });
-    return object;
+    let mode_stop = false;      // true if JSLint cannot finish.
+    let property_dict = empty();        // The object containing the tallied
+                                        // ... property names.
+    let standard = [            // These are the globals that are provided by
+                                // ... the language standard.
+// node --input-type=module -e '
+// /*jslint beta node*/
+// import https from "https";
+// (async function () {
+//     var dict;
+//     var result = "";
+//     await new Promise(function (resolve) {
+//         https.get((
+//             "https://developer.mozilla.org"
+//             + "/en-US/docs/Web/JavaScript/Reference/Global_Objects"
+//         ), function (res) {
+//             res.on("data", function (chunk) {
+//                 result += chunk;
+//             }).on("end", resolve).setEncoding("utf8");
+//         });
+//     });
+//     dict = {
+//         import: true
+//     };
+//     result.replace(new RegExp((
+//         "href=\"\\/en-US\\/docs\\/Web\\/JavaScript\\/Reference"
+//         + "\\/Global_Objects\\/.*?<code>(\\w+).*?<\\/code>"
+//     ), "g"), function (ignore, key) {
+//         switch (globalThis.hasOwnProperty(key) && key) {
+//         case "escape":
+//         case "unescape":
+//         case "uneval":
+//         case false:
+//             break;
+//         default:
+//             dict[key] = true;
+//         }
+//     });
+//     console.log(JSON.stringify(Object.keys(dict).sort(), undefined, 4));
+// }());
+// '
+        "Array",
+        "ArrayBuffer",
+        "Atomics",
+        "BigInt",
+        "BigInt64Array",
+        "BigUint64Array",
+        "Boolean",
+        "DataView",
+        "Date",
+        "Error",
+        "EvalError",
+        "Float32Array",
+        "Float64Array",
+        "Function",
+        "Infinity",
+        "Int16Array",
+        "Int32Array",
+        "Int8Array",
+        "Intl",
+        "JSON",
+        "Map",
+        "Math",
+        "NaN",
+        "Number",
+        "Object",
+        "Promise",
+        "Proxy",
+        "RangeError",
+        "ReferenceError",
+        "Reflect",
+        "RegExp",
+        "Set",
+        "SharedArrayBuffer",
+        "String",
+        "Symbol",
+        "SyntaxError",
+        "TypeError",
+        "URIError",
+        "Uint16Array",
+        "Uint32Array",
+        "Uint8Array",
+        "Uint8ClampedArray",
+        "WeakMap",
+        "WeakSet",
+        "WebAssembly",
+        "decodeURI",
+        "decodeURIComponent",
+        "encodeURI",
+        "encodeURIComponent",
+        "eval",
+        "globalThis",
+        "import",
+        "isFinite",
+        "isNaN",
+        "parseFloat",
+        "parseInt",
+        "undefined"
+    ];
+    let state = empty();        // jslint state-object to be passed between
+                                // jslint functions.
+    let syntax_dict = empty();  // The object containing the parser.
+    let tenure = empty();       // The predefined property registry.
+    let token_global = {        // The global object; the outermost context.
+        async: 0,
+        body: true,
+        context: empty(),
+        finally: 0,
+        from: 0,
+        id: "(global)",
+        level: 0,
+        line: jslint_fudge,
+        live: [],
+        loop: 0,
+        switch: 0,
+        thru: 0,
+        try: 0
+    };
+    let token_list = [];        // The array of tokens.
+    let warning_list = [];      // The array collecting all generated warnings.
+
+// Error reportage functions:
+
+    function artifact(the_token) {
+
+// Return a string representing an artifact.
+
+        the_token = the_token || state.token_nxt;
+        return (
+            (the_token.id === "(string)" || the_token.id === "(number)")
+            ? String(the_token.value)
+            : the_token.id
+        );
+    }
+
+    function is_equal(aa, bb) {
+        let aa_value;
+        let bb_value;
+
+// test_cause:
+// ["0&&0", "is_equal", "", "", 0]
+
+        test_cause("");
+
+// Probably deadcode.
+// if (aa === bb) {
+//     return true;
+// }
+
+        assert_or_throw(!(aa === bb), `Expected !(aa === bb).`);
+        if (Array.isArray(aa)) {
+            return (
+                Array.isArray(bb)
+                && aa.length === bb.length
+                && aa.every(function (value, index) {
+
+// test_cause:
+// ["`${0}`&&`${0}`", "is_equal", "recurse_isArray", "", 0]
+
+                    test_cause("recurse_isArray");
+                    return is_equal(value, bb[index]);
+                })
+            );
+        }
+
+// Probably deadcode.
+// if (Array.isArray(bb)) {
+//     return false;
+// }
+
+        assert_or_throw(!Array.isArray(bb), `Expected !Array.isArray(bb).`);
+        if (aa.id === "(number)" && bb.id === "(number)") {
+            return aa.value === bb.value;
+        }
+        if (aa.id === "(string)") {
+            aa_value = aa.value;
+        } else if (aa.id === "`" && aa.constant) {
+            aa_value = aa.value[0];
+        }
+        if (bb.id === "(string)") {
+            bb_value = bb.value;
+        } else if (bb.id === "`" && bb.constant) {
+            bb_value = bb.value[0];
+        }
+        if (typeof aa_value === "string") {
+            return aa_value === bb_value;
+        }
+        if (is_weird(aa) || is_weird(bb)) {
+
+// test_cause:
+// ["aa(/./)||{}", "is_equal", "false", "", 0]
+
+            test_cause("false");
+            return false;
+        }
+        if (aa.arity === bb.arity && aa.id === bb.id) {
+            if (aa.id === ".") {
+
+// test_cause:
+// ["aa.bb&&aa.bb", "is_equal", "recurse_arity_id", "", 0]
+
+                test_cause("recurse_arity_id");
+                return (
+                    is_equal(aa.expression, bb.expression)
+                    && is_equal(aa.name, bb.name)
+                );
+            }
+            if (aa.arity === "unary") {
+
+// test_cause:
+// ["+0&&+0", "is_equal", "recurse_unary", "", 0]
+
+                test_cause("recurse_unary");
+                return is_equal(aa.expression, bb.expression);
+            }
+            if (aa.arity === "binary") {
+
+// test_cause:
+// ["aa[0]&&aa[0]", "is_equal", "recurse_binary", "", 0]
+
+                test_cause("recurse_binary");
+                return (
+                    aa.id !== "("
+                    && is_equal(aa.expression[0], bb.expression[0])
+                    && is_equal(aa.expression[1], bb.expression[1])
+                );
+            }
+            if (aa.arity === "ternary") {
+
+// test_cause:
+// ["aa=(``?``:``)&&(``?``:``)", "is_equal", "recurse_ternary", "", 0]
+
+                test_cause("recurse_ternary");
+                return (
+                    is_equal(aa.expression[0], bb.expression[0])
+                    && is_equal(aa.expression[1], bb.expression[1])
+                    && is_equal(aa.expression[2], bb.expression[2])
+                );
+            }
+
+// Probably deadcode.
+// if (aa.arity === "function" || aa.arity === "regexp") {
+//     return false;
+// }
+
+            assert_or_throw(
+                !(aa.arity === "function" || aa.arity === "regexp"),
+                `Expected !(aa.arity === "function" || aa.arity === "regexp").`
+            );
+
+// test_cause:
+// ["undefined&&undefined", "is_equal", "true", "", 0]
+
+            test_cause("true");
+            return true;
+        }
+
+// test_cause:
+// ["null&&undefined", "is_equal", "false", "", 0]
+
+        test_cause("false");
+        return false;
+    }
+
+    function is_weird(thing) {
+        switch (thing.id) {
+        case "(regexp)":
+            return true;
+        case "=>":
+            return true;
+        case "[":
+            return thing.arity === "unary";
+        case "function":
+            return true;
+        case "{":
+            return true;
+        default:
+            return false;
+        }
+    }
+
+    function stop(code, the_token, a, b, c, d) {
+
+// Similar to warn and stop_at. If the token already had a warning, that
+// warning will be replaced with this new one. It is likely that the stopping
+// warning will be the more meaningful.
+
+        the_token = the_token || state.token_nxt;
+        delete the_token.warning;
+        throw warn(code, the_token, a, b, c, d);
+    }
+
+    function stop_at(code, line, column, a, b, c, d) {
+
+// Same as warn_at, except that it stops the analysis.
+
+        throw warn_at(code, line, column, a, b, c, d);
+    }
+
+    function test_cause(code, aa, column) {
+
+// This function will instrument <cause> to <cause_dict> for test-purposes.
+
+        if (option_dict.test_cause) {
+            cause_dict[JSON.stringify([
+                String(new Error().stack).replace((
+                    /^\u0020{4}at\u0020(?:file|stop|stop_at|test_cause|warn|warn_at)\b.*?\n/gm
+                ), "").match(
+                    /\n\u0020{4}at\u0020((?:Object\.\w+?_)?\w+?)\u0020/
+                )[1].replace((
+                    /^Object\./
+                ), ""),
+                code,
+                String(
+                    (aa === undefined || aa === token_global)
+                    ? ""
+                    : aa
+                ),
+                column || 0
+            ])] = true;
+        }
+    }
+
+    function warn(code, the_token, a, b, c, d) {
+
+// Same as warn_at, except the warning will be associated with a specific token.
+// If there is already a warning on this token, suppress the new one. It is
+// likely that the first warning will be the most meaningful.
+
+        let the_warning;
+        the_token = the_token || state.token_nxt;
+        the_warning = warn_at(
+            code,
+            the_token.line,
+            (the_token.from || 0) + jslint_fudge,
+            a || artifact(the_token),
+            b,
+            c,
+            d
+        );
+        if (the_token.warning === undefined) {
+            the_token.warning = the_warning;
+        } else {
+            warning_list.pop();
+        }
+        return the_warning;
+    }
+
+    function warn_at(code, line, column, a, b, c, d) {
+
+// Report an error at some line and column of the program. The warning object
+// resembles an exception.
+
+        let mm;
+        let warning = Object.assign(empty(), {
+            a,
+            b,
+            c,
+            code,
+
+// Fudge column numbers in warning message.
+
+            column: column || jslint_fudge,
+            d,
+            line,
+            line_source: "",
+            name: "JSLintError"
+        }, line_list[line]);
+        warning.column = Math.max(
+            Math.min(warning.column, warning.line_source.length),
+            jslint_fudge
+        );
+        test_cause(code, b || a, warning.column);
+        switch (code) {
+
+// The bundle contains the raw text messages that are generated by jslint. It
+// seems that they are all error messages and warnings. There are no "Atta
+// boy!" or "You are so awesome!" messages. There is no positive reinforcement
+// or encouragement. This relentless negativity can undermine self-esteem and
+// wound the inner child. But if you accept it as sound advice rather than as
+// personal criticism, it can make your programs better.
+
+        case "and":
+            mm = `The '&&' subexpression should be wrapped in parens.`;
+            break;
+        case "bad_assignment_a":
+            mm = `Bad assignment to '${a}'.`;
+            break;
+        case "bad_directive_a":
+            mm = `Bad directive '${a}'.`;
+            break;
+        case "bad_get":
+            mm = `A get function takes no parameters.`;
+            break;
+        case "bad_module_name_a":
+            mm = `Bad module name '${a}'.`;
+            break;
+        case "bad_option_a":
+            mm = `Bad option '${a}'.`;
+            break;
+        case "bad_set":
+            mm = `A set function takes one parameter.`;
+            break;
+        case "duplicate_a":
+            mm = `Duplicate '${a}'.`;
+            break;
+        case "empty_block":
+            mm = `Empty block.`;
+            break;
+        case "expected_a":
+            mm = `Expected '${a}'.`;
+            break;
+        case "expected_a_at_b_c":
+            mm = `Expected '${a}' at column ${b}, not column ${c}.`;
+            break;
+        case "expected_a_b":
+            mm = `Expected '${a}' and instead saw '${b}'.`;
+            break;
+        case "expected_a_b_before_c_d":
+            mm = `Expected ${a} '${b}' to be ordered before ${c} '${d}'.`;
+            break;
+        case "expected_a_b_from_c_d":
+            mm = (
+                `Expected '${a}' to match '${b}' from line ${c}`
+                + ` and instead saw '${d}'.`
+            );
+            break;
+        case "expected_a_before_b":
+            mm = `Expected '${a}' before '${b}'.`;
+            break;
+        case "expected_digits_after_a":
+            mm = `Expected digits after '${a}'.`;
+            break;
+        case "expected_four_digits":
+            mm = `Expected four digits after '\\u'.`;
+            break;
+        case "expected_identifier_a":
+            mm = `Expected an identifier and instead saw '${a}'.`;
+            break;
+        case "expected_line_break_a_b":
+            mm = `Expected a line break between '${a}' and '${b}'.`;
+            break;
+        case "expected_regexp_factor_a":
+            mm = `Expected a regexp factor and instead saw '${a}'.`;
+            break;
+        case "expected_space_a_b":
+            mm = `Expected one space between '${a}' and '${b}'.`;
+            break;
+        case "expected_statements_a":
+            mm = `Expected statements before '${a}'.`;
+            break;
+        case "expected_string_a":
+            mm = `Expected a string and instead saw '${a}'.`;
+            break;
+        case "expected_type_string_a":
+            mm = `Expected a type string and instead saw '${a}'.`;
+            break;
+        case "freeze_exports":
+            mm = (
+                `Expected 'Object.freeze('. All export values should be frozen.`
+            );
+            break;
+        case "function_in_loop":
+            mm = `Don't create functions within a loop.`;
+            break;
+        case "infix_in":
+            mm = (
+                `Unexpected 'in'. Compare with undefined,`
+                + ` or use the hasOwnProperty method instead.`
+            );
+            break;
+        case "label_a":
+            mm = `'${a}' is a statement label.`;
+            break;
+        case "misplaced_a":
+            mm = `Place '${a}' at the outermost level.`;
+            break;
+        case "misplaced_directive_a":
+            mm = `Place the '/*${a}*/' directive before the first statement.`;
+            break;
+        case "missing_await_statement":
+            mm = `Expected await statement in async function.`;
+            break;
+        case "missing_browser":
+            mm = `/*global*/ requires the Assume a browser option.`;
+            break;
+        case "missing_m":
+            mm = `Expected 'm' flag on a multiline regular expression.`;
+            break;
+        case "naked_block":
+            mm = `Naked block.`;
+            break;
+        case "nested_comment":
+            mm = `Nested comment.`;
+            break;
+        case "not_label_a":
+            mm = `'${a}' is not a label.`;
+            break;
+        case "number_isNaN":
+            mm = `Use Number.isNaN function to compare with NaN.`;
+            break;
+        case "out_of_scope_a":
+            mm = `'${a}' is out of scope.`;
+            break;
+        case "redefinition_a_b":
+            mm = `Redefinition of '${a}' from line ${b}.`;
+            break;
+        case "required_a_optional_b":
+            mm = `Required parameter '${a}' after optional parameter '${b}'.`;
+            break;
+        case "reserved_a":
+            mm = `Reserved name '${a}'.`;
+            break;
+        case "subscript_a":
+            mm = `['${a}'] is better written in dot notation.`;
+            break;
+        case "todo_comment":
+            mm = `Unexpected TODO comment.`;
+            break;
+        case "too_long":
+            mm = `Line is longer than 80 characters.`;
+            break;
+        case "too_many_digits":
+            mm = `Too many digits.`;
+            break;
+        case "unclosed_comment":
+            mm = `Unclosed comment.`;
+            break;
+        case "unclosed_disable":
+            mm = (
+                `Directive '/*jslint-disable*/' was not closed`
+                + ` with '/*jslint-enable*/'.`
+            );
+            break;
+        case "unclosed_mega":
+            mm = `Unclosed mega literal.`;
+            break;
+        case "unclosed_string":
+            mm = `Unclosed string.`;
+            break;
+        case "undeclared_a":
+            mm = `Undeclared '${a}'.`;
+            break;
+        case "unexpected_a":
+            mm = `Unexpected '${a}'.`;
+            break;
+        case "unexpected_a_after_b":
+            mm = `Unexpected '${a}' after '${b}'.`;
+            break;
+        case "unexpected_a_before_b":
+            mm = `Unexpected '${a}' before '${b}'.`;
+            break;
+        case "unexpected_at_top_level_a":
+            mm = `Expected '${a}' to be in a function.`;
+            break;
+        case "unexpected_char_a":
+            mm = `Unexpected character '${a}'.`;
+            break;
+        case "unexpected_comment":
+            mm = `Unexpected comment.`;
+            break;
+        case "unexpected_directive_a":
+            mm = `When using modules, don't use directive '/\u002a${a}'.`;
+            break;
+        case "unexpected_expression_a":
+            mm = `Unexpected expression '${a}' in statement position.`;
+            break;
+        case "unexpected_label_a":
+            mm = `Unexpected label '${a}'.`;
+            break;
+        case "unexpected_parens":
+            mm = `Don't wrap function literals in parens.`;
+            break;
+        case "unexpected_space_a_b":
+            mm = `Unexpected space between '${a}' and '${b}'.`;
+            break;
+        case "unexpected_statement_a":
+            mm = `Unexpected statement '${a}' in expression position.`;
+            break;
+        case "unexpected_trailing_space":
+            mm = `Unexpected trailing space.`;
+            break;
+        case "unexpected_typeof_a":
+            mm = (
+                `Unexpected 'typeof'. Use '===' to compare directly with ${a}.`
+            );
+            break;
+        case "uninitialized_a":
+            mm = `Uninitialized '${a}'.`;
+            break;
+        case "unopened_enable":
+            mm = (
+                `Directive '/*jslint-enable*/' was not opened`
+                + ` with '/*jslint-disable*/'.`
+            );
+            break;
+        case "unreachable_a":
+            mm = `Unreachable '${a}'.`;
+            break;
+        case "unregistered_property_a":
+            mm = `Unregistered property name '${a}'.`;
+            break;
+        case "unused_a":
+            mm = `Unused '${a}'.`;
+            break;
+        case "use_double":
+            mm = `Use double quotes, not single quotes.`;
+            break;
+        case "use_open":
+            mm = (
+                `Wrap a ternary expression in parens,`
+                + ` with a line break after the left paren.`
+            );
+            break;
+        case "use_spaces":
+            mm = `Use spaces, not tabs.`;
+            break;
+        case "var_on_top":
+            mm = `Move variable declaration to top of function or script.`;
+            break;
+        case "var_switch":
+            mm = `Don't declare variables in a switch.`;
+            break;
+        case "weird_condition_a":
+            mm = `Weird condition '${a}'.`;
+            break;
+        case "weird_expression_a":
+            mm = `Weird expression '${a}'.`;
+            break;
+        case "weird_loop":
+            mm = `Weird loop.`;
+            break;
+        case "weird_property_a":
+            mm = `Weird property name '${a}'.`;
+            break;
+        case "weird_relation_a":
+            mm = `Weird relation '${a}'.`;
+            break;
+        case "wrap_condition":
+            mm = `Wrap the condition in parens.`;
+            break;
+        case "wrap_immediate":
+            mm = (
+                `Wrap an immediate function invocation in parentheses to assist`
+                + ` the reader in understanding that the expression is the`
+                + ` result of a function, and not the function itself.`
+            );
+            break;
+        case "wrap_parameter":
+            mm = `Wrap the parameter in parens.`;
+            break;
+        case "wrap_regexp":
+            mm = `Wrap this regexp in parens to avoid confusion.`;
+            break;
+        case "wrap_unary":
+            mm = `Wrap the unary expression in parens.`;
+            break;
+        }
+
+// Validate mm.
+
+        assert_or_throw(mm, code);
+        warning.message = mm;
+
+// Include stack_trace for jslint to debug itself for errors.
+
+        if (option_dict.debug) {
+            warning.stack_trace = new Error().stack;
+        }
+        if (warning.directive_quiet) {
+
+// test_cause:
+// ["0 //jslint-quiet", "semicolon", "directive_quiet", "", 0]
+
+            test_cause("directive_quiet");
+            return warning;
+        }
+        warning_list.push(warning);
+        return warning;
+    }
+
+    try {
+
+// tokenize takes a source and produces from it an array of token objects.
+// JavaScript is notoriously difficult to tokenize because of the horrible
+// interactions between automatic semicolon insertion, regular expression
+// literals, and now megastring literals. JSLint benefits from eliminating
+// automatic semicolon insertion and nested megastring literals, which allows
+// full tokenization to precede parsing.
+
+        option_dict = Object.assign(empty(), option_dict);
+        populate(global_list, global_dict, false);
+        populate(standard, global_dict, false);
+        Object.keys(option_dict).forEach(function (name) {
+            const allowed = allowed_option[name];
+            if (option_dict[name] === true && Array.isArray(allowed)) {
+                populate(allowed, global_dict, false);
+            }
+        });
+
+        Object.assign(state, {
+            allowed_option,
+            artifact,
+            catch_list,
+            catch_stack,
+            directive_list,
+            export_dict,
+            function_list,
+            function_stack,
+            global_dict,
+            import_list,
+            is_equal,
+            is_weird,
+            line_list,
+            mode_json: false,           // true if parsing JSON.
+            mode_module: false,         // true if import or export was used.
+            mode_property: false,       // true if directive /*property*/ is
+                                        // used.
+            mode_shebang: false,        // true if #! is seen on the first line.
+            option_dict,
+            property_dict,
+            source,
+            stop,
+            stop_at,
+            syntax_dict,
+            tenure,
+            test_cause,
+            token_global,
+            token_list,
+            token_nxt: token_global,
+            warn,
+            warn_at,
+            warning_list
+        });
+
+// PHASE 1. Split <source> by newlines into <line_list>.
+
+        jslint_phase1_split(state);
+        assert_or_throw(catch_stack.length === 1, `catch_stack.length === 1.`);
+        assert_or_throw(
+            function_stack.length === 0,
+            `function_stack.length === 0.`
+        );
+
+// PHASE 2. Lex <line_list> into <token_list>.
+
+        jslint_phase2_lex(state);
+        assert_or_throw(catch_stack.length === 1, `catch_stack.length === 1.`);
+        assert_or_throw(
+            function_stack.length === 0,
+            `function_stack.length === 0.`
+        );
+
+// PHASE 3. Parse <token_list> into <token_tree> using the Pratt-parser.
+
+        jslint_phase3_parse(state);
+        assert_or_throw(catch_stack.length === 1, `catch_stack.length === 1.`);
+        assert_or_throw(
+            function_stack.length === 0,
+            `function_stack.length === 0.`
+        );
+
+// PHASE 4. Walk <token_tree>, traversing all nodes of the tree. It is a
+//          recursive traversal. Each node may be processed on the way down
+//          (preaction) and on the way up (postaction).
+
+        if (!state.mode_json) {
+            jslint_phase4_walk(state);
+        }
+        assert_or_throw(catch_stack.length === 1, `catch_stack.length === 1.`);
+        assert_or_throw(
+            function_stack.length === 0,
+            `function_stack.length === 0.`
+        );
+
+// PHASE 5. Check whitespace between tokens in <token_list>.
+
+        if (!state.mode_json && warning_list.length === 0) {
+            jslint_phase5_whitage(state);
+        }
+        assert_or_throw(catch_stack.length === 1, `catch_stack.length === 1.`);
+        assert_or_throw(
+            function_stack.length === 0,
+            `function_stack.length === 0.`
+        );
+
+        if (!option_dict.browser) {
+            directive_list.forEach(function (comment) {
+                if (comment.directive === "global") {
+
+// test_cause:
+// ["/*global aa*/", "jslint", "missing_browser", "(comment)", 1]
+
+                    warn("missing_browser", comment);
+                }
+            });
+        }
+        if (option_dict.test_internal_error) {
+            assert_or_throw(undefined, "test_internal_error");
+        }
+    } catch (err) {
+        mode_stop = true;
+        err.message = "[JSLint was unable to finish]\n" + err.message;
+        err.mode_stop = true;
+        if (err.name !== "JSLintError") {
+            Object.assign(err, {
+                column: jslint_fudge,
+                line: jslint_fudge,
+                line_source: "",
+                stack_trace: err.stack
+            });
+        }
+        if (warning_list.indexOf(err) === -1) {
+            warning_list.push(err);
+        }
+    }
+
+// Sort warning_list by mode_stop first, line, column respectively.
+
+    warning_list.sort(function (aa, bb) {
+        return (
+            Boolean(bb.mode_stop) - Boolean(aa.mode_stop)
+            || aa.line - bb.line
+            || aa.column - bb.column
+        );
+
+// Update each warning with formatted_message ready-for-use by jslint_cli.
+
+    }).map(function ({
+        column,
+        line,
+        line_source,
+        message,
+        stack_trace = ""
+    }, ii, list) {
+        list[ii].formatted_message = String(
+            String(ii + 1).padStart(2, " ")
+            + ". \u001b[31m" + message + "\u001b[39m"
+            + " \u001b[90m\/\/ line " + line + ", column " + column
+            + "\u001b[39m\n"
+            + ("    " + line_source.trim()).slice(0, 72) + "\n"
+            + stack_trace
+        ).trimRight();
+    });
+
+    return {
+        causes: cause_dict,
+        directives: directive_list,
+        edition: jslint_edition,
+        exports: export_dict,
+        froms: import_list,
+        functions: function_list,
+        global: token_global,
+        id: "(JSLint)",
+        json: state.mode_json,
+        lines: line_list,
+        module: state.mode_module === true,
+        ok: warning_list.length === 0 && !mode_stop,
+        option: option_dict,
+        property: property_dict,
+        shebang: (
+            state.mode_shebang
+            ? line_list[jslint_fudge].line_source
+            : undefined
+        ),
+        stop: mode_stop,
+        tokens: token_list,
+        tree: state.token_tree,
+        warnings: warning_list
+    };
 }
+
+async function jslint_cli({
+    cjs_module,
+    cjs_require,
+    console_error,
+    file,
+    mode_force,
+    mode_noop,
+    option,
+    process_exit,
+    source
+}) {
+
+// This function will run jslint from nodejs-cli.
+
+    let data;
+    let exit_code = 0;
+    let module_fs;
+    let module_path;
+    let module_url;
+
+    function jslint_from_file({
+        code,
+        file,
+        line_offset = 0,
+        option = empty(),
+        warnings = []
+    }) {
+        option = Object.assign(empty(), option, {
+            file
+        });
+        switch ((
+            /\.\w+?$|$/m
+        ).exec(file)[0]) {
+        case ".html":
+
+// Recursively jslint embedded "<script>\n...\n</script>".
+
+            code.replace((
+                /^<script>\n([\S\s]*?\n)<\/script>$/gm
+            ), function (ignore, match1, ii) {
+                jslint_from_file({
+                    code: match1,
+                    file: file + ".<script>.js",
+                    line_offset: string_line_count(code.slice(0, ii)) + 1,
+                    option: Object.assign(empty(), {
+                        browser: true
+                    }, option)
+                });
+                return "";
+            });
+            return;
+        case ".md":
+
+// Recursively jslint embedded "```javascript\n...\n```".
+
+            code.replace((
+                /^```(?:javascript|js)\n([\S\s]*?\n)```$/gm
+            ), function (ignore, match1, ii) {
+                jslint_from_file({
+                    code: match1,
+                    file: file + ".<```javascript>.js",
+                    line_offset: string_line_count(code.slice(0, ii)) + 1,
+                    option
+                });
+                return "";
+            });
+            return;
+        case ".sh":
+
+// Recursively jslint embedded "node -e '\n...\n'".
+
+            code.replace((
+                /\bnode\u0020.*?-e\u0020'\n([\S\s]*?\n)'/gm
+            ), function (ignore, match1, ii) {
+                jslint_from_file({
+                    code: match1,
+                    file: file + ".<node -e>.js",
+                    line_offset: string_line_count(code.slice(0, ii)) + 1,
+                    option: Object.assign(empty(), {
+                        beta: Boolean(
+                            process.env.JSLINT_BETA
+                            && !(
+                                /0|false|null|undefined/
+                            ).test(process.env.JSLINT_BETA)
+                        ),
+                        node: true
+                    }, option)
+                });
+                return "";
+            });
+            return;
+        default:
+            warnings = jslint(
+                "\n".repeat(line_offset) + code,
+                option
+            ).warnings;
+        }
+
+// Print only first 10 warnings to stderr.
+
+        if (warnings.length > 0) {
+            exit_code = 1;
+            console_error(
+                "\u001b[1mjslint " + file + "\u001b[22m\n"
+                + warnings.slice(0, 10).map(function ({
+                    formatted_message
+                }) {
+                    return formatted_message;
+                }).join("\n")
+            );
+        }
+    }
+
+    function string_line_count(code) {
+
+// This function will count number of newlines in <code>.
+
+        let cnt;
+        let ii;
+
+// https://jsperf.com/regexp-counting-2/8
+
+        cnt = 0;
+        ii = 0;
+        while (true) {
+            ii = code.indexOf("\n", ii) + 1;
+            if (ii === 0) {
+                break;
+            }
+            cnt += 1;
+        }
+        return cnt;
+    }
+
+// Feature-detect nodejs.
+
+    if (!(
+        typeof process === "object"
+        && process
+        && process.versions
+        && typeof process.versions.node === "string"
+        && !mode_noop
+    )) {
+        return exit_code;
+    }
+    console_error = console_error || console.error;
+    module_fs = await import("fs");
+    module_path = await import("path");
+    module_url = await import("url");
+    process_exit = process_exit || process.exit;
+    if (!(
+
+// Feature-detect nodejs-cjs-cli.
+
+        (cjs_module && cjs_require)
+        ? cjs_module === cjs_require.main
+
+// Feature-detect nodejs-esm-cli.
+
+        : (
+            process.execArgv.indexOf("--eval") === -1
+            && process.execArgv.indexOf("-e") === -1
+            && (
+                (
+                    /[\/|\\]jslint(?:\.[cm]?js)?$/m
+                ).test(process.argv[1])
+                || mode_force
+            )
+            && module_url.fileURLToPath(jslint_import_meta_url)
+            === module_path.resolve(process.argv[1])
+        )
+    ) && !mode_force) {
+        return exit_code;
+    }
+
+// Normalize file relative to process.cwd().
+
+    file = file || process.argv[2];
+    if (!file) {
+        return;
+    }
+    file = module_path.resolve(file) + "/";
+    if (file.startsWith(process.cwd() + "/")) {
+        file = file.replace(process.cwd() + "/", "").slice(0, -1) || ".";
+    }
+    file = file.replace((
+        /\\/g
+    ), "/").replace((
+        /\/$/g
+    ), "");
+    if (source) {
+        jslint_from_file({
+            code: source,
+            file,
+            option
+        });
+        process_exit(exit_code);
+        return exit_code;
+    }
+
+// jslint_cli - jslint directory.
+
+    try {
+        data = await module_fs.promises.readdir(file, "utf8");
+    } catch (ignore) {}
+    if (data) {
+        await Promise.all(data.map(async function (file2) {
+            let code;
+            let time_start = Date.now();
+            file2 = file + "/" + file2;
+            switch ((
+                /\.\w+?$|$/m
+            ).exec(file2)[0]) {
+            case ".cjs":
+            case ".html":
+            case ".js":
+            case ".json":
+            case ".md":
+            case ".mjs":
+            case ".sh":
+                break;
+            default:
+                return;
+            }
+            try {
+                code = await module_fs.promises.readFile(file2, "utf8");
+            } catch (ignore) {
+                return;
+            }
+            if (!(
+                !(
+                    /\b(?:lock|min|raw|rollup)\b/
+                ).test(file2) && code && code.length < 1048576
+            )) {
+                return;
+            }
+            jslint_from_file({
+                code,
+                file: file2,
+                option
+            });
+            console_error(
+                "jslint - " + (Date.now() - time_start) + "ms - " + file2
+            );
+        }));
+        process_exit(exit_code);
+        return exit_code;
+    }
+
+// jslint_cli - jslint file.
+
+    try {
+        data = await module_fs.promises.readFile(file, "utf8");
+    } catch (err) {
+        console_error(err);
+        exit_code = 1;
+        process_exit(exit_code);
+        return exit_code;
+    }
+    jslint_from_file({
+        code: data,
+        file,
+        option
+    });
+    process_exit(exit_code);
+    return exit_code;
+}
+
+jslint_export = Object.freeze(Object.assign(jslint, {
+    cli: Object.freeze(jslint_cli),
+    edition: jslint_edition,
+    jslint: Object.freeze(jslint.bind(undefined))
+}));
 
 function jslint_phase1_split() {
 
@@ -4973,6 +6231,20 @@ function jslint_phase3_parse(state) {
     }
     state.token_tree = parse_statements();
     advance("(end)");
+
+// Check global functions are ordered.
+
+    check_ordered(
+        "function",
+        function_list.map(function ({
+            level,
+            name
+        }) {
+            return (level === 1) && name;
+        }).filter(function (name) {
+            return option_dict.beta && name && name.id;
+        })
+    );
 }
 
 function jslint_phase4_walk(state) {
@@ -6841,1280 +8113,22 @@ function jslint_phase5_whitage(state) {
     });
 }
 
-function jslint(
-    source = "",                // A text to analyze.
-    option_dict = empty(),      // An object whose keys correspond to option
-                                // ... names.
-    global_list = []            // An array of strings containing global
-                                // ... variables that the file is allowed
-                                // ... readonly access.
-) {
+function noop() {
 
-// The jslint function itself.
+// This function will do nothing.
 
-    let allowed_option = {
-
-// These are the options that are recognized in the option object or that may
-// appear in a /*jslint*/ directive. Most options will have a boolean value,
-// usually true. Some options will also predefine some number of global
-// variables.
-
-        beta: true,             // Enable experimental warnings.
-        bitwise: true,          // Allow bitwise operators.
-        browser: [              // Assume browser environment.
-            "CharacterData",
-            "DOMException",
-            "DocumentType",
-            "Element",
-            "Event",
-            "FileReader",
-            "FontFace",
-            "FormData",
-            "IntersectionObserver",
-            "MutationObserver",
-            "Storage",
-            "TextDecoder",
-            "TextEncoder",
-            "URL",
-            "Worker",
-            "XMLHttpRequest",
-            "clearInterval",
-            "clearTimeout",
-            "document",
-            "fetch",
-            "localStorage",
-            "location",
-            "navigator",
-            "screen",
-            "sessionStorage",
-            "setInterval",
-            "setTimeout",
-            "window"
-        ],
-        convert: true,          // Allow conversion operators.
-        couch: [                // Assume CouchDb environment.
-            "emit",
-            "getRow",
-            "isArray",
-            "log",
-            "provides",
-            "registerType",
-            "require",
-            "send",
-            "start",
-            "sum",
-            "toJSON"
-        ],
-        debug: true,            // Include jslint stack-trace in warnings.
-        devel: [                // Allow console.log() and friends.
-            "alert", "confirm", "console", "prompt"
-        ],
-        eval: true,             // Allow eval().
-        for: true,              // Allow for-statement.
-        getset: true,           // Allow get() and set().
-        indent2: true,          // Allow 2-space indent.
-        long: true,             // Allow long lines.
-        name: true,             // Allow weird property names.
-        node: [                 // Assume Node.js environment.
-            "Buffer",
-            "TextDecoder",
-            "TextEncoder",
-            "URL",
-            "URLSearchParams",
-            "__dirname",
-            "__filename",
-            "clearImmediate",
-            "clearInterval",
-            "clearTimeout",
-            "console",
-            "exports",
-            "module",
-            "process",
-            "require",
-            "setImmediate",
-            "setInterval",
-            "setTimeout"
-        ],
-        single: true,           // Allow single-quote strings.
-        test_cause: true,       // Test jslint's causes.
-        test_internal_error: true,      // Test jslint's internal-error
-                                        // ... handling-ability.
-        this: true,             // Allow 'this'.
-        unordered: true,        // Allow unordered cases, params, properties,
-                                // ... and variables.
-        variable: true,         // Allow unordered const and let declarations
-                                // ... that are not at top of function-scope.
-        white: true             // Allow messy whitespace.
-    };
-    let catch_list = [];        // The array containing all catch-blocks.
-    let catch_stack = [         // The stack of catch-blocks.
-        {
-            context: empty()
-        }
-    ];
-    let cause_dict = empty();   // The object of test-causes.
-    let directive_list = [];    // The directive comments.
-    let export_dict = empty();  // The exported names and values.
-    let function_list = [];     // The array containing all functions.
-    let function_stack = [];    // The stack of functions.
-    let global_dict = empty();  // The object containing the global
-                                // ... declarations.
-    let import_list = [];       // The array collecting all import-from strings.
-    let line_list = String(     // The array containing source lines.
-        "\n" + source
-    ).split(
-        // rx_crlf
-        /\n|\r\n?/
-    ).map(function (line_source) {
-        return {
-            line_source
-        };
-    });
-    let mode_stop = false;      // true if JSLint cannot finish.
-    let property_dict = empty();        // The object containing the tallied
-                                        // ... property names.
-    let standard = [            // These are the globals that are provided by
-                                // ... the language standard.
-// node --input-type=module -e '
-// /*jslint beta node*/
-// import https from "https";
-// (async function () {
-//     var dict;
-//     var result = "";
-//     await new Promise(function (resolve) {
-//         https.get((
-//             "https://developer.mozilla.org"
-//             + "/en-US/docs/Web/JavaScript/Reference/Global_Objects"
-//         ), function (res) {
-//             res.on("data", function (chunk) {
-//                 result += chunk;
-//             }).on("end", resolve).setEncoding("utf8");
-//         });
-//     });
-//     dict = {
-//         import: true
-//     };
-//     result.replace(new RegExp((
-//         "href=\"\\/en-US\\/docs\\/Web\\/JavaScript\\/Reference"
-//         + "\\/Global_Objects\\/.*?<code>(\\w+).*?<\\/code>"
-//     ), "g"), function (ignore, key) {
-//         switch (globalThis.hasOwnProperty(key) && key) {
-//         case "escape":
-//         case "unescape":
-//         case "uneval":
-//         case false:
-//             break;
-//         default:
-//             dict[key] = true;
-//         }
-//     });
-//     console.log(JSON.stringify(Object.keys(dict).sort(), undefined, 4));
-// }());
-// '
-        "Array",
-        "ArrayBuffer",
-        "Atomics",
-        "BigInt",
-        "BigInt64Array",
-        "BigUint64Array",
-        "Boolean",
-        "DataView",
-        "Date",
-        "Error",
-        "EvalError",
-        "Float32Array",
-        "Float64Array",
-        "Function",
-        "Infinity",
-        "Int16Array",
-        "Int32Array",
-        "Int8Array",
-        "Intl",
-        "JSON",
-        "Map",
-        "Math",
-        "NaN",
-        "Number",
-        "Object",
-        "Promise",
-        "Proxy",
-        "RangeError",
-        "ReferenceError",
-        "Reflect",
-        "RegExp",
-        "Set",
-        "SharedArrayBuffer",
-        "String",
-        "Symbol",
-        "SyntaxError",
-        "TypeError",
-        "URIError",
-        "Uint16Array",
-        "Uint32Array",
-        "Uint8Array",
-        "Uint8ClampedArray",
-        "WeakMap",
-        "WeakSet",
-        "WebAssembly",
-        "decodeURI",
-        "decodeURIComponent",
-        "encodeURI",
-        "encodeURIComponent",
-        "eval",
-        "globalThis",
-        "import",
-        "isFinite",
-        "isNaN",
-        "parseFloat",
-        "parseInt",
-        "undefined"
-    ];
-    let state = empty();        // jslint state-object to be passed between
-                                // jslint functions.
-    let syntax_dict = empty();  // The object containing the parser.
-    let tenure = empty();       // The predefined property registry.
-    let token_global = {        // The global object; the outermost context.
-        async: 0,
-        body: true,
-        context: empty(),
-        finally: 0,
-        from: 0,
-        id: "(global)",
-        level: 0,
-        line: jslint_fudge,
-        live: [],
-        loop: 0,
-        switch: 0,
-        thru: 0,
-        try: 0
-    };
-    let token_list = [];        // The array of tokens.
-    let warning_list = [];      // The array collecting all generated warnings.
-
-// Error reportage functions:
-
-    function artifact(the_token) {
-
-// Return a string representing an artifact.
-
-        the_token = the_token || state.token_nxt;
-        return (
-            (the_token.id === "(string)" || the_token.id === "(number)")
-            ? String(the_token.value)
-            : the_token.id
-        );
-    }
-
-    function is_equal(aa, bb) {
-        let aa_value;
-        let bb_value;
-
-// test_cause:
-// ["0&&0", "is_equal", "", "", 0]
-
-        test_cause("");
-
-// Probably deadcode.
-// if (aa === bb) {
-//     return true;
-// }
-
-        assert_or_throw(!(aa === bb), `Expected !(aa === bb).`);
-        if (Array.isArray(aa)) {
-            return (
-                Array.isArray(bb)
-                && aa.length === bb.length
-                && aa.every(function (value, index) {
-
-// test_cause:
-// ["`${0}`&&`${0}`", "is_equal", "recurse_isArray", "", 0]
-
-                    test_cause("recurse_isArray");
-                    return is_equal(value, bb[index]);
-                })
-            );
-        }
-
-// Probably deadcode.
-// if (Array.isArray(bb)) {
-//     return false;
-// }
-
-        assert_or_throw(!Array.isArray(bb), `Expected !Array.isArray(bb).`);
-        if (aa.id === "(number)" && bb.id === "(number)") {
-            return aa.value === bb.value;
-        }
-        if (aa.id === "(string)") {
-            aa_value = aa.value;
-        } else if (aa.id === "`" && aa.constant) {
-            aa_value = aa.value[0];
-        }
-        if (bb.id === "(string)") {
-            bb_value = bb.value;
-        } else if (bb.id === "`" && bb.constant) {
-            bb_value = bb.value[0];
-        }
-        if (typeof aa_value === "string") {
-            return aa_value === bb_value;
-        }
-        if (is_weird(aa) || is_weird(bb)) {
-
-// test_cause:
-// ["aa(/./)||{}", "is_equal", "false", "", 0]
-
-            test_cause("false");
-            return false;
-        }
-        if (aa.arity === bb.arity && aa.id === bb.id) {
-            if (aa.id === ".") {
-
-// test_cause:
-// ["aa.bb&&aa.bb", "is_equal", "recurse_arity_id", "", 0]
-
-                test_cause("recurse_arity_id");
-                return (
-                    is_equal(aa.expression, bb.expression)
-                    && is_equal(aa.name, bb.name)
-                );
-            }
-            if (aa.arity === "unary") {
-
-// test_cause:
-// ["+0&&+0", "is_equal", "recurse_unary", "", 0]
-
-                test_cause("recurse_unary");
-                return is_equal(aa.expression, bb.expression);
-            }
-            if (aa.arity === "binary") {
-
-// test_cause:
-// ["aa[0]&&aa[0]", "is_equal", "recurse_binary", "", 0]
-
-                test_cause("recurse_binary");
-                return (
-                    aa.id !== "("
-                    && is_equal(aa.expression[0], bb.expression[0])
-                    && is_equal(aa.expression[1], bb.expression[1])
-                );
-            }
-            if (aa.arity === "ternary") {
-
-// test_cause:
-// ["aa=(``?``:``)&&(``?``:``)", "is_equal", "recurse_ternary", "", 0]
-
-                test_cause("recurse_ternary");
-                return (
-                    is_equal(aa.expression[0], bb.expression[0])
-                    && is_equal(aa.expression[1], bb.expression[1])
-                    && is_equal(aa.expression[2], bb.expression[2])
-                );
-            }
-
-// Probably deadcode.
-// if (aa.arity === "function" || aa.arity === "regexp") {
-//     return false;
-// }
-
-            assert_or_throw(
-                !(aa.arity === "function" || aa.arity === "regexp"),
-                `Expected !(aa.arity === "function" || aa.arity === "regexp").`
-            );
-
-// test_cause:
-// ["undefined&&undefined", "is_equal", "true", "", 0]
-
-            test_cause("true");
-            return true;
-        }
-
-// test_cause:
-// ["null&&undefined", "is_equal", "false", "", 0]
-
-        test_cause("false");
-        return false;
-    }
-
-    function is_weird(thing) {
-        switch (thing.id) {
-        case "(regexp)":
-            return true;
-        case "=>":
-            return true;
-        case "[":
-            return thing.arity === "unary";
-        case "function":
-            return true;
-        case "{":
-            return true;
-        default:
-            return false;
-        }
-    }
-
-    function stop(code, the_token, a, b, c, d) {
-
-// Similar to warn and stop_at. If the token already had a warning, that
-// warning will be replaced with this new one. It is likely that the stopping
-// warning will be the more meaningful.
-
-        the_token = the_token || state.token_nxt;
-        delete the_token.warning;
-        throw warn(code, the_token, a, b, c, d);
-    }
-
-    function stop_at(code, line, column, a, b, c, d) {
-
-// Same as warn_at, except that it stops the analysis.
-
-        throw warn_at(code, line, column, a, b, c, d);
-    }
-
-    function test_cause(code, aa, column) {
-
-// This function will instrument <cause> to <cause_dict> for test-purposes.
-
-        if (option_dict.test_cause) {
-            cause_dict[JSON.stringify([
-                String(new Error().stack).replace((
-                    /^\u0020{4}at\u0020(?:file|stop|stop_at|test_cause|warn|warn_at)\b.*?\n/gm
-                ), "").match(
-                    /\n\u0020{4}at\u0020((?:Object\.\w+?_)?\w+?)\u0020/
-                )[1].replace((
-                    /^Object\./
-                ), ""),
-                code,
-                String(
-                    (aa === undefined || aa === token_global)
-                    ? ""
-                    : aa
-                ),
-                column || 0
-            ])] = true;
-        }
-    }
-
-    function warn(code, the_token, a, b, c, d) {
-
-// Same as warn_at, except the warning will be associated with a specific token.
-// If there is already a warning on this token, suppress the new one. It is
-// likely that the first warning will be the most meaningful.
-
-        let the_warning;
-        the_token = the_token || state.token_nxt;
-        the_warning = warn_at(
-            code,
-            the_token.line,
-            (the_token.from || 0) + jslint_fudge,
-            a || artifact(the_token),
-            b,
-            c,
-            d
-        );
-        if (the_token.warning === undefined) {
-            the_token.warning = the_warning;
-        } else {
-            warning_list.pop();
-        }
-        return the_warning;
-    }
-
-    function warn_at(code, line, column, a, b, c, d) {
-
-// Report an error at some line and column of the program. The warning object
-// resembles an exception.
-
-        let mm;
-        let warning = Object.assign(empty(), {
-            a,
-            b,
-            c,
-            code,
-
-// Fudge column numbers in warning message.
-
-            column: column || jslint_fudge,
-            d,
-            line,
-            line_source: "",
-            name: "JSLintError"
-        }, line_list[line]);
-        warning.column = Math.max(
-            Math.min(warning.column, warning.line_source.length),
-            jslint_fudge
-        );
-        test_cause(code, b || a, warning.column);
-        switch (code) {
-
-// The bundle contains the raw text messages that are generated by jslint. It
-// seems that they are all error messages and warnings. There are no "Atta
-// boy!" or "You are so awesome!" messages. There is no positive reinforcement
-// or encouragement. This relentless negativity can undermine self-esteem and
-// wound the inner child. But if you accept it as sound advice rather than as
-// personal criticism, it can make your programs better.
-
-        case "and":
-            mm = `The '&&' subexpression should be wrapped in parens.`;
-            break;
-        case "bad_assignment_a":
-            mm = `Bad assignment to '${a}'.`;
-            break;
-        case "bad_directive_a":
-            mm = `Bad directive '${a}'.`;
-            break;
-        case "bad_get":
-            mm = `A get function takes no parameters.`;
-            break;
-        case "bad_module_name_a":
-            mm = `Bad module name '${a}'.`;
-            break;
-        case "bad_option_a":
-            mm = `Bad option '${a}'.`;
-            break;
-        case "bad_set":
-            mm = `A set function takes one parameter.`;
-            break;
-        case "duplicate_a":
-            mm = `Duplicate '${a}'.`;
-            break;
-        case "empty_block":
-            mm = `Empty block.`;
-            break;
-        case "expected_a":
-            mm = `Expected '${a}'.`;
-            break;
-        case "expected_a_at_b_c":
-            mm = `Expected '${a}' at column ${b}, not column ${c}.`;
-            break;
-        case "expected_a_b":
-            mm = `Expected '${a}' and instead saw '${b}'.`;
-            break;
-        case "expected_a_b_before_c_d":
-            mm = `Expected ${a} '${b}' to be ordered before ${c} '${d}'.`;
-            break;
-        case "expected_a_b_from_c_d":
-            mm = (
-                `Expected '${a}' to match '${b}' from line ${c}`
-                + ` and instead saw '${d}'.`
-            );
-            break;
-        case "expected_a_before_b":
-            mm = `Expected '${a}' before '${b}'.`;
-            break;
-        case "expected_digits_after_a":
-            mm = `Expected digits after '${a}'.`;
-            break;
-        case "expected_four_digits":
-            mm = `Expected four digits after '\\u'.`;
-            break;
-        case "expected_identifier_a":
-            mm = `Expected an identifier and instead saw '${a}'.`;
-            break;
-        case "expected_line_break_a_b":
-            mm = `Expected a line break between '${a}' and '${b}'.`;
-            break;
-        case "expected_regexp_factor_a":
-            mm = `Expected a regexp factor and instead saw '${a}'.`;
-            break;
-        case "expected_space_a_b":
-            mm = `Expected one space between '${a}' and '${b}'.`;
-            break;
-        case "expected_statements_a":
-            mm = `Expected statements before '${a}'.`;
-            break;
-        case "expected_string_a":
-            mm = `Expected a string and instead saw '${a}'.`;
-            break;
-        case "expected_type_string_a":
-            mm = `Expected a type string and instead saw '${a}'.`;
-            break;
-        case "freeze_exports":
-            mm = (
-                `Expected 'Object.freeze('. All export values should be frozen.`
-            );
-            break;
-        case "function_in_loop":
-            mm = `Don't create functions within a loop.`;
-            break;
-        case "infix_in":
-            mm = (
-                `Unexpected 'in'. Compare with undefined,`
-                + ` or use the hasOwnProperty method instead.`
-            );
-            break;
-        case "label_a":
-            mm = `'${a}' is a statement label.`;
-            break;
-        case "misplaced_a":
-            mm = `Place '${a}' at the outermost level.`;
-            break;
-        case "misplaced_directive_a":
-            mm = `Place the '/*${a}*/' directive before the first statement.`;
-            break;
-        case "missing_await_statement":
-            mm = `Expected await statement in async function.`;
-            break;
-        case "missing_browser":
-            mm = `/*global*/ requires the Assume a browser option.`;
-            break;
-        case "missing_m":
-            mm = `Expected 'm' flag on a multiline regular expression.`;
-            break;
-        case "naked_block":
-            mm = `Naked block.`;
-            break;
-        case "nested_comment":
-            mm = `Nested comment.`;
-            break;
-        case "not_label_a":
-            mm = `'${a}' is not a label.`;
-            break;
-        case "number_isNaN":
-            mm = `Use Number.isNaN function to compare with NaN.`;
-            break;
-        case "out_of_scope_a":
-            mm = `'${a}' is out of scope.`;
-            break;
-        case "redefinition_a_b":
-            mm = `Redefinition of '${a}' from line ${b}.`;
-            break;
-        case "required_a_optional_b":
-            mm = `Required parameter '${a}' after optional parameter '${b}'.`;
-            break;
-        case "reserved_a":
-            mm = `Reserved name '${a}'.`;
-            break;
-        case "subscript_a":
-            mm = `['${a}'] is better written in dot notation.`;
-            break;
-        case "todo_comment":
-            mm = `Unexpected TODO comment.`;
-            break;
-        case "too_long":
-            mm = `Line is longer than 80 characters.`;
-            break;
-        case "too_many_digits":
-            mm = `Too many digits.`;
-            break;
-        case "unclosed_comment":
-            mm = `Unclosed comment.`;
-            break;
-        case "unclosed_disable":
-            mm = (
-                `Directive '/*jslint-disable*/' was not closed`
-                + ` with '/*jslint-enable*/'.`
-            );
-            break;
-        case "unclosed_mega":
-            mm = `Unclosed mega literal.`;
-            break;
-        case "unclosed_string":
-            mm = `Unclosed string.`;
-            break;
-        case "undeclared_a":
-            mm = `Undeclared '${a}'.`;
-            break;
-        case "unexpected_a":
-            mm = `Unexpected '${a}'.`;
-            break;
-        case "unexpected_a_after_b":
-            mm = `Unexpected '${a}' after '${b}'.`;
-            break;
-        case "unexpected_a_before_b":
-            mm = `Unexpected '${a}' before '${b}'.`;
-            break;
-        case "unexpected_at_top_level_a":
-            mm = `Expected '${a}' to be in a function.`;
-            break;
-        case "unexpected_char_a":
-            mm = `Unexpected character '${a}'.`;
-            break;
-        case "unexpected_comment":
-            mm = `Unexpected comment.`;
-            break;
-        case "unexpected_directive_a":
-            mm = `When using modules, don't use directive '/\u002a${a}'.`;
-            break;
-        case "unexpected_expression_a":
-            mm = `Unexpected expression '${a}' in statement position.`;
-            break;
-        case "unexpected_label_a":
-            mm = `Unexpected label '${a}'.`;
-            break;
-        case "unexpected_parens":
-            mm = `Don't wrap function literals in parens.`;
-            break;
-        case "unexpected_space_a_b":
-            mm = `Unexpected space between '${a}' and '${b}'.`;
-            break;
-        case "unexpected_statement_a":
-            mm = `Unexpected statement '${a}' in expression position.`;
-            break;
-        case "unexpected_trailing_space":
-            mm = `Unexpected trailing space.`;
-            break;
-        case "unexpected_typeof_a":
-            mm = (
-                `Unexpected 'typeof'. Use '===' to compare directly with ${a}.`
-            );
-            break;
-        case "uninitialized_a":
-            mm = `Uninitialized '${a}'.`;
-            break;
-        case "unopened_enable":
-            mm = (
-                `Directive '/*jslint-enable*/' was not opened`
-                + ` with '/*jslint-disable*/'.`
-            );
-            break;
-        case "unreachable_a":
-            mm = `Unreachable '${a}'.`;
-            break;
-        case "unregistered_property_a":
-            mm = `Unregistered property name '${a}'.`;
-            break;
-        case "unused_a":
-            mm = `Unused '${a}'.`;
-            break;
-        case "use_double":
-            mm = `Use double quotes, not single quotes.`;
-            break;
-        case "use_open":
-            mm = (
-                `Wrap a ternary expression in parens,`
-                + ` with a line break after the left paren.`
-            );
-            break;
-        case "use_spaces":
-            mm = `Use spaces, not tabs.`;
-            break;
-        case "var_on_top":
-            mm = `Move variable declaration to top of function or script.`;
-            break;
-        case "var_switch":
-            mm = `Don't declare variables in a switch.`;
-            break;
-        case "weird_condition_a":
-            mm = `Weird condition '${a}'.`;
-            break;
-        case "weird_expression_a":
-            mm = `Weird expression '${a}'.`;
-            break;
-        case "weird_loop":
-            mm = `Weird loop.`;
-            break;
-        case "weird_property_a":
-            mm = `Weird property name '${a}'.`;
-            break;
-        case "weird_relation_a":
-            mm = `Weird relation '${a}'.`;
-            break;
-        case "wrap_condition":
-            mm = `Wrap the condition in parens.`;
-            break;
-        case "wrap_immediate":
-            mm = (
-                `Wrap an immediate function invocation in parentheses to assist`
-                + ` the reader in understanding that the expression is the`
-                + ` result of a function, and not the function itself.`
-            );
-            break;
-        case "wrap_parameter":
-            mm = `Wrap the parameter in parens.`;
-            break;
-        case "wrap_regexp":
-            mm = `Wrap this regexp in parens to avoid confusion.`;
-            break;
-        case "wrap_unary":
-            mm = `Wrap the unary expression in parens.`;
-            break;
-        }
-
-// Validate mm.
-
-        assert_or_throw(mm, code);
-        warning.message = mm;
-
-// Include stack_trace for jslint to debug itself for errors.
-
-        if (option_dict.debug) {
-            warning.stack_trace = new Error().stack;
-        }
-        if (warning.directive_quiet) {
-
-// test_cause:
-// ["0 //jslint-quiet", "semicolon", "directive_quiet", "", 0]
-
-            test_cause("directive_quiet");
-            return warning;
-        }
-        warning_list.push(warning);
-        return warning;
-    }
-
-    try {
-
-// tokenize takes a source and produces from it an array of token objects.
-// JavaScript is notoriously difficult to tokenize because of the horrible
-// interactions between automatic semicolon insertion, regular expression
-// literals, and now megastring literals. JSLint benefits from eliminating
-// automatic semicolon insertion and nested megastring literals, which allows
-// full tokenization to precede parsing.
-
-        option_dict = Object.assign(empty(), option_dict);
-        populate(global_list, global_dict, false);
-        populate(standard, global_dict, false);
-        Object.keys(option_dict).forEach(function (name) {
-            const allowed = allowed_option[name];
-            if (option_dict[name] === true && Array.isArray(allowed)) {
-                populate(allowed, global_dict, false);
-            }
-        });
-
-        Object.assign(state, {
-            allowed_option,
-            artifact,
-            catch_list,
-            catch_stack,
-            directive_list,
-            export_dict,
-            function_list,
-            function_stack,
-            global_dict,
-            import_list,
-            is_equal,
-            is_weird,
-            line_list,
-            mode_json: false,           // true if parsing JSON.
-            mode_module: false,         // true if import or export was used.
-            mode_property: false,       // true if directive /*property*/ is
-                                        // used.
-            mode_shebang: false,        // true if #! is seen on the first line.
-            option_dict,
-            property_dict,
-            source,
-            stop,
-            stop_at,
-            syntax_dict,
-            tenure,
-            test_cause,
-            token_global,
-            token_list,
-            token_nxt: token_global,
-            warn,
-            warn_at,
-            warning_list
-        });
-
-// PHASE 1. Split <source> by newlines into <line_list>.
-
-        jslint_phase1_split(state);
-        assert_or_throw(catch_stack.length === 1, `catch_stack.length === 1.`);
-        assert_or_throw(
-            function_stack.length === 0,
-            `function_stack.length === 0.`
-        );
-
-// PHASE 2. Lex <line_list> into <token_list>.
-
-        jslint_phase2_lex(state);
-        assert_or_throw(catch_stack.length === 1, `catch_stack.length === 1.`);
-        assert_or_throw(
-            function_stack.length === 0,
-            `function_stack.length === 0.`
-        );
-
-// PHASE 3. Parse <token_list> into <token_tree> using the Pratt-parser.
-
-        jslint_phase3_parse(state);
-        assert_or_throw(catch_stack.length === 1, `catch_stack.length === 1.`);
-        assert_or_throw(
-            function_stack.length === 0,
-            `function_stack.length === 0.`
-        );
-
-// PHASE 4. Walk <token_tree>, traversing all nodes of the tree. It is a
-//          recursive traversal. Each node may be processed on the way down
-//          (preaction) and on the way up (postaction).
-
-        if (!state.mode_json) {
-            jslint_phase4_walk(state);
-        }
-        assert_or_throw(catch_stack.length === 1, `catch_stack.length === 1.`);
-        assert_or_throw(
-            function_stack.length === 0,
-            `function_stack.length === 0.`
-        );
-
-// PHASE 5. Check whitespace between tokens in <token_list>.
-
-        if (!state.mode_json && warning_list.length === 0) {
-            jslint_phase5_whitage(state);
-        }
-        assert_or_throw(catch_stack.length === 1, `catch_stack.length === 1.`);
-        assert_or_throw(
-            function_stack.length === 0,
-            `function_stack.length === 0.`
-        );
-
-        if (!option_dict.browser) {
-            directive_list.forEach(function (comment) {
-                if (comment.directive === "global") {
-
-// test_cause:
-// ["/*global aa*/", "jslint", "missing_browser", "(comment)", 1]
-
-                    warn("missing_browser", comment);
-                }
-            });
-        }
-        if (option_dict.test_internal_error) {
-            assert_or_throw(undefined, "test_internal_error");
-        }
-    } catch (err) {
-        mode_stop = true;
-        err.message = "[JSLint was unable to finish]\n" + err.message;
-        err.mode_stop = true;
-        if (err.name !== "JSLintError") {
-            Object.assign(err, {
-                column: jslint_fudge,
-                line: jslint_fudge,
-                line_source: "",
-                stack_trace: err.stack
-            });
-        }
-        if (warning_list.indexOf(err) === -1) {
-            warning_list.push(err);
-        }
-    }
-
-// Sort warning_list by mode_stop first, line, column respectively.
-
-    warning_list.sort(function (aa, bb) {
-        return (
-            Boolean(bb.mode_stop) - Boolean(aa.mode_stop)
-            || aa.line - bb.line
-            || aa.column - bb.column
-        );
-
-// Update each warning with formatted_message ready-for-use by jslint_cli.
-
-    }).map(function ({
-        column,
-        line,
-        line_source,
-        message,
-        stack_trace = ""
-    }, ii, list) {
-        list[ii].formatted_message = String(
-            String(ii + 1).padStart(2, " ")
-            + ". \u001b[31m" + message + "\u001b[39m"
-            + " \u001b[90m\/\/ line " + line + ", column " + column
-            + "\u001b[39m\n"
-            + ("    " + line_source.trim()).slice(0, 72) + "\n"
-            + stack_trace
-        ).trimRight();
-    });
-
-    return {
-        causes: cause_dict,
-        directives: directive_list,
-        edition: jslint_edition,
-        exports: export_dict,
-        froms: import_list,
-        functions: function_list,
-        global: token_global,
-        id: "(JSLint)",
-        json: state.mode_json,
-        lines: line_list,
-        module: state.mode_module === true,
-        ok: warning_list.length === 0 && !mode_stop,
-        option: option_dict,
-        property: property_dict,
-        shebang: (
-            state.mode_shebang
-            ? line_list[jslint_fudge].line_source
-            : undefined
-        ),
-        stop: mode_stop,
-        tokens: token_list,
-        tree: state.token_tree,
-        warnings: warning_list
-    };
+    return;
 }
 
-async function jslint_cli({
-    cjs_module,
-    cjs_require,
-    console_error,
-    file,
-    mode_force,
-    mode_noop,
-    option,
-    process_exit,
-    source
-}) {
+function populate(array, object = empty(), value = true) {
 
-// This function will run jslint from nodejs-cli.
+// Augment an object by taking property names from an array of strings.
 
-    let data;
-    let exit_code = 0;
-    let module_fs;
-    let module_path;
-    let module_url;
-
-    function jslint_from_file({
-        code,
-        file,
-        line_offset = 0,
-        option = empty(),
-        warnings = []
-    }) {
-        option = Object.assign(empty(), option, {
-            file
-        });
-        switch ((
-            /\.\w+?$|$/m
-        ).exec(file)[0]) {
-        case ".html":
-
-// Recursively jslint embedded "<script>\n...\n</script>".
-
-            code.replace((
-                /^<script>\n([\S\s]*?\n)<\/script>$/gm
-            ), function (ignore, match1, ii) {
-                jslint_from_file({
-                    code: match1,
-                    file: file + ".<script>.js",
-                    line_offset: string_line_count(code.slice(0, ii)) + 1,
-                    option: Object.assign(empty(), {
-                        browser: true
-                    }, option)
-                });
-                return "";
-            });
-            return;
-        case ".md":
-
-// Recursively jslint embedded "```javascript\n...\n```".
-
-            code.replace((
-                /^```(?:javascript|js)\n([\S\s]*?\n)```$/gm
-            ), function (ignore, match1, ii) {
-                jslint_from_file({
-                    code: match1,
-                    file: file + ".<```javascript>.js",
-                    line_offset: string_line_count(code.slice(0, ii)) + 1,
-                    option
-                });
-                return "";
-            });
-            return;
-        case ".sh":
-
-// Recursively jslint embedded "node -e '\n...\n'".
-
-            code.replace((
-                /\bnode\u0020.*?-e\u0020'\n([\S\s]*?\n)'/gm
-            ), function (ignore, match1, ii) {
-                jslint_from_file({
-                    code: match1,
-                    file: file + ".<node -e>.js",
-                    line_offset: string_line_count(code.slice(0, ii)) + 1,
-                    option: Object.assign(empty(), {
-                        beta: Boolean(
-                            process.env.JSLINT_BETA
-                            && !(
-                                /0|false|null|undefined/
-                            ).test(process.env.JSLINT_BETA)
-                        ),
-                        node: true
-                    }, option)
-                });
-                return "";
-            });
-            return;
-        default:
-            warnings = jslint(
-                "\n".repeat(line_offset) + code,
-                option
-            ).warnings;
-        }
-
-// Print only first 10 warnings to stderr.
-
-        if (warnings.length > 0) {
-            exit_code = 1;
-            console_error(
-                "\u001b[1mjslint " + file + "\u001b[22m\n"
-                + warnings.slice(0, 10).map(function ({
-                    formatted_message
-                }) {
-                    return formatted_message;
-                }).join("\n")
-            );
-        }
-    }
-
-    function string_line_count(code) {
-
-// This function will count number of newlines in <code>.
-
-        let cnt;
-        let ii;
-
-// https://jsperf.com/regexp-counting-2/8
-
-        cnt = 0;
-        ii = 0;
-        while (true) {
-            ii = code.indexOf("\n", ii) + 1;
-            if (ii === 0) {
-                break;
-            }
-            cnt += 1;
-        }
-        return cnt;
-    }
-
-// Feature-detect nodejs.
-
-    if (!(
-        typeof process === "object"
-        && process
-        && process.versions
-        && typeof process.versions.node === "string"
-        && !mode_noop
-    )) {
-        return exit_code;
-    }
-    console_error = console_error || console.error;
-    module_fs = await import("fs");
-    module_path = await import("path");
-    module_url = await import("url");
-    process_exit = process_exit || process.exit;
-    if (!(
-
-// Feature-detect nodejs-cjs-cli.
-
-        (cjs_module && cjs_require)
-        ? cjs_module === cjs_require.main
-
-// Feature-detect nodejs-esm-cli.
-
-        : (
-            process.execArgv.indexOf("--eval") === -1
-            && process.execArgv.indexOf("-e") === -1
-            && (
-                (
-                    /[\/|\\]jslint(?:\.[cm]?js)?$/m
-                ).test(process.argv[1])
-                || mode_force
-            )
-            && module_url.fileURLToPath(jslint_import_meta_url)
-            === module_path.resolve(process.argv[1])
-        )
-    ) && !mode_force) {
-        return exit_code;
-    }
-
-// Normalize file relative to process.cwd().
-
-    file = file || process.argv[2];
-    if (!file) {
-        return;
-    }
-    file = module_path.resolve(file) + "/";
-    if (file.startsWith(process.cwd() + "/")) {
-        file = file.replace(process.cwd() + "/", "").slice(0, -1) || ".";
-    }
-    file = file.replace((
-        /\\/g
-    ), "/").replace((
-        /\/$/g
-    ), "");
-    if (source) {
-        jslint_from_file({
-            code: source,
-            file,
-            option
-        });
-        process_exit(exit_code);
-        return exit_code;
-    }
-
-// jslint_cli - jslint directory.
-
-    try {
-        data = await module_fs.promises.readdir(file, "utf8");
-    } catch (ignore) {}
-    if (data) {
-        await Promise.all(data.map(async function (file2) {
-            let code;
-            let time_start = Date.now();
-            file2 = file + "/" + file2;
-            switch ((
-                /\.\w+?$|$/m
-            ).exec(file2)[0]) {
-            case ".cjs":
-            case ".html":
-            case ".js":
-            case ".json":
-            case ".md":
-            case ".mjs":
-            case ".sh":
-                break;
-            default:
-                return;
-            }
-            try {
-                code = await module_fs.promises.readFile(file2, "utf8");
-            } catch (ignore) {
-                return;
-            }
-            if (!(
-                !(
-                    /\b(?:lock|min|raw|rollup)\b/
-                ).test(file2) && code && code.length < 1048576
-            )) {
-                return;
-            }
-            jslint_from_file({
-                code,
-                file: file2,
-                option
-            });
-            console_error(
-                "jslint - " + (Date.now() - time_start) + "ms - " + file2
-            );
-        }));
-        process_exit(exit_code);
-        return exit_code;
-    }
-
-// jslint_cli - jslint file.
-
-    try {
-        data = await module_fs.promises.readFile(file, "utf8");
-    } catch (err) {
-        console_error(err);
-        exit_code = 1;
-        process_exit(exit_code);
-        return exit_code;
-    }
-    jslint_from_file({
-        code: data,
-        file,
-        option
+    array.forEach(function (name) {
+        object[name] = value;
     });
-    process_exit(exit_code);
-    return exit_code;
+    return object;
 }
-
-jslint_export = Object.freeze(Object.assign(jslint, {
-    cli: Object.freeze(jslint_cli),
-    edition: jslint_edition,
-    jslint: Object.freeze(jslint.bind(undefined))
-}));
 
 // Export jslint as commonjs/es-module.
 
