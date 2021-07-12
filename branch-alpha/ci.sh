@@ -193,15 +193,16 @@ import moduleChildProcess from "child_process";
     });
 }());
 ' # '
-    # seo - invalidate cached-assets and inline css
+    # seo - invalidate cached-assets, inline css, and add google-analytics.
     node --input-type=module -e '
 import moduleFs from "fs";
 var cacheKey = Math.random().toString(36).slice(-4);
 (async function () {
-    var result = await moduleFs.promises.readFile("browser.mjs", "utf8");
+    var result;
 
 // Invalidate cached-assets.
 
+    result = await moduleFs.promises.readFile("browser.mjs", "utf8");
     result = result.replace((
         /^import\u0020.+?\u0020from\u0020".+?\.(?:js|mjs)\b/gm
     ), function (match0) {
@@ -211,12 +212,10 @@ var cacheKey = Math.random().toString(36).slice(-4);
 // Write file.
 
     await moduleFs.promises.writeFile("browser.mjs", result);
-}());
-(async function () {
-    var result = await moduleFs.promises.readFile("index.html", "utf8");
 
 // Invalidate cached-assets.
 
+    result = await moduleFs.promises.readFile("index.html", "utf8");
     result = result.replace((
         /\b(?:href|src)=".+?\.(?:css|js|mjs)\b/g
     ), function (match0) {
@@ -227,8 +226,8 @@ var cacheKey = Math.random().toString(36).slice(-4);
 
     result.replace((
         /\n<link\u0020rel="stylesheet"\u0020href="([^"]+?)">\n/g
-    ), function (match0, url) {
-        var data = moduleFs.readFileSync( //jslint-quiet
+    ), async function (match0, url) {
+        var data = await moduleFs.promises.readFile(
             url.split("?")[0],
             "utf8"
         );
@@ -239,8 +238,8 @@ var cacheKey = Math.random().toString(36).slice(-4);
     });
     result.replace((
         `\n<style id="#JSLINT_REPORT_STYLE"></style>\n`
-    ), function (match0) {
-        var data = moduleFs.readFileSync("browser.mjs", "utf8"); //jslint-quiet
+    ), async function (match0) {
+        var data = await moduleFs.promises.readFile("browser.mjs", "utf8");
         result = result.replace(match0, function () {
             return data.match(
                 /\n<style\sid="#JSLINT_REPORT_STYLE">\n[\S\s]*?\n<\/style>\n/
@@ -248,6 +247,8 @@ var cacheKey = Math.random().toString(36).slice(-4);
         });
         return "";
     });
+
+// Add google-analytics.
 
 // Write file.
 
