@@ -230,7 +230,8 @@ import moduleFs from "fs";
             + fileDict["asset-codemirror-rollup.css"].trim()
             + "\n</style>\n"
         );
-    }).replace((
+    });
+    fileDict["index.html"] = fileDict["index.html"].replace((
         "\n<style id=\"#JSLINT_REPORT_STYLE\"></style>\n"
     ), function () {
         return fileDict["browser.mjs"].match(
@@ -239,7 +240,23 @@ import moduleFs from "fs";
     });
 
 // Add google-analytics.
-
+    fileDict["index.html"] = fileDict["index.html"].replace((
+        "\n</head>\n"
+    ), function () {
+        return (`
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-201902693-1">
+</script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'UA-201902693-1');
+  gtag('config', 'G-08PMGLWS66');
+</script>
+</head>
+        `);
+    });
 
 // Write file.
 
