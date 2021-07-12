@@ -196,14 +196,15 @@ import moduleChildProcess from "child_process";
     # seo - invalidate cached-assets, inline css, and add google-analytics.
     node --input-type=module -e '
 import moduleFs from "fs";
-var cacheKey = Math.random().toString(36).slice(-4);
 (async function () {
-    var result;
+    var cacheKey = Math.random().toString(36).slice(-4);
+    var dataBrowser;
+    var dataIndex;
 
 // Invalidate cached-assets.
 
-    result = await moduleFs.promises.readFile("browser.mjs", "utf8");
-    result = result.replace((
+    dataBrowser = await moduleFs.promises.readFile("browser.mjs", "utf8");
+    dataBrowser = dataBrowser.replace((
         /^import\u0020.+?\u0020from\u0020".+?\.(?:js|mjs)\b/gm
     ), function (match0) {
         return `${match0}?cc=${cacheKey}`;
@@ -211,12 +212,12 @@ var cacheKey = Math.random().toString(36).slice(-4);
 
 // Write file.
 
-    await moduleFs.promises.writeFile("browser.mjs", result);
+    moduleFs.promises.writeFile("browser.mjs", dataBrowser);
 
 // Invalidate cached-assets.
 
-    result = await moduleFs.promises.readFile("index.html", "utf8");
-    result = result.replace((
+    dataIndex = await moduleFs.promises.readFile("index.html", "utf8");
+    dataIndex = dataIndex.replace((
         /\b(?:href|src)=".+?\.(?:css|js|mjs)\b/g
     ), function (match0) {
         return `${match0}?cc=${cacheKey}`;
@@ -224,28 +225,24 @@ var cacheKey = Math.random().toString(36).slice(-4);
 
 // Inline css-assets.
 
-    result.replace((
+    dataIndex.replace((
         /\n<link\u0020rel="stylesheet"\u0020href="([^"]+?)">\n/g
     ), async function (match0, url) {
         var data = await moduleFs.promises.readFile(
             url.split("?")[0],
             "utf8"
         );
-        result = result.replace(match0, function () {
+        dataIndex = dataIndex.replace(match0, function () {
             return `\n<style>\n${data.trim()}\n</style>\n`;
         });
         return "";
     });
-    result.replace((
+    dataIndex = dataIndex.replace((
         `\n<style id="#JSLINT_REPORT_STYLE"></style>\n`
-    ), async function (match0) {
-        var data = await moduleFs.promises.readFile("browser.mjs", "utf8");
-        result = result.replace(match0, function () {
-            return data.match(
-                /\n<style\sid="#JSLINT_REPORT_STYLE">\n[\S\s]*?\n<\/style>\n/
-            )[0];
-        });
-        return "";
+    ), function () {
+        return dataBrowser.match(
+            /\n<style\sid="#JSLINT_REPORT_STYLE">\n[\S\s]*?\n<\/style>\n/
+        )[0];
     });
 
 // Add google-analytics.
@@ -253,7 +250,7 @@ var cacheKey = Math.random().toString(36).slice(-4);
 // Write file.
 
     process.on("exit", function () {
-        moduleFs.writeFileSync("index.html", result); //jslint-quiet
+        moduleFs.writeFileSync("index.html", dataIndex); //jslint-quiet
     });
 }());
 ' # '
