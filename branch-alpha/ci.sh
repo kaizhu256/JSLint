@@ -198,26 +198,23 @@ import moduleChildProcess from "child_process";
 import moduleFs from "fs";
 (async function () {
     var cacheKey = Math.random().toString(36).slice(-4);
-    var dataBrowser;
-    var dataIndex;
+    var fileDict = {};
+    await Promise.all([
+        "asset-codemirror-rollup.css",
+        "browser.mjs",
+        "index.html"
+    ].map(async function (file) {
+        fileDict[file] = await moduleFs.promises.readFile(file, "utf8");
+    }));
 
 // Invalidate cached-assets.
 
-    dataBrowser = await moduleFs.promises.readFile("browser.mjs", "utf8");
-    dataBrowser = dataBrowser.replace((
+    fileDict["browser.mjs"] = fileDict["browser.mjs"].replace((
         /^import\u0020.+?\u0020from\u0020".+?\.(?:js|mjs)\b/gm
     ), function (match0) {
         return `${match0}?cc=${cacheKey}`;
     });
-
-// Write file.
-
-    moduleFs.promises.writeFile("browser.mjs", dataBrowser);
-
-// Invalidate cached-assets.
-
-    dataIndex = await moduleFs.promises.readFile("index.html", "utf8");
-    dataIndex = dataIndex.replace((
+    fileDict["index.html"] = fileDict["index.html"].replace((
         /\b(?:href|src)=".+?\.(?:css|js|mjs)\b/g
     ), function (match0) {
         return `${match0}?cc=${cacheKey}`;
@@ -225,33 +222,32 @@ import moduleFs from "fs";
 
 // Inline css-assets.
 
-    dataIndex.replace((
-        /\n<link\u0020rel="stylesheet"\u0020href="([^"]+?)">\n/g
-    ), async function (match0, url) {
-        var data = await moduleFs.promises.readFile(
-            url.split("?")[0],
-            "utf8"
-        );
-        dataIndex = dataIndex.replace(match0, function () {
-            return `\n<style>\n${data.trim()}\n</style>\n`;
-        });
-        return "";
-    });
-    dataIndex = dataIndex.replace((
-        `\n<style id="#JSLINT_REPORT_STYLE"></style>\n`
+    fileDict["index.html"] = fileDict["index.html"].replace((
+        "\n<link rel=\"stylesheet\" href=\"asset-codemirror-rollup.css\">\n"
     ), function () {
-        return dataBrowser.match(
+        return (
+            "\n<style>\n"
+            + fileDict["asset-codemirror-rollup.css"].trim()
+            + "\n</style>\n"
+        );
+    }).replace((
+        "\n<style id=\"#JSLINT_REPORT_STYLE\"></style>\n"
+    ), function () {
+        return fileDict["browser.mjs"].match(
             /\n<style\sid="#JSLINT_REPORT_STYLE">\n[\S\s]*?\n<\/style>\n/
         )[0];
     });
 
 // Add google-analytics.
 
+
 // Write file.
 
-    process.on("exit", function () {
-        moduleFs.writeFileSync("index.html", dataIndex); //jslint-quiet
-    });
+    await Promise.all(Object.entries(fileDict).map(function ([
+        file, data
+    ]) {
+        moduleFs.promises.writeFile(file, data);
+    }));
 }());
 ' # '
     # add dir .build
