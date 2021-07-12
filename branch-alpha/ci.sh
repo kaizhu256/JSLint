@@ -248,11 +248,11 @@ import moduleFs from "fs";
 <script async src="https://www.googletagmanager.com/gtag/js?id=UA-201902693-1">
 </script>
 <script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'UA-201902693-1');
-  gtag('config', 'G-08PMGLWS66');
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'UA-201902693-1');
+    gtag('config', 'G-08PMGLWS66');
 </script>
 </head>
         `);
