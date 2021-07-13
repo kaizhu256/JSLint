@@ -47,7 +47,7 @@
     warnings, width
 */
 
-import jslint from "./jslint.mjs?cc=mb4e";
+import jslint from "./jslint.mjs?cc=ci3j";
 
 // This is the web script companion file for JSLint. It includes code for
 // interacting with the browser and displaying the reports.
@@ -508,7 +508,7 @@ body {
             + "</cite>"
             + "<samp>"
             + entityify(line_source.slice(0, 400) + "\n" + stack_trace)
-            + "</samp>"
+            + "</samp>\n"
         );
     });
     if (warnings.length === 0) {
@@ -573,7 +573,7 @@ body {
         html += detail(module, global);
         html += detail("import from", froms);
         html += detail("export", exports);
-        html += "</dl>";
+        html += "</dl>\n";
     }
     functions.forEach(function (the_function) {
         let {
@@ -652,7 +652,7 @@ body {
         html += detail("label", list.filter(function (id) {
             return context[id].role === "label";
         }));
-        html += "</dl>";
+        html += "</dl>\n";
     });
     html += `</div>`;
     html += `</fieldset>`;
