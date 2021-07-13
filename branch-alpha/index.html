@@ -12,10 +12,10 @@
 <link rel="icon" type="image/png" href="asset-image-jslint-512.svg"/>
 <title>JSLint:&nbsp;The&nbsp;JavaScript&nbsp;Code Quality Tool</title>
 <!-- Google PageSpeed - Reduce Largest Contentful Paint. -->
-<link as="script" rel="preload" href="asset-codemirror-rollup.js?cc=mkng">
-<link rel="modulepreload" href="browser.mjs?cc=mkng">
-<link rel="modulepreload" href="jslint.mjs?cc=mkng">
-<link rel="stylesheet" href="asset-codemirror-rollup.css?cc=mkng">
+<link as="script" rel="preload" href="asset-codemirror-rollup.js?cc=a65b">
+<link rel="modulepreload" href="browser.mjs?cc=a65b">
+<link rel="modulepreload" href="jslint.mjs?cc=a65b">
+<link rel="stylesheet" href="asset-codemirror-rollup.css?cc=a65b">
 <style>
 /*csslint
     box-model: false,
@@ -511,7 +511,7 @@ style="
     align-items: center;
     background: lightslategray;
     color: white;
-    display: none;
+    display: flex;
     height: 50px;
     justify-content: center;
     left: 50%;
@@ -522,14 +522,12 @@ style="
     width: 200px;
     z-index: 99;
 ">
-<div>
-    Linting
+    <div>Loading Module</div>
     <span class="uiLoaderEllipsis">
         <span>.</span>
         <span>.</span>
         <span>.</span>
     </span>
-    </div>
 </div>
 <div id="JSLINT_INPUT">
 <div id="JSLINT_TITLEBOX">
@@ -632,8 +630,8 @@ style="
 </fieldset>
 </div>
 <div id="JSLINT_REPORT_HTML"></div>
-<script defer src="asset-codemirror-rollup.js?cc=mkng"></script>
-<script src="browser.mjs?cc=mkng" type="module"></script>
+<script defer src="asset-codemirror-rollup.js?cc=a65b"></script>
+<script src="browser.mjs?cc=a65b" type="module"></script>
 <!-- coverage-hack -->
 <script>
 (function () {

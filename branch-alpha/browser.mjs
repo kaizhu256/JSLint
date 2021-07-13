@@ -47,7 +47,7 @@
     warnings, width
 */
 
-import jslint from "./jslint.mjs?cc=mkng";
+import jslint from "./jslint.mjs?cc=a65b";
 
 // This is the web script companion file for JSLint. It includes code for
 // interacting with the browser and displaying the reports.
@@ -687,6 +687,7 @@ async function jslint_ui_call() {
 
 // Show ui-loader-animation.
 
+    document.querySelector("#uiLoader1 > div").textContent = "Linting";
     document.querySelector("#uiLoader1").style.display = "flex";
     try {
 
