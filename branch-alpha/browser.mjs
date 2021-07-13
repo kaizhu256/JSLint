@@ -47,7 +47,7 @@
     warnings, width
 */
 
-import jslint from "./jslint.mjs?cc=a65b";
+import jslint from "./jslint.mjs?cc=aevq";
 
 // This is the web script companion file for JSLint. It includes code for
 // interacting with the browser and displaying the reports.
@@ -170,7 +170,7 @@ function jslint_report_html({
 
     html += `<div class="JSLINT_" id="JSLINT_REPORT_HTML">`;
     html += String(`
-<style id="#JSLINT_REPORT_STYLE">
+<style class="JSLINT_REPORT_STYLE">
 /*csslint
     box-model: false,
     ids:false,
