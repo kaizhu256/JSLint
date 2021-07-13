@@ -990,12 +990,12 @@ function jslint(
 // full tokenization to precede parsing.
 
         option_dict = Object.assign(empty(), option_dict);
-        populate(global_list, global_dict, false);
-        populate(standard, global_dict, false);
+        object_assign_from_list(global_dict, global_list);
+        object_assign_from_list(global_dict, standard);
         Object.keys(option_dict).forEach(function (name) {
             const allowed = allowed_option[name];
             if (option_dict[name] === true && Array.isArray(allowed)) {
-                populate(allowed, global_dict, false);
+                object_assign_from_list(global_dict, allowed);
             }
         });
 
@@ -1799,7 +1799,7 @@ function jslint_phase2_lex(state) {
                     if (value === "true" || value === undefined) {
                         option_dict[name] = true;
                         if (Array.isArray(allowed)) {
-                            populate(allowed, global_dict, false);
+                            object_assign_from_list(global_dict, allowed);
                         }
                     } else {
 
@@ -6270,9 +6270,12 @@ function jslint_phase4_walk(state) {
     let preaction;
     let preamble;
     let pres = empty();
-    let relationop = populate([         // The relational operators.
-        "!=", "!==", "==", "===", "<", "<=", ">", ">="
-    ]);
+    let relationop = object_assign_from_list(
+        empty(),
+        [                               // The relational operators.
+            "!=", "!==", "==", "===", "<", "<=", ">", ">="
+        ]
+    );
 
 // Ambulation of the parse tree.
 
@@ -7494,12 +7497,15 @@ function jslint_phase5_whitage(state) {
     let open = true;
     let opening = true;
     let right;
-    let spaceop = populate([    // This is the set of infix operators that
+    let spaceop = object_assign_from_list(
+        empty(),
+        [                       // This is the set of infix operators that
                                 // ... require a space on each side.
-        "!=", "!==", "%", "%=", "&", "&=", "&&", "*", "*=", "+=", "-=", "/",
-        "/=", "<", "<=", "<<", "<<=", "=", "==", "===", "=>", ">", ">=",
-        ">>", ">>=", ">>>", ">>>=", "^", "^=", "|", "|=", "||"
-    ]);
+            "!=", "!==", "%", "%=", "&", "&=", "&&", "*", "*=", "+=", "-=", "/",
+            "/=", "<", "<=", "<<", "<<=", "=", "==", "===", "=>", ">", ">=",
+            ">>", ">>=", ">>>", ">>>=", "^", "^=", "|", "|=", "||"
+        ]
+    );
 
     function at_margin(fit) {
         const at = margin + fit;
@@ -8114,14 +8120,14 @@ function noop() {
     return;
 }
 
-function populate(array, object = empty(), value = true) {
+function object_assign_from_list(dict, list) {
 
-// Augment an object by taking property names from an array of strings.
+// Assign <key> from <list> to <dict>.
 
-    array.forEach(function (name) {
-        object[name] = value;
+    list.forEach(function (key) {
+        dict[key] = true;
     });
-    return object;
+    return dict;
 }
 
 jslint_export = Object.freeze(Object.assign(jslint, {
