@@ -24,14 +24,14 @@ Douglas Crockford <douglas@crockford.com>
 
 
 # Install
-### 1. To install, just download https://www.jslint.com/jslint.mjs:
+## To install, just download https://www.jslint.com/jslint.mjs:
 ```shell
 #!/bin/sh
 
 curl -L https://www.jslint.com/jslint.mjs > jslint.mjs
 ```
 
-### 2. To run `jslint.mjs` from command-line:
+## To run `jslint.mjs` from command-line:
 ```shell <!-- shRunWithScreenshotTxt .build/screenshot-install-cli-file.svg -->
 #!/bin/sh
 
@@ -43,7 +43,7 @@ node jslint.mjs hello.js
 
 ![screenshot.svg](https://kaizhu256.github.io/jslint/branch-alpha/.build/screenshot-install-cli-file.svg)
 
-### 3. To import `jslint.mjs` as es-module:
+## To import `jslint.mjs` as es-module:
 ```shell <!-- shRunWithScreenshotTxt .build/screenshot-install-import.svg -->
 #!/bin/sh
 
@@ -68,7 +68,7 @@ result.warnings.forEach(function ({
 
 ![screenshot.svg](https://kaizhu256.github.io/jslint/branch-alpha/.build/screenshot-install-import.svg)
 
-### 4. To jslint entire directory:
+## To jslint entire directory:
 ```shell <!-- shRunWithScreenshotTxt .build/screenshot-install-cli-dir.svg -->
 #!/bin/sh
 
