@@ -8122,7 +8122,7 @@ function noop() {
 
 function object_assign_from_list(dict, list) {
 
-// Assign <key> from <list> to <dict>.
+// Assign each property-name from <list> to <dict>.
 
     list.forEach(function (key) {
         dict[key] = true;
