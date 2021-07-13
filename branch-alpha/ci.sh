@@ -130,7 +130,16 @@ process.exit(Number(
 import moduleFs from "fs";
 import moduleChildProcess from "child_process";
 (async function () {
-    let statJslintMjs = await moduleFs.promises.stat("jslint.mjs");
+    var screenshotCurl = await moduleFs.promises.stat("jslint.mjs");
+    screenshotCurl = String(`
+echo "\
+% Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                     Dload  Upload   Total   Spent    Left  Speed
+100  250k  100  250k    0     0   250k      0  0:00:01 --:--:--  0:00:01  250k\
+"
+    `).trim().replace((
+        /250/g
+    ), Math.floor(screenshotCurl.size / 1024));
     [
         // parallel-task - screenshot files
         [
@@ -177,15 +186,7 @@ import moduleChildProcess from "child_process";
             + "\n\n\n\u0027\n"
             + script.replace(
                 "curl -L https://www.jslint.com/jslint.mjs > jslint.mjs",
-                String(`
-echo "\
-  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
-                                 Dload  Upload   Total   Spent    Left  Speed
-100  250k  100  250k    0     0   250k      0  0:00:01 --:--:--  0:00:01  250k\
-"
-                `).trim().replace((
-                    /250/g
-                ), Math.floor(statJslintMjs.size / 1024))
+                screenshotCurl
             )
         ));
         moduleChildProcess.spawn(
