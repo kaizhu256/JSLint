@@ -9,6 +9,7 @@
 - jslint - add `for...of` syntax support.
 - jslint - add html and css linting back into jslint.
 - jslint - add new warning against using do-statment.
+- jslint - add new warning against redeclaring global-variables.
 - jslint - add new warning requiring paren around comma-separated concatenations.
 - jslint - add syntax-support for continue-label-statement.
 - jslint - require regexp to use open-form.
