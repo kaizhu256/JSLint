@@ -47,7 +47,7 @@
     warnings, width
 */
 
-import jslint from "./jslint.mjs?cc=2zkb";
+import jslint from "./jslint.mjs?cc=kh9z";
 
 // This is the web script companion file for JSLint. It includes code for
 // interacting with the browser and displaying the reports.
@@ -168,7 +168,7 @@ function jslint_report_html({
 // <cite><address>LINE_NUMBER</address>MESSAGE</cite>
 // <samp>EVIDENCE</samp>
 
-    html += `<div class="JSLINT_" id="JSLINT_REPORT_HTML">`;
+    html += "<div class=\"JSLINT_\" id=\"JSLINT_REPORT_HTML\">\n";
     html += String(`
 <style class="JSLINT_REPORT_STYLE">
 /*csslint
@@ -488,11 +488,11 @@ body {
 }
 </style>
             `).trim();
-    html += `<fieldset id="JSLINT_REPORT_WARNINGS">`;
-    html += `<legend>Report: Warnings</legend>`;
-    html += `<div>\n`;
+    html += "<fieldset id=\"JSLINT_REPORT_WARNINGS\">\n";
+    html += "<legend>Report: Warnings</legend>\n";
+    html += "<div>\n";
     if (stop) {
-        html += `<div class="center">JSLint was unable to finish.</div>\n`;
+        html += "<div class=\"center\">JSLint was unable to finish.</div>\n";
     }
     warnings.forEach(function ({
         column,
@@ -512,17 +512,17 @@ body {
         );
     });
     if (warnings.length === 0) {
-        html += `<div class="center">There are no warnings.</div>`;
+        html += "<div class=\"center\">There are no warnings.</div>\n";
     }
-    html += `</div>`;
-    html += `</fieldset>`;
+    html += "</div>\n";
+    html += "</fieldset>\n";
 
 // Produce the /*property*/ directive.
 
-    html += `<fieldset id="JSLINT_REPORT_PROPERTIES">`;
-    html += `<legend>Report: Properties</legend>`;
-    html += `<textarea readonly>`;
-    html += `/*property`;
+    html += "<fieldset id=\"JSLINT_REPORT_PROPERTIES\">\n";
+    html += "<legend>Report: Properties</legend>\n";
+    html += "<textarea readonly>";
+    html += "/*property";
     Object.keys(property).sort().forEach(function (key, ii) {
         if (ii !== 0) {
             html += ",";
@@ -536,8 +536,8 @@ body {
         length_80 += key.length;
     });
     html += "\n*/\n";
-    html += `</textarea>`;
-    html += `</fieldset>`;
+    html += "</textarea>\n";
+    html += "</fieldset>\n";
 
 // Produce the HTML Function Report.
 // <dl class=LEVEL><address>LINE_NUMBER</address>FUNCTION_NAME_AND_SIGNATURE
