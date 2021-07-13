@@ -47,7 +47,7 @@
     warnings, width
 */
 
-import jslint from "./jslint.mjs?cc=l57c";
+import jslint from "./jslint.mjs?cc=2zkb";
 
 // This is the web script companion file for JSLint. It includes code for
 // interacting with the browser and displaying the reports.
@@ -490,9 +490,9 @@ body {
             `).trim();
     html += `<fieldset id="JSLINT_REPORT_WARNINGS">`;
     html += `<legend>Report: Warnings</legend>`;
-    html += `<div>`;
+    html += `<div>\n`;
     if (stop) {
-        html += `<div class="center">JSLint was unable to finish.</div>`;
+        html += `<div class="center">JSLint was unable to finish.</div>\n`;
     }
     warnings.forEach(function ({
         column,
