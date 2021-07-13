@@ -202,13 +202,8 @@ function jslint(
             "IntersectionObserver",
             "MutationObserver",
             "Storage",
-            "TextDecoder",
-            "TextEncoder",
-            "URL",
             "Worker",
             "XMLHttpRequest",
-            "clearInterval",
-            "clearTimeout",
             "document",
             "fetch",
             "localStorage",
@@ -216,8 +211,6 @@ function jslint(
             "navigator",
             "screen",
             "sessionStorage",
-            "setInterval",
-            "setTimeout",
             "window"
         ],
         convert: true,          // Allow conversion operators.
@@ -246,23 +239,16 @@ function jslint(
         name: true,             // Allow weird property names.
         node: [                 // Assume Node.js environment.
             "Buffer",
-            "TextDecoder",
-            "TextEncoder",
-            "URL",
             "URLSearchParams",
             "__dirname",
             "__filename",
             "clearImmediate",
-            "clearInterval",
-            "clearTimeout",
             "console",
             "exports",
             "module",
             "process",
             "require",
-            "setImmediate",
-            "setInterval",
-            "setTimeout"
+            "setImmediate"
         ],
         single: true,           // Allow single-quote strings.
         test_cause: true,       // Test jslint's causes.
@@ -302,102 +288,6 @@ function jslint(
     let mode_stop = false;      // true if JSLint cannot finish.
     let property_dict = empty();        // The object containing the tallied
                                         // ... property names.
-    let standard = [            // These are the globals that are provided by
-                                // ... the language standard.
-// node --input-type=module -e '
-// /*jslint beta node*/
-// import https from "https";
-// (async function () {
-//     var dict;
-//     var result = "";
-//     await new Promise(function (resolve) {
-//         https.get((
-//             "https://developer.mozilla.org"
-//             + "/en-US/docs/Web/JavaScript/Reference/Global_Objects"
-//         ), function (res) {
-//             res.on("data", function (chunk) {
-//                 result += chunk;
-//             }).on("end", resolve).setEncoding("utf8");
-//         });
-//     });
-//     dict = {
-//         import: true
-//     };
-//     result.replace(new RegExp((
-//         "href=\"\\/en-US\\/docs\\/Web\\/JavaScript\\/Reference"
-//         + "\\/Global_Objects\\/.*?<code>(\\w+).*?<\\/code>"
-//     ), "g"), function (ignore, key) {
-//         switch (globalThis.hasOwnProperty(key) && key) {
-//         case "escape":
-//         case "unescape":
-//         case "uneval":
-//         case false:
-//             break;
-//         default:
-//             dict[key] = true;
-//         }
-//     });
-//     console.log(JSON.stringify(Object.keys(dict).sort(), undefined, 4));
-// }());
-// '
-        "Array",
-        "ArrayBuffer",
-        "Atomics",
-        "BigInt",
-        "BigInt64Array",
-        "BigUint64Array",
-        "Boolean",
-        "DataView",
-        "Date",
-        "Error",
-        "EvalError",
-        "Float32Array",
-        "Float64Array",
-        "Function",
-        "Infinity",
-        "Int16Array",
-        "Int32Array",
-        "Int8Array",
-        "Intl",
-        "JSON",
-        "Map",
-        "Math",
-        "NaN",
-        "Number",
-        "Object",
-        "Promise",
-        "Proxy",
-        "RangeError",
-        "ReferenceError",
-        "Reflect",
-        "RegExp",
-        "Set",
-        "SharedArrayBuffer",
-        "String",
-        "Symbol",
-        "SyntaxError",
-        "TypeError",
-        "URIError",
-        "Uint16Array",
-        "Uint32Array",
-        "Uint8Array",
-        "Uint8ClampedArray",
-        "WeakMap",
-        "WeakSet",
-        "WebAssembly",
-        "decodeURI",
-        "decodeURIComponent",
-        "encodeURI",
-        "encodeURIComponent",
-        "eval",
-        "globalThis",
-        "import",
-        "isFinite",
-        "isNaN",
-        "parseFloat",
-        "parseInt",
-        "undefined"
-    ];
     let state = empty();        // jslint state-object to be passed between
                                 // jslint functions.
     let syntax_dict = empty();  // The object containing the parser.
@@ -990,15 +880,110 @@ function jslint(
 // full tokenization to precede parsing.
 
         option_dict = Object.assign(empty(), option_dict);
+
+// Assign standard ECMAScript global variables to global_dict.
+// /*jslint beta, node*/
+// import https from "https";
+// (async function () {
+//     let dict = {};
+//     let result = "";
+//     await new Promise(function (resolve) {
+//         https.get((
+//             "https://raw.githubusercontent.com/mdn/content/main/files/"
+//             + "en-us/web/javascript/reference/global_objects/index.html"
+//         ), function (res) {
+//             res.on("data", function (chunk) {
+//                 result += chunk;
+//             }).on("end", resolve).setEncoding("utf8");
+//         });
+//     });
+//     result.replace((
+//         /<li>\{\{JSxRef\("(?:Global_Objects\/)?([^"\/]+?)"/g
+//     ), function (ignore, key) {
+//         if (globalThis.hasOwnProperty(key)) {
+//             dict[key] = true;
+//         }
+//         return "";
+//     });
+//     console.log(JSON.stringify(Object.keys(dict).sort(), undefined, 4));
+// }());
+
+        object_assign_from_list(global_dict, [
+            "Array",
+            "ArrayBuffer",
+            "Atomics",
+            "BigInt",
+            "BigInt64Array",
+            "BigUint64Array",
+            "Boolean",
+            "DataView",
+            "Date",
+            "Error",
+            "EvalError",
+            "Float32Array",
+            "Float64Array",
+            "Function",
+            "Infinity",
+            "Int16Array",
+            "Int32Array",
+            "Int8Array",
+            "Intl",
+            "JSON",
+            "Map",
+            "Math",
+            "NaN",
+            "Number",
+            "Object",
+            "Promise",
+            "Proxy",
+            "RangeError",
+            "ReferenceError",
+            "Reflect",
+            "RegExp",
+            "Set",
+            "SharedArrayBuffer",
+            "String",
+            "Symbol",
+            "SyntaxError",
+            "TypeError",
+            "URIError",
+            "Uint16Array",
+            "Uint32Array",
+            "Uint8Array",
+            "Uint8ClampedArray",
+            "WeakMap",
+            "WeakSet",
+            "WebAssembly",
+            "decodeURI",
+            "decodeURIComponent",
+            "encodeURI",
+            "encodeURIComponent",
+            "eval",
+            "globalThis",
+            "isFinite",
+            "isNaN",
+            "parseFloat",
+            "parseInt",
+            "undefined",
+
+// Common globals found in both browser and nodejs.
+
+            "TextDecoder",
+            "TextEncoder",
+            "URL",
+            "clearInterval",
+            "clearTimeout",
+            "import",
+            "setInterval",
+            "setTimeout"
+        ]);
         object_assign_from_list(global_dict, global_list);
-        object_assign_from_list(global_dict, standard);
         Object.keys(option_dict).forEach(function (name) {
             const allowed = allowed_option[name];
             if (option_dict[name] === true && Array.isArray(allowed)) {
                 object_assign_from_list(global_dict, allowed);
             }
         });
-
         Object.assign(state, {
             allowed_option,
             artifact,
