@@ -47,7 +47,7 @@
     warnings, width
 */
 
-import jslint from "./jslint.mjs?cc=m9cw";
+import jslint from "./jslint.mjs?cc=l57c";
 
 // This is the web script companion file for JSLint. It includes code for
 // interacting with the browser and displaying the reports.
@@ -544,9 +544,9 @@ body {
 //     <dt>DETAIL</dt><dd>NAMES</dd>
 // </dl>
 
-    html += `<fieldset id="JSLINT_REPORT_FUNCTIONS">`;
-    html += `<legend>Report: Functions</legend>`;
-    html += `<div>`;
+    html += "<fieldset id=\"JSLINT_REPORT_FUNCTIONS\">";
+    html += "<legend>Report: Functions</legend>";
+    html += "<div>\n";
     if (json) {
 
 // Bugfix - fix website crashing when linting pure json-object.
