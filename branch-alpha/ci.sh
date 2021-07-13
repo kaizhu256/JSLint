@@ -130,6 +130,7 @@ process.exit(Number(
 import moduleFs from "fs";
 import moduleChildProcess from "child_process";
 (async function () {
+    let statJslintMjs = await moduleFs.promises.stat("jslint.mjs");
     [
         // parallel-task - screenshot files
         [
@@ -182,7 +183,9 @@ echo "\
                                  Dload  Upload   Total   Spent    Left  Speed
 100  250k  100  250k    0     0   250k      0  0:00:01 --:--:--  0:00:01  250k\
 "
-                `).trim()
+                `).trim().replace((
+                    /250/g
+                ), Math.floor(statJslintMjs.size / 1024))
             )
         ));
         moduleChildProcess.spawn(
