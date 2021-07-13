@@ -47,7 +47,7 @@
     warnings, width
 */
 
-import jslint from "./jslint.mjs?cc=1ql8";
+import jslint from "./jslint.mjs?cc=s1gm";
 
 // This is the web script companion file for JSLint. It includes code for
 // interacting with the browser and displaying the reports.
@@ -558,7 +558,7 @@ body {
             : "<div class=\"center\">JSON: bad.</div>\n"
         );
     } else if (functions.length === 0) {
-        html += `<div class="center">There are no functions.</div>`;
+        html += "<div class=\"center\">There are no functions.</div>\n";
     }
     exports = Object.keys(exports).sort();
     froms.sort();
@@ -654,8 +654,8 @@ body {
         }));
         html += "</dl>\n";
     });
-    html += `</div>`;
-    html += `</fieldset>`;
+    html += "</div>\n";
+    html += "</fieldset>\n";
     html += String(`
 <script>
 /*jslint browser*/
@@ -678,7 +678,7 @@ body {
 }());
 </script>
     `).trim();
-    html += `</div>\n`;
+    html += "</div>\n";
     return html;
 }
 
@@ -742,7 +742,7 @@ function jslint_ui_onresize() {
 // Init edition.
 
     document.querySelector("#JSLINT_EDITION").textContent = (
-        `Edition: ${jslint.edition}`
+        "Edition: " + jslint.edition
     );
 
 // Init mode_debug.
@@ -845,7 +845,8 @@ function jslint_ui_onresize() {
     window.addEventListener("load", jslint_ui_onresize);
     window.addEventListener("resize", jslint_ui_onresize);
     if (!mode_debug) {
-        editor.setValue(`#!/usr/bin/env node
+        editor.setValue(String(`
+#!/usr/bin/env node
 
 /*jslint browser, node*/
 /*global caches, indexedDb*/ //jslint-quiet
@@ -907,7 +908,7 @@ eval( //jslint-quiet
         console.error(formatted_message);
     });
 }());
-`);
+        `).trim());
     }
     if (mode_debug) {
         document.querySelector(
