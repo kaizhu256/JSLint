@@ -47,7 +47,7 @@
     warnings, width
 */
 
-import jslint from "./jslint.mjs?cc=kh9z";
+import jslint from "./jslint.mjs?cc=1ql8";
 
 // This is the web script companion file for JSLint. It includes code for
 // interacting with the browser and displaying the reports.
@@ -544,8 +544,8 @@ body {
 //     <dt>DETAIL</dt><dd>NAMES</dd>
 // </dl>
 
-    html += "<fieldset id=\"JSLINT_REPORT_FUNCTIONS\">";
-    html += "<legend>Report: Functions</legend>";
+    html += "<fieldset id=\"JSLINT_REPORT_FUNCTIONS\">\n";
+    html += "<legend>Report: Functions</legend>\n";
     html += "<div>\n";
     if (json) {
 
@@ -554,8 +554,8 @@ body {
 
         html += (
             warnings.length === 0
-            ? "<div class=\"center\">JSON: good.</div>"
-            : "<div class=\"center\">JSON: bad.</div>"
+            ? "<div class=\"center\">JSON: good.</div>\n"
+            : "<div class=\"center\">JSON: bad.</div>\n"
         );
     } else if (functions.length === 0) {
         html += `<div class="center">There are no functions.</div>`;
@@ -569,7 +569,7 @@ body {
         : "global"
     );
     if (global.length + froms.length + exports.length > 0) {
-        html += "<dl class=level0>";
+        html += "<dl class=level0>\n";
         html += detail(module, global);
         html += detail("import from", froms);
         html += detail("export", exports);
