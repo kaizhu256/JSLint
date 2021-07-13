@@ -25,11 +25,14 @@ Douglas Crockford <douglas@crockford.com>
 
 # Install
 ## To install, just download https://www.jslint.com/jslint.mjs:
-```shell
+```shell <!-- shRunWithScreenshotTxt .build/screenshot-install-download.svg -->
 #!/bin/sh
 
 curl -L https://www.jslint.com/jslint.mjs > jslint.mjs
 ```
+- shell output
+
+![screenshot.svg](https://kaizhu256.github.io/jslint/branch-alpha/.build/screenshot-install-download.svg)
 
 ## To run `jslint.mjs` from command-line:
 ```shell <!-- shRunWithScreenshotTxt .build/screenshot-install-cli-file.svg -->

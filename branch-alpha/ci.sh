@@ -174,7 +174,16 @@ import moduleChildProcess from "child_process";
                 /^/gm
             ), "> ")
             + "\n\n\n\u0027\n"
-            + script
+            + script.replace(
+                "curl -L https://www.jslint.com/jslint.mjs > jslint.mjs",
+                String(`
+printf "\
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100  250k  100  250k    0     0   250k      0  0:00:01 --:--:--  0:00:01  250k
+"
+                `).trim()
+            )
         ));
         moduleChildProcess.spawn(
             "./ci.sh",
