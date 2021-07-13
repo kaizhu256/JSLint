@@ -193,7 +193,7 @@ import moduleChildProcess from "child_process";
     });
 }());
 ' # '
-    # seo - invalidate cached-assets, inline css, and add google-analytics.
+    # seo - invalidate cached-assets and inline css
     node --input-type=module -e '
 import moduleFs from "fs";
 (async function () {
@@ -232,52 +232,11 @@ import moduleFs from "fs";
         );
     });
     fileDict["index.html"] = fileDict["index.html"].replace((
-        "\n<style id=\"#JSLINT_REPORT_STYLE\"></style>\n"
+        "\n<style class=\"JSLINT_REPORT_STYLE\"></style>\n"
     ), function () {
         return fileDict["browser.mjs"].match(
-            /\n<style\sid="#JSLINT_REPORT_STYLE">\n[\S\s]*?\n<\/style>\n/
+            /\n<style\sclass="JSLINT_REPORT_STYLE">\n[\S\s]*?\n<\/style>\n/
         )[0];
-    });
-
-// Add google-analytics.
-    fileDict["index.html"] = fileDict["index.html"].replace((
-        "\n</head>\n"
-    ), function () {
-        return (`
-<!-- Global site tag (gtag.js) - Google Analytics -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=UA-201902693-1">
-</script>
-<script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'UA-201902693-1');
-    gtag('config', 'G-08PMGLWS66');
-</script>
-</head>
-<!-- Global site tag (gtag.js) - Google Analytics -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=UA-20312845-13">
-</script>
-<script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-BFFS85EB2L');
-    gtag('config', 'UA-20312845-13');
-</script>
-</head>
-<!-- Global site tag (gtag.js) - Google Analytics -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=UA-201902693-2">
-</script>
-<script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-0150QGH89J');
-    gtag('config', 'UA-201902693-2');
-</script>
-</head>
-        `);
     });
 
 // Write file.
