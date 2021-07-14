@@ -9,7 +9,6 @@
 - jslint - add `for...of` syntax support.
 - jslint - add html and css linting back into jslint.
 - jslint - add new warning against using do-statment.
-- jslint - add new warning against redeclaring global-variables.
 - jslint - add new warning requiring paren around comma-separated concatenations.
 - jslint - add syntax-support for continue-label-statement.
 - jslint - require regexp to use open-form.
@@ -24,6 +23,7 @@
 - bugfix - fix website crashing when linting pure json-object.
 - ci - fix race-condition when inlining css.
 - jslint - add new beta-warning if functions are unordered.
+- jslint - add new warning against redefining global-variables.
 - jslint - add new warning disallowing string-literal as property-name, e.g. {`aa`:0}.
 - jslint - comment out shebang in jslint.mjs so older ios devices can use website.
 - jslint-revamp - rearrange functions in jslint.mjs to comply with ordered-functions beta-warning.

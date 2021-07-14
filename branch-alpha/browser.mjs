@@ -47,7 +47,7 @@
     warnings, width
 */
 
-import jslint from "./jslint.mjs?cc=ooqn";
+import jslint from "./jslint.mjs?cc=hdg8";
 
 // This is the web script companion file for JSLint. It includes code for
 // interacting with the browser and displaying the reports.
@@ -870,8 +870,6 @@ import jslint from \u0022./jslint.mjs\u0022;
 // .... /*jslint name*/ .......... Allow weird property names.
 // .... /*jslint node*/ .......... Assume Node.js environment.
 // .... /*jslint single*/ ........ Allow single-quote strings.
-// .... /*jslint test_internal_error*/ ... Test jslint's internal-error
-// ........................................... handling-ability.
 // .... /*jslint this*/ .......... Allow 'this'.
 // .... /*jslint unordered*/ ..... Allow unordered cases, params, properties,
 // ................................... and variables.

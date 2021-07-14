@@ -616,6 +616,9 @@ function jslint(
         case "redefinition_a_b":
             mm = `Redefinition of '${a}' from line ${b}.`;
             break;
+        case "redefinition_global_a_b":
+            mm = `Redefinition of '${a}' from global ${b} variable.`;
+            break;
         case "required_a_optional_b":
             mm = `Required parameter '${a}' after optional parameter '${b}'.`;
             break;
@@ -2453,11 +2456,11 @@ function jslint_phase2_lex(state) {
                 "URL",
                 "URLSearchParams",
                 "WebAssembly",
-                "atob",
-                "btoa",
+                // "atob",
+                // "btoa",
                 "clearInterval",
                 "clearTimeout",
-                "console",
+                // "console",
                 "performance",
                 "queueMicrotask",
                 "setInterval",
@@ -2641,8 +2644,8 @@ function jslint_phase2_lex(state) {
                 "WebAssembly",
                 "__dirname",
                 "__filename",
-                "atob",
-                "btoa",
+                // "atob",
+                // "btoa",
                 "clearImmediate",
                 "clearInterval",
                 "clearTimeout",
@@ -2894,6 +2897,7 @@ function jslint_phase3_parse(state) {
         export_dict,
         function_list,
         function_stack,
+        //!! global_dict,
         import_list,
         is_equal,
         option_dict,
@@ -3411,55 +3415,56 @@ function jslint_phase3_parse(state) {
 // function, label, parameter, or variable. We look for variable redefinition
 // because it causes confusion.
 
-        const id = name.id;
         let earlier;
 
 // Reserved words may not be enrolled.
 
-        if (syntax_dict[id] !== undefined && id !== "ignore") {
+        if (syntax_dict[name.id] !== undefined && name.id !== "ignore") {
 
 // test_cause:
 // ["let undefined", "enroll", "reserved_a", "undefined", 5]
 
             warn("reserved_a", name);
-        } else {
+            return;
+        }
 
 // Has the name been enrolled in this context?
 
-            earlier = functionage.context[id] || catchage.context[id];
-            if (earlier) {
+        earlier = functionage.context[name.id] || catchage.context[name.id];
+        if (earlier) {
 
 // test_cause:
 // ["let aa;let aa", "enroll", "redefinition_a_b", "1", 12]
 
-                warn("redefinition_a_b", name, name.id, earlier.line);
+            warn("redefinition_a_b", name, name.id, earlier.line);
+            return;
+        }
 
 // Has the name been enrolled in an outer context?
 
-            } else {
-                function_stack.forEach(function (value) {
-                    const item = value.context[id];
-                    if (item !== undefined) {
-                        earlier = item;
-                    }
-                });
-                if (earlier) {
-                    if (id === "ignore") {
-                        if (earlier.role === "variable") {
+        function_stack.forEach(function ({
+            context
+        }) {
+            if (context[name.id] !== undefined) {
+                earlier = context[name.id];
+            }
+        });
+        if (earlier && name.id === "ignore") {
+            if (earlier.role === "variable") {
 
 // test_cause:
-// ["let ignore;function aa(ignore){}", "enroll", "unexpected_a", "ignore", 24]
+// ["let ignore;function aa(ignore){}", "enroll", "redefinition_a_b", "1", 24]
 
-                            warn("unexpected_a", name);
-                        }
-                    } else {
-                        if (
-                            (
-                                role !== "exception"
-                                || earlier.role !== "exception"
-                            )
-                            && role !== "parameter" && role !== "function"
-                        ) {
+                warn("redefinition_a_b", name, name.id, earlier.line);
+            }
+        } else if (earlier) {
+            if (
+                (
+                    role !== "exception"
+                    || earlier.role !== "exception"
+                )
+                && role !== "parameter" && role !== "function"
+            ) {
 
 // test_cause:
 // ["
@@ -3467,33 +3472,25 @@ function jslint_phase3_parse(state) {
 // ", "enroll", "redefinition_a_b", "1", 31]
 // ["function aa(){var aa;}", "enroll", "redefinition_a_b", "1", 19]
 
-                            warn(
-                                "redefinition_a_b",
-                                name,
-                                name.id,
-                                earlier.line
-                            );
-                        }
-                    }
-                }
+                warn("redefinition_a_b", name, name.id, earlier.line);
+            }
+        }
 
 // Enroll it.
 
-                Object.assign(name, {
-                    dead: true,
-                    init: false,
-                    parent: (
-                        role === "exception"
-                        ? catchage
-                        : functionage
-                    ),
-                    role,
-                    used: 0,
-                    writable: !readonly
-                });
-                name.parent.context[id] = name;
-            }
-        }
+        Object.assign(name, {
+            dead: true,
+            init: false,
+            parent: (
+                role === "exception"
+                ? catchage
+                : functionage
+            ),
+            role,
+            used: 0,
+            writable: !readonly
+        });
+        name.parent.context[name.id] = name;
     }
 
     function infix(bp, id, f) {
