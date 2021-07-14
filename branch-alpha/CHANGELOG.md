@@ -22,6 +22,7 @@
 - bugfix - fix jslint not warning about function-redefinition when function is defined inside a call.
 - bugfix - fix website crashing when linting pure json-object.
 - ci - fix race-condition when inlining css.
+- doc - update README.md with links to archived web-demos.
 - jslint - add new beta-warning if functions are unordered.
 - jslint - add new warning against redefining global-variables.
 - jslint - add new warning disallowing string-literal as property-name, e.g. {`aa`:0}.

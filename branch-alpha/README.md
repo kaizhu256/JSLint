@@ -23,6 +23,11 @@ Douglas Crockford <douglas@crockford.com>
 [![screenshot](https://kaizhu256.github.io/jslint/branch-alpha/.build/screenshot-browser-_2fjslint_2fbranch-beta_2findex.html.png)](https://kaizhu256.github.io/jslint/index.html)
 
 
+# Web Demo Archived
+- https://www.jslint.com/branch-v2020.11.6/index.html
+- https://www.jslint.com/branch-v2014.7.8/jslint.html
+
+
 # Install
 ## To install, just download https://www.jslint.com/jslint.mjs:
 ```shell <!-- shRunWithScreenshotTxt .build/screenshot-install-download.svg -->

@@ -47,7 +47,7 @@
     warnings, width
 */
 
-import jslint from "./jslint.mjs?cc=cfp5";
+import jslint from "./jslint.mjs?cc=mmbv";
 
 // This is the web script companion file for JSLint. It includes code for
 // interacting with the browser and displaying the reports.
@@ -852,7 +852,7 @@ function jslint_ui_onresize() {
 /*global caches, indexedDb*/ //jslint-quiet
 
 import https from "https";
-import jslint from "./jslint.mjs?cc=cfp5";
+import jslint from "./jslint.mjs?cc=mmbv";
 
 /*jslint-disable*/
 SYNTAX ERROR.
