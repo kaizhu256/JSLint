@@ -2484,11 +2484,11 @@ function jslint_phase2_lex(state) {
             ], "development");
             break;
 
-// Assign standard ECMAScript global variables to global_dict.
+// Assign global ECMAScript variables to global_dict.
 // /*jslint beta, node*/
 // import https from "https";
 // (async function () {
-//     let dict = {};
+//     let dict = {import: true};
 //     let result = "";
 //     await new Promise(function (resolve) {
 //         https.get((
@@ -2564,33 +2564,68 @@ function jslint_phase2_lex(state) {
                 "encodeURIComponent",
                 "eval",
                 "globalThis",
+                "import",
                 "isFinite",
                 "isNaN",
                 "parseFloat",
                 "parseInt",
-                "undefined",
-
-// Misc.
-
-                "import"
+                "undefined"
             ], "ECMAScript");
             break;
+
+// Assign global Node.js variables to global_dict.
+// /*jslint beta, node*/
+// import https from "https";
+// (async function () {
+//     let dict = {};
+//     let result = "";
+//     await new Promise(function (resolve) {
+//         https.get((
+//             "https://raw.githubusercontent.com/nodejs/node/master/doc/api/"
+//             + "globals.md"
+//         ), function (res) {
+//             res.on("data", function (chunk) {
+//                 result += chunk;
+//             }).on("end", resolve).setEncoding("utf8");
+//         });
+//     });
+//     result.replace((
+//         /\n(?:\*\u0020\[`|##\u0020|##\u0020Class:\u0020)`\w+/g
+//     ), function (match0) {
+//         dict[match0.split("`")[1]] = true;
+//         return "";
+//     });
+//     console.log(JSON.stringify(Object.keys(dict).sort(), undefined, 4));
+// }());
+
         case "node":
             object_assign_from_list(global_dict, [
+                "AbortController",
                 "Buffer",
+                "Event",
+                "EventTarget",
+                "MessageChannel",
+                "MessageEvent",
+                "MessagePort",
                 "TextDecoder",
                 "TextEncoder",
                 "URL",
                 "URLSearchParams",
+                "WebAssembly",
                 "__dirname",
                 "__filename",
+                "atob",
+                "btoa",
                 "clearImmediate",
                 "clearInterval",
                 "clearTimeout",
                 "console",
                 "exports",
+                "global",
                 "module",
+                "performance",
                 "process",
+                "queueMicrotask",
                 "require",
                 "setImmediate",
                 "setInterval",
