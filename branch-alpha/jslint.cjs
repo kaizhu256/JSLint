@@ -2495,8 +2495,8 @@ function jslint_phase2_lex(state) {
                 "navigator",
                 // "screen",
                 "sessionStorage",
-                "setInterval",
-                "setTimeout",
+                // "setInterval",
+                // "setTimeout",
                 "window"
             ], "browser");
             break;
