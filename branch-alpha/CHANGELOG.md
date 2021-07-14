@@ -22,9 +22,11 @@
 - bugfix - fix jslint not warning about function-redefinition when function is defined inside a call.
 - bugfix - fix website crashing when linting pure json-object.
 - ci - fix race-condition when inlining css.
-- compat - allow alternative/jshint/legacy directives:
-    - `/*globals ...*/`
+- compat - allow aliasing alternative/jshint/legacy directives:
     - `... /*jslint-quiet*/`
+    - `/*globals ...*/`
+    - `/*jslint evil*/`
+    - `/*jslint nomen*/`
     - `/*member ...*/`
     - `/*members ...*/`
     - `/*properties ...*/`

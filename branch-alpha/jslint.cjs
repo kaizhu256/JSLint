@@ -1615,12 +1615,12 @@ function jslint_phase2_lex(state) {
             case "property":
 
 // test_cause:
-// ["/*member aa*/", "lex_comment", "directive", "member", 0]
-// ["/*members aa*/", "lex_comment", "directive", "members", 0]
-// ["/*properties aa*/", "lex_comment", "directive", "properties", 0]
-// ["/*property aa*/", "lex_comment", "directive", "property", 0]
+// ["/*member aa*/", "lex_comment", "directive_property", "member", 0]
+// ["/*members aa*/", "lex_comment", "directive_property", "members", 0]
+// ["/*properties aa*/", "lex_comment", "directive_property", "properties", 0]
+// ["/*property aa*/", "lex_comment", "directive_property", "property", 0]
 
-                test_cause("directive", the_comment.directive);
+                test_cause("directive_property", the_comment.directive);
                 state.mode_property = true;
                 tenure[key] = true;
                 break;
@@ -2433,11 +2433,17 @@ function jslint_phase2_lex(state) {
         case "variable":        // Allow unordered const and let declarations
                                 // ... that are not at top of function-scope.
         case "white":           // Allow messy whitespace.
-            option_dict[key] = val;
+            break;
+        case "evil":            // Alias to 'eval'.
+            key = "eval";
+            break;
+        case "nomen":           // Alias to 'name'.
+            key = "name";
             break;
         default:
             return false;
         }
+        option_dict[key] = val;
 
 // Initialize global-variables.
 
