@@ -1450,10 +1450,7 @@ function jslint_phase2_lex(state) {
         let body;
         let ii = 0;
         let jj = 0;
-        let key;
-        let match;
         let the_comment;
-        let val;
 
 // Create a comment object. Comments are not allowed in JSON text. Comments can
 // include directives and notices of incompletion.
@@ -1487,21 +1484,19 @@ function jslint_phase2_lex(state) {
 // Lex/loop through each line until "*/".
 
             while (true) {
-                if (line_source > "") {
-                    // rx_star_slash
-                    ii = line_source.indexOf("*/");
-                    if (ii >= 0) {
-                        break;
-                    }
-                    // rx_slash_star
-                    jj = line_source.indexOf("/*");
-                    if (jj >= 0) {
+                // rx_star_slash
+                ii = line_source.indexOf("*/");
+                if (ii >= 0) {
+                    break;
+                }
+                // rx_slash_star
+                ii = line_source.indexOf("/*");
+                if (ii >= 0) {
 
 // test_cause:
 // ["/*/*", "lex_comment", "nested_comment", "", 2]
 
-                        warn_at("nested_comment", line, column + jj);
-                    }
+                    warn_at("nested_comment", line, column + ii);
                 }
                 snippet.push(line_source);
                 line_source = read_line();
@@ -1575,36 +1570,24 @@ function jslint_phase2_lex(state) {
 
 // Lex/loop through each directive in /*...*/
 
-        while (true) {
-            match = body.match(
-                // rx_directive_part
-                /^([a-zA-Z$_][a-zA-Z0-9$_]*)(?::\s*(true|false))?,?\s*(.*)$/
-            );
-            if (!match) {
-                if (body) {
+        ii = 0;
+        body.replace((
+            // rx_directive_part
+            /([a-zA-Z$_][a-zA-Z0-9$_]*)(?::\s*(true|false))?,?\s*|$/g
+        ), function (match0, key, val, jj) {
+            if (ii !== jj) {
 
 // test_cause:
 // ["/*jslint !*/", "lex_comment", "bad_directive_a", "!", 1]
 
-                    return stop("bad_directive_a", the_comment, body);
-                }
-                break;
+                return stop("bad_directive_a", the_comment, body.slice(ii));
             }
-            [
-                key, val, body
-            ] = match.slice(1);
-            if (the_comment.directive === "jslint") {
-                if (!option_dict_set(key, val !== "false")) {
-
-// test_cause:
-// ["/*jslint undefined*/", "lex_comment", "bad_option_a", "undefined", 1]
-
-                    warn("bad_option_a", the_comment, key);
-                }
-            } else if (the_comment.directive === "property") {
-                state.mode_property = true;
-                tenure[key] = true;
-            } else if (the_comment.directive === "global") {
+            if (match0 === "") {
+                return;
+            }
+            ii += match0.length;
+            switch (the_comment.directive) {
+            case "global":
                 if (val) {
 
 // test_cause:
@@ -1614,8 +1597,23 @@ function jslint_phase2_lex(state) {
                 }
                 global_dict[key] = "user-defined";
                 state.mode_module = the_comment;
+                break;
+            case "jslint":
+                if (!option_dict_set(key, val !== "false")) {
+
+// test_cause:
+// ["/*jslint undefined*/", "lex_comment", "bad_option_a", "undefined", 1]
+
+                    warn("bad_option_a", the_comment, key);
+                }
+                break;
+            case "property":
+                state.mode_property = true;
+                tenure[key] = true;
+                break;
             }
-        }
+            return "";
+        });
         return the_comment;
     }
 
