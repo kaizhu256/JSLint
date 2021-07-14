@@ -6432,33 +6432,34 @@ function jslint_phase4_walk(state) {
 
     function lookup(thing) {
         let the_variable;
-        if (thing.arity === "variable") {
+        if (thing.arity !== "variable") {
+            return;
+        }
 
 // Look up the variable in the current context.
 
-            the_variable = (
-                functionage.context[thing.id] || catchage.context[thing.id]
-            );
+        the_variable = (
+            functionage.context[thing.id] || catchage.context[thing.id]
+        );
 
 // If it isn't local, search all the other contexts. If there are name
 // collisions, take the most recent.
 
-            if (the_variable === undefined) {
-                function_stack.forEach(function (outer) {
-                    const a_variable = outer.context[thing.id];
-                    if (
-                        a_variable !== undefined
-                        && a_variable.role !== "label"
-                    ) {
-                        the_variable = a_variable;
-                    }
-                });
+        if (the_variable === undefined) {
+            function_stack.forEach(function (outer) {
+                let a_variable = outer.context[thing.id];
+                if (a_variable !== undefined && a_variable.role !== "label") {
+                    the_variable = a_variable;
+                }
+            });
 
 // If it isn't in any of those either, perhaps it is a predefined global.
 // If so, add it to the global context.
 
-                if (the_variable === undefined) {
-                    if (global_dict[thing.id] === undefined) {
+            if (
+                the_variable === undefined
+                && global_dict[thing.id] === undefined
+            ) {
 
 // test_cause:
 // ["aa", "lookup", "undeclared_a", "aa", 1]
@@ -6470,45 +6471,45 @@ function jslint_phase4_walk(state) {
 // let aa=0;try{aa();}catch(ignore){bb();}
 // ", "lookup", "undeclared_a", "bb", 34]
 
-                        warn("undeclared_a", thing);
-                        return;
-                    }
-                    the_variable = {
-                        dead: false,
-                        id: thing.id,
-                        init: true,
-                        parent: token_global,
-                        readonly: true,
-                        role: "variable",
-                        used: 0
-                    };
-                    token_global.context[thing.id] = the_variable;
-                }
-                the_variable.closure = true;
-                functionage.context[thing.id] = the_variable;
-            } else if (the_variable.role === "label") {
+                warn("undeclared_a", thing);
+                return;
+            }
+            if (the_variable === undefined) {
+                the_variable = {
+                    dead: false,
+                    id: thing.id,
+                    init: true,
+                    parent: token_global,
+                    readonly: true,
+                    role: "variable",
+                    used: 0
+                };
+                token_global.context[thing.id] = the_variable;
+            }
+            the_variable.closure = true;
+            functionage.context[thing.id] = the_variable;
+        } else if (the_variable.role === "label") {
 
 // test_cause:
 // ["aa:while(0){aa;}", "lookup", "label_a", "aa", 13]
 
-                warn("label_a", thing);
-            }
-            if (
-                (
-                    the_variable.calls === undefined
-                    || functionage.name === undefined
-                    || the_variable.calls[functionage.name.id] === undefined
-                )
-                && the_variable.dead
-            ) {
+            warn("label_a", thing);
+        }
+        if (
+            (
+                the_variable.calls === undefined
+                || functionage.name === undefined
+                || the_variable.calls[functionage.name.id] === undefined
+            )
+            && the_variable.dead
+        ) {
 
 // test_cause:
 // ["let aa;if(aa){let bb;}bb;", "lookup", "out_of_scope_a", "bb", 23]
 
-                warn("out_of_scope_a", thing);
-            }
-            return the_variable;
+            warn("out_of_scope_a", thing);
         }
+        return the_variable;
     }
 
     function post_a(thing) {
