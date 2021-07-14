@@ -47,7 +47,7 @@
     warnings, width
 */
 
-import jslint from "./jslint.mjs?cc=p56e";
+import jslint from "./jslint.mjs?cc=tvqf";
 
 // This is the web script companion file for JSLint. It includes code for
 // interacting with the browser and displaying the reports.
@@ -852,7 +852,7 @@ function jslint_ui_onresize() {
 /*global caches, indexedDb*/ //jslint-quiet
 
 import https from "https";
-import jslint from "./jslint.mjs?cc=p56e";
+import jslint from "./jslint.mjs?cc=tvqf";
 
 /*jslint-disable*/
 SYNTAX ERROR.
@@ -867,7 +867,6 @@ eval("console.log(\\"hello world\\");"); //jslint-quiet
 // .... /*jslint convert*/ ....... Allow conversion operators.
 // .... /*jslint debug*/ ......... Include jslint stack-trace in warnings.
 // .... /*jslint devel*/ ......... Allow console.log() and friends.
-// .... /*jslint eval*/ .......... Allow eval().
 // .... /*jslint for*/ ........... Allow for-statement.
 // .... /*jslint getset*/ ........ Allow get() and set().
 // .... /*jslint indent2*/ ....... Use 2-space indent.
