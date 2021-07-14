@@ -122,7 +122,7 @@
     tenure, test, test_internal_error, this, thru, token, token_global,
     token_list, token_nxt, token_tree, tokens, tree, trim, trimRight, try, type,
     unordered, url, used, value, variable, versions, warn, warn_at, warning,
-    warning_list, warnings, white, wrapped, writable
+    warning_list, warnings, white, wrapped, readonly
 */
 
 let jslint_charset_ascii = (
@@ -3428,10 +3428,11 @@ function jslint_phase3_parse(state) {
 // because it causes confusion.
 
         let earlier;
+        let id = name.id;
 
 // Reserved words may not be enrolled.
 
-        if (syntax_dict[name.id] !== undefined && name.id !== "ignore") {
+        if (syntax_dict[id] !== undefined && id !== "ignore") {
 
 // test_cause:
 // ["let undefined", "enroll", "reserved_a", "undefined", 5]
@@ -3442,13 +3443,13 @@ function jslint_phase3_parse(state) {
 
 // Has the name been enrolled in this context?
 
-        earlier = functionage.context[name.id] || catchage.context[name.id];
+        earlier = functionage.context[id] || catchage.context[id];
         if (earlier) {
 
 // test_cause:
 // ["let aa;let aa", "enroll", "redefinition_a_b", "1", 12]
 
-            warn("redefinition_a_b", name, name.id, earlier.line);
+            warn("redefinition_a_b", name, id, earlier.line);
             return;
         }
 
@@ -3457,17 +3458,15 @@ function jslint_phase3_parse(state) {
         function_stack.forEach(function ({
             context
         }) {
-            if (context[name.id] !== undefined) {
-                earlier = context[name.id];
-            }
+            earlier = context[id] || earlier;
         });
-        if (earlier && name.id === "ignore") {
+        if (earlier && id === "ignore") {
             if (earlier.role === "variable") {
 
 // test_cause:
 // ["let ignore;function aa(ignore){}", "enroll", "redefinition_a_b", "1", 24]
 
-                warn("redefinition_a_b", name, name.id, earlier.line);
+                warn("redefinition_a_b", name, id, earlier.line);
             }
         } else if (
             earlier
@@ -3481,18 +3480,13 @@ function jslint_phase3_parse(state) {
 // ", "enroll", "redefinition_a_b", "1", 31]
 // ["function aa(){var aa;}", "enroll", "redefinition_a_b", "1", 19]
 
-            warn("redefinition_a_b", name, name.id, earlier.line);
-        } else if (global_dict[name.id] && role !== "parameter") {
+            warn("redefinition_a_b", name, id, earlier.line);
+        } else if (global_dict[id] && role !== "parameter") {
 
 // test_cause:
 // ["let Array", "enroll", "redefinition_global_a_b", "Array", 5]
 
-            warn(
-                "redefinition_global_a_b",
-                name,
-                global_dict[name.id],
-                name.id
-            );
+            warn("redefinition_global_a_b", name, global_dict[id], id);
         }
 
 // Enroll it.
@@ -3505,11 +3499,11 @@ function jslint_phase3_parse(state) {
                 ? catchage
                 : functionage
             ),
+            readonly,
             role,
-            used: 0,
-            writable: !readonly
+            used: 0
         });
-        name.parent.context[name.id] = name;
+        name.parent.context[id] = name;
     }
 
     function infix(bp, id, f) {
@@ -3531,8 +3525,7 @@ function jslint_phase3_parse(state) {
 
     function infix_dot(left) {
         const the_token = token_now;
-        let name;
-        name = token_nxt;
+        let name = token_nxt;
         if (
             (
                 left.id !== "(string)"
@@ -6432,11 +6425,9 @@ function jslint_phase4_walk(state) {
 
     function init_variable(name) {
         const the_variable = lookup(name);
-        if (the_variable !== undefined) {
-            if (the_variable.writable) {
-                the_variable.init = true;
-                return;
-            }
+        if (the_variable && !the_variable.readonly) {
+            the_variable.init = true;
+            return;
         }
         warn("bad_assignment_a", name);
     }
@@ -6489,9 +6480,9 @@ function jslint_phase4_walk(state) {
                         id: thing.id,
                         init: true,
                         parent: token_global,
+                        readonly: true,
                         role: "variable",
-                        used: 0,
-                        writable: false
+                        used: 0
                     };
                     token_global.context[thing.id] = the_variable;
                 }
@@ -6575,7 +6566,7 @@ function jslint_phase4_walk(state) {
             }
         } else {
             if (lvalue.arity === "variable") {
-                if (!lvalue.variable || lvalue.variable.writable !== true) {
+                if (!lvalue.variable || lvalue.variable.readonly) {
                     warn("bad_assignment_a", lvalue);
                 }
             }
@@ -7339,7 +7330,7 @@ function jslint_phase4_walk(state) {
             the_variable = lookup(thing.name);
             if (the_variable !== undefined) {
                 the_variable.init = true;
-                if (!the_variable.writable) {
+                if (the_variable.readonly) {
 
 // test_cause:
 // ["const aa=0;for(aa in aa){}", "pre_s_for", "bad_assignment_a", "aa", 16]
