@@ -303,10 +303,10 @@ body {
 <pre><span class="lineno"><a href="#line_174" id="line_174">  174.</a></span><span class="count                ">    601</span><span>function jslint(</span></pre>
 <pre><span class="lineno"><a href="#line_175" id="line_175">  175.</a></span><span class="count                ">    601</span><span>    source = &quot;&quot;,                // A text to analyze.</span></pre>
 <pre><span class="lineno"><a href="#line_176" id="line_176">  176.</a></span><span class="count                ">    601</span><span>    option_dict = empty(),      // An object whose keys correspond to option</span></pre>
-<pre><span class="lineno"><a href="#line_177" id="line_177">  177.</a></span><span class="count                ">    601</span><span>                                // .... names.</span></pre>
+<pre><span class="lineno"><a href="#line_177" id="line_177">  177.</a></span><span class="count                ">    601</span><span>                                // ... names.</span></pre>
 <pre><span class="lineno"><a href="#line_178" id="line_178">  178.</a></span><span class="count                ">    601</span><span>    global_list = []            // An array of strings containing global</span></pre>
-<pre><span class="lineno"><a href="#line_179" id="line_179">  179.</a></span><span class="count                ">    601</span><span>                                // .... variables that the file is allowed</span></pre>
-<pre><span class="lineno"><a href="#line_180" id="line_180">  180.</a></span><span class="count                ">    601</span><span>                                // .... readonly access.</span></pre>
+<pre><span class="lineno"><a href="#line_179" id="line_179">  179.</a></span><span class="count                ">    601</span><span>                                // ... variables that the file is allowed</span></pre>
+<pre><span class="lineno"><a href="#line_180" id="line_180">  180.</a></span><span class="count                ">    601</span><span>                                // ... readonly access.</span></pre>
 <pre><span class="lineno"><a href="#line_181" id="line_181">  181.</a></span><span class="count                ">    601</span><span>) {</span></pre>
 <pre><span class="lineno"><a href="#line_182" id="line_182">  182.</a></span><span class="count                ">    601</span><span></span></pre>
 <pre><span class="lineno"><a href="#line_183" id="line_183">  183.</a></span><span class="count                ">    601</span><span>// The jslint function itself.</span></pre>
@@ -322,7 +322,7 @@ body {
 <pre><span class="lineno"><a href="#line_193" id="line_193">  193.</a></span><span class="count                ">    601</span><span>    let function_list = [];     // The array containing all functions.</span></pre>
 <pre><span class="lineno"><a href="#line_194" id="line_194">  194.</a></span><span class="count                ">    601</span><span>    let function_stack = [];    // The stack of functions.</span></pre>
 <pre><span class="lineno"><a href="#line_195" id="line_195">  195.</a></span><span class="count                ">    601</span><span>    let global_dict = empty();  // The object containing the global</span></pre>
-<pre><span class="lineno"><a href="#line_196" id="line_196">  196.</a></span><span class="count                ">    601</span><span>                                // .... declarations.</span></pre>
+<pre><span class="lineno"><a href="#line_196" id="line_196">  196.</a></span><span class="count                ">    601</span><span>                                // ... declarations.</span></pre>
 <pre><span class="lineno"><a href="#line_197" id="line_197">  197.</a></span><span class="count                ">    601</span><span>    let import_list = [];       // The array collecting all import-from strings.</span></pre>
 <pre><span class="lineno"><a href="#line_198" id="line_198">  198.</a></span><span class="count                ">    601</span><span>    let line_list = String(     // The array containing source lines.</span></pre>
 <pre><span class="lineno"><a href="#line_199" id="line_199">  199.</a></span><span class="count                ">    601</span><span>        &quot;\n&quot; + source</span></pre>
@@ -336,7 +336,7 @@ body {
 <pre><span class="lineno"><a href="#line_207" id="line_207">  207.</a></span><span class="count                ">  62837</span><span>    });</span></pre>
 <pre><span class="lineno"><a href="#line_208" id="line_208">  208.</a></span><span class="count                ">    601</span><span>    let mode_stop = false;      // true if JSLint cannot finish.</span></pre>
 <pre><span class="lineno"><a href="#line_209" id="line_209">  209.</a></span><span class="count                ">    601</span><span>    let property_dict = empty();        // The object containing the tallied</span></pre>
-<pre><span class="lineno"><a href="#line_210" id="line_210">  210.</a></span><span class="count                ">    601</span><span>                                        // .... property names.</span></pre>
+<pre><span class="lineno"><a href="#line_210" id="line_210">  210.</a></span><span class="count                ">    601</span><span>                                        // ... property names.</span></pre>
 <pre><span class="lineno"><a href="#line_211" id="line_211">  211.</a></span><span class="count                ">    601</span><span>    let state = empty();        // jslint state-object to be passed between</span></pre>
 <pre><span class="lineno"><a href="#line_212" id="line_212">  212.</a></span><span class="count                ">    601</span><span>                                // jslint functions.</span></pre>
 <pre><span class="lineno"><a href="#line_213" id="line_213">  213.</a></span><span class="count                ">    601</span><span>    let syntax_dict = empty();  // The object containing the parser.</span></pre>
@@ -1407,9 +1407,9 @@ body {
 <pre><span class="lineno"><a href="#line_1278" id="line_1278"> 1278.</a></span><span class="count                ">    601</span><span>    let line_whole = &quot;&quot;;        // The whole line source string.</span></pre>
 <pre><span class="lineno"><a href="#line_1279" id="line_1279"> 1279.</a></span><span class="count                ">    601</span><span>    let mode_directive = true;  // true if directives are still allowed.</span></pre>
 <pre><span class="lineno"><a href="#line_1280" id="line_1280"> 1280.</a></span><span class="count                ">    601</span><span>    let mode_mega = false;      // true if currently parsing a megastring</span></pre>
-<pre><span class="lineno"><a href="#line_1281" id="line_1281"> 1281.</a></span><span class="count                ">    601</span><span>                                // .... literal.</span></pre>
+<pre><span class="lineno"><a href="#line_1281" id="line_1281"> 1281.</a></span><span class="count                ">    601</span><span>                                // ... literal.</span></pre>
 <pre><span class="lineno"><a href="#line_1282" id="line_1282"> 1282.</a></span><span class="count                ">    601</span><span>    let mode_regexp;            // true if regular expression literal seen on</span></pre>
-<pre><span class="lineno"><a href="#line_1283" id="line_1283"> 1283.</a></span><span class="count                ">    601</span><span>                                // .... this line.</span></pre>
+<pre><span class="lineno"><a href="#line_1283" id="line_1283"> 1283.</a></span><span class="count                ">    601</span><span>                                // ... this line.</span></pre>
 <pre><span class="lineno"><a href="#line_1284" id="line_1284"> 1284.</a></span><span class="count                ">    601</span><span>    let rx_digits = (</span></pre>
 <pre><span class="lineno"><a href="#line_1285" id="line_1285"> 1285.</a></span><span class="count                ">    601</span><span>        /^[0-9]*/</span></pre>
 <pre><span class="lineno"><a href="#line_1286" id="line_1286"> 1286.</a></span><span class="count                ">    601</span><span>    );</span></pre>
@@ -1442,9 +1442,9 @@ body {
 <pre><span class="lineno"><a href="#line_1313" id="line_1313"> 1313.</a></span><span class="count                ">    601</span><span>    let snippet = &quot;&quot;;           // A piece of string.</span></pre>
 <pre><span class="lineno"><a href="#line_1314" id="line_1314"> 1314.</a></span><span class="count                ">    601</span><span>    let token_1;                // The first token.</span></pre>
 <pre><span class="lineno"><a href="#line_1315" id="line_1315"> 1315.</a></span><span class="count                ">    601</span><span>    let token_prv = token_global;       // The previous token including</span></pre>
-<pre><span class="lineno"><a href="#line_1316" id="line_1316"> 1316.</a></span><span class="count                ">    601</span><span>                                        // .... comments.</span></pre>
+<pre><span class="lineno"><a href="#line_1316" id="line_1316"> 1316.</a></span><span class="count                ">    601</span><span>                                        // ... comments.</span></pre>
 <pre><span class="lineno"><a href="#line_1317" id="line_1317"> 1317.</a></span><span class="count                ">    601</span><span>    let token_prv_expr = token_global;  // The previous token excluding</span></pre>
-<pre><span class="lineno"><a href="#line_1318" id="line_1318"> 1318.</a></span><span class="count                ">    601</span><span>                                        // .... comments.</span></pre>
+<pre><span class="lineno"><a href="#line_1318" id="line_1318"> 1318.</a></span><span class="count                ">    601</span><span>                                        // ... comments.</span></pre>
 <pre><span class="lineno"><a href="#line_1319" id="line_1319"> 1319.</a></span><span class="count                ">    601</span><span></span></pre>
 <pre><span class="lineno"><a href="#line_1320" id="line_1320"> 1320.</a></span><span class="count                ">    601</span><span>// Most tokens, including the identifiers, operators, and punctuators, can be</span></pre>
 <pre><span class="lineno"><a href="#line_1321" id="line_1321"> 1321.</a></span><span class="count                ">    601</span><span>// found with a regular expression. Regular expressions cannot correctly match</span></pre>
@@ -2540,12 +2540,12 @@ body {
 <pre><span class="lineno"><a href="#line_2411" id="line_2411"> 2411.</a></span><span class="count                ">    175</span><span>        case &quot;single&quot;:          // Allow single-quote strings.</span></pre>
 <pre><span class="lineno"><a href="#line_2412" id="line_2412"> 2412.</a></span><span class="count                ">    667</span><span>        case &quot;test_cause&quot;:      // Test jslint&apos;s causes.</span></pre>
 <pre><span class="lineno"><a href="#line_2413" id="line_2413"> 2413.</a></span><span class="count                ">    668</span><span>        case &quot;test_internal_error&quot;:     // Test jslint&apos;s internal-error</span></pre>
-<pre><span class="lineno"><a href="#line_2414" id="line_2414"> 2414.</a></span><span class="count                ">    703</span><span>                                        // .... handling-ability.</span></pre>
+<pre><span class="lineno"><a href="#line_2414" id="line_2414"> 2414.</a></span><span class="count                ">    703</span><span>                                        // ... handling-ability.</span></pre>
 <pre><span class="lineno"><a href="#line_2415" id="line_2415"> 2415.</a></span><span class="count                ">    670</span><span>        case &quot;this&quot;:            // Allow &apos;this&apos;.</span></pre>
 <pre><span class="lineno"><a href="#line_2416" id="line_2416"> 2416.</a></span><span class="count                ">    674</span><span>        case &quot;unordered&quot;:       // Allow unordered cases, params, properties,</span></pre>
-<pre><span class="lineno"><a href="#line_2417" id="line_2417"> 2417.</a></span><span class="count                ">    703</span><span>                                // .... and variables.</span></pre>
+<pre><span class="lineno"><a href="#line_2417" id="line_2417"> 2417.</a></span><span class="count                ">    703</span><span>                                // ... and variables.</span></pre>
 <pre><span class="lineno"><a href="#line_2418" id="line_2418"> 2418.</a></span><span class="count                ">    678</span><span>        case &quot;variable&quot;:        // Allow unordered const and let declarations</span></pre>
-<pre><span class="lineno"><a href="#line_2419" id="line_2419"> 2419.</a></span><span class="count                ">    703</span><span>                                // .... that are not at top of function-scope.</span></pre>
+<pre><span class="lineno"><a href="#line_2419" id="line_2419"> 2419.</a></span><span class="count                ">    703</span><span>                                // ... that are not at top of function-scope.</span></pre>
 <pre><span class="lineno"><a href="#line_2420" id="line_2420"> 2420.</a></span><span class="count                ">    680</span><span>        case &quot;white&quot;:           // Allow messy whitespace.</span></pre>
 <pre><span class="lineno"><a href="#line_2421" id="line_2421"> 2421.</a></span><span class="count                ">    680</span><span>            option_dict[key] = val;</span></pre>
 <pre><span class="lineno"><a href="#line_2422" id="line_2422"> 2422.</a></span><span class="count                ">    680</span><span>            break;</span></pre>
@@ -2986,9 +2986,9 @@ body {
 <pre><span class="lineno"><a href="#line_2857" id="line_2857"> 2857.</a></span><span class="count                ">    564</span><span>    );</span></pre>
 <pre><span class="lineno"><a href="#line_2858" id="line_2858"> 2858.</a></span><span class="count                ">    564</span><span>    let token_ii = 0;           // The number of the next token.</span></pre>
 <pre><span class="lineno"><a href="#line_2859" id="line_2859"> 2859.</a></span><span class="count                ">    564</span><span>    let token_now = token_global;       // The current token being examined in</span></pre>
-<pre><span class="lineno"><a href="#line_2860" id="line_2860"> 2860.</a></span><span class="count                ">    564</span><span>                                        // .... the parse.</span></pre>
+<pre><span class="lineno"><a href="#line_2860" id="line_2860"> 2860.</a></span><span class="count                ">    564</span><span>                                        // ... the parse.</span></pre>
 <pre><span class="lineno"><a href="#line_2861" id="line_2861"> 2861.</a></span><span class="count                ">    564</span><span>    let token_nxt = token_global;       // The next token to be examined in</span></pre>
-<pre><span class="lineno"><a href="#line_2862" id="line_2862"> 2862.</a></span><span class="count                ">    564</span><span>                                        // .... &lt;token_list&gt;.</span></pre>
+<pre><span class="lineno"><a href="#line_2862" id="line_2862"> 2862.</a></span><span class="count                ">    564</span><span>                                        // ... &lt;token_list&gt;.</span></pre>
 <pre><span class="lineno"><a href="#line_2863" id="line_2863"> 2863.</a></span><span class="count                ">    564</span><span></span></pre>
 <pre><span class="lineno"><a href="#line_2864" id="line_2864"> 2864.</a></span><span class="count                "> 171595</span><span>    function advance(id, match) {</span></pre>
 <pre><span class="lineno"><a href="#line_2865" id="line_2865"> 2865.</a></span><span class="count                "> 171595</span><span></span></pre>
@@ -7631,8 +7631,8 @@ body {
 <pre><span class="lineno"><a href="#line_7502" id="line_7502"> 7502.</a></span><span class="count                ">    162</span><span>    let opening = true;</span></pre>
 <pre><span class="lineno"><a href="#line_7503" id="line_7503"> 7503.</a></span><span class="count                ">    162</span><span>    let right;</span></pre>
 <pre><span class="lineno"><a href="#line_7504" id="line_7504"> 7504.</a></span><span class="count                ">    162</span><span>    let spaceop = Object.assign(        // This is the set of infix operators</span></pre>
-<pre><span class="lineno"><a href="#line_7505" id="line_7505"> 7505.</a></span><span class="count                ">    162</span><span>                                        // .... that require a space on each</span></pre>
-<pre><span class="lineno"><a href="#line_7506" id="line_7506"> 7506.</a></span><span class="count                ">    162</span><span>                                        // .... side.</span></pre>
+<pre><span class="lineno"><a href="#line_7505" id="line_7505"> 7505.</a></span><span class="count                ">    162</span><span>                                        // ... that require a space on each</span></pre>
+<pre><span class="lineno"><a href="#line_7506" id="line_7506"> 7506.</a></span><span class="count                ">    162</span><span>                                        // ... side.</span></pre>
 <pre><span class="lineno"><a href="#line_7507" id="line_7507"> 7507.</a></span><span class="count                ">    162</span><span>        empty(),</span></pre>
 <pre><span class="lineno"><a href="#line_7508" id="line_7508"> 7508.</a></span><span class="count                ">    162</span><span>        {</span></pre>
 <pre><span class="lineno"><a href="#line_7509" id="line_7509"> 7509.</a></span><span class="count                ">    162</span><span>            &quot;!=&quot;: true,</span></pre>

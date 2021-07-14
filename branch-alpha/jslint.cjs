@@ -174,10 +174,10 @@ function identity(val) {
 function jslint(
     source = "",                // A text to analyze.
     option_dict = empty(),      // An object whose keys correspond to option
-                                // .... names.
+                                // ... names.
     global_list = []            // An array of strings containing global
-                                // .... variables that the file is allowed
-                                // .... readonly access.
+                                // ... variables that the file is allowed
+                                // ... readonly access.
 ) {
 
 // The jslint function itself.
@@ -193,7 +193,7 @@ function jslint(
     let function_list = [];     // The array containing all functions.
     let function_stack = [];    // The stack of functions.
     let global_dict = empty();  // The object containing the global
-                                // .... declarations.
+                                // ... declarations.
     let import_list = [];       // The array collecting all import-from strings.
     let line_list = String(     // The array containing source lines.
         "\n" + source
@@ -207,7 +207,7 @@ function jslint(
     });
     let mode_stop = false;      // true if JSLint cannot finish.
     let property_dict = empty();        // The object containing the tallied
-                                        // .... property names.
+                                        // ... property names.
     let state = empty();        // jslint state-object to be passed between
                                 // jslint functions.
     let syntax_dict = empty();  // The object containing the parser.
@@ -1278,9 +1278,9 @@ function jslint_phase2_lex(state) {
     let line_whole = "";        // The whole line source string.
     let mode_directive = true;  // true if directives are still allowed.
     let mode_mega = false;      // true if currently parsing a megastring
-                                // .... literal.
+                                // ... literal.
     let mode_regexp;            // true if regular expression literal seen on
-                                // .... this line.
+                                // ... this line.
     let rx_digits = (
         /^[0-9]*/
     );
@@ -1313,9 +1313,9 @@ function jslint_phase2_lex(state) {
     let snippet = "";           // A piece of string.
     let token_1;                // The first token.
     let token_prv = token_global;       // The previous token including
-                                        // .... comments.
+                                        // ... comments.
     let token_prv_expr = token_global;  // The previous token excluding
-                                        // .... comments.
+                                        // ... comments.
 
 // Most tokens, including the identifiers, operators, and punctuators, can be
 // found with a regular expression. Regular expressions cannot correctly match
@@ -2411,12 +2411,12 @@ function jslint_phase2_lex(state) {
         case "single":          // Allow single-quote strings.
         case "test_cause":      // Test jslint's causes.
         case "test_internal_error":     // Test jslint's internal-error
-                                        // .... handling-ability.
+                                        // ... handling-ability.
         case "this":            // Allow 'this'.
         case "unordered":       // Allow unordered cases, params, properties,
-                                // .... and variables.
+                                // ... and variables.
         case "variable":        // Allow unordered const and let declarations
-                                // .... that are not at top of function-scope.
+                                // ... that are not at top of function-scope.
         case "white":           // Allow messy whitespace.
             option_dict[key] = val;
             break;
@@ -2857,9 +2857,9 @@ function jslint_phase3_parse(state) {
     );
     let token_ii = 0;           // The number of the next token.
     let token_now = token_global;       // The current token being examined in
-                                        // .... the parse.
+                                        // ... the parse.
     let token_nxt = token_global;       // The next token to be examined in
-                                        // .... <token_list>.
+                                        // ... <token_list>.
 
     function advance(id, match) {
 
@@ -7502,8 +7502,8 @@ function jslint_phase5_whitage(state) {
     let opening = true;
     let right;
     let spaceop = Object.assign(        // This is the set of infix operators
-                                        // .... that require a space on each
-                                        // .... side.
+                                        // ... that require a space on each
+                                        // ... side.
         empty(),
         {
             "!=": true,
