@@ -25,6 +25,7 @@
 - jslint - add new beta-warning if functions are unordered.
 - jslint - add new warning against redefining global-variables.
 - jslint - add new warning disallowing string-literal as property-name, e.g. {`aa`:0}.
+- compat - allow legacy directives `/*member ...*/`, `/*members ...*/`, `/*properties ...*/`
 - jslint - comment out shebang in jslint.mjs so older ios devices can use website.
 - jslint - deprecate directive `/*jslint eval*/` - use `//jslint-quiet` instead.
 - jslint-revamp - rearrange functions in jslint.mjs to comply with ordered-functions beta-warning.

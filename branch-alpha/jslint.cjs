@@ -1548,7 +1548,7 @@ function jslint_phase2_lex(state) {
             the_comment.directive, body
         ] = Array.from(snippet.match(
             // rx_directive
-            /^(jslint|property|global)\s+(.*)$/
+            /^(jslint|member|members|properties|property|global|globals)\s+(.*)$/
         ) || []).slice(1);
         if (the_comment.directive === undefined) {
             return the_comment;
@@ -1588,10 +1588,12 @@ function jslint_phase2_lex(state) {
             ii += match0.length;
             switch (the_comment.directive) {
             case "global":
+            case "globals":
                 if (val) {
 
 // test_cause:
 // ["/*global aa:false*/", "lex_comment", "bad_option_a", "aa:false", 1]
+// ["/*globals aa:false*/", "lex_comment", "bad_option_a", "aa:false", 1]
 
                     warn("bad_option_a", the_comment, key + ":" + val);
                 }
@@ -1607,7 +1609,18 @@ function jslint_phase2_lex(state) {
                     warn("bad_option_a", the_comment, key);
                 }
                 break;
+            case "member":
+            case "members":
+            case "properties":
             case "property":
+
+// test_cause:
+// ["/*member aa*/", "lex_comment", "directive", "member", 0]
+// ["/*members aa*/", "lex_comment", "directive", "members", 0]
+// ["/*properties aa*/", "lex_comment", "directive", "properties", 0]
+// ["/*property aa*/", "lex_comment", "directive", "property", 0]
+
+                test_cause("directive", the_comment.directive);
                 state.mode_property = true;
                 tenure[key] = true;
                 break;
