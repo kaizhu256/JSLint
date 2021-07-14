@@ -2401,6 +2401,7 @@ function jslint_phase2_lex(state) {
         case "couch":           // Assume CouchDb environment.
         case "debug":           // Include jslint stack-trace in warnings.
         case "devel":           // Allow console.log() and friends.
+        case "ecma":            // Assume ECMAScript environment.
         case "eval":            // Allow eval().
         case "for":             // Allow for-statement.
         case "getset":          // Allow get() and set().
@@ -2428,7 +2429,7 @@ function jslint_phase2_lex(state) {
 
         switch (val && key) {
         case "browser":
-            [
+            object_assign_from_list(global_dict, [
                 "CharacterData",
                 "DOMException",
                 "DocumentType",
@@ -2457,12 +2458,13 @@ function jslint_phase2_lex(state) {
                 "setInterval",
                 "setTimeout",
                 "window"
-            ].forEach(function (key) {
-                global_dict[key] = "browser";
-            });
+            ], "browser");
             break;
+
+// https://docs.couchdb.org/en/stable/query-server/javascript.html#javascript
+
         case "couch":
-            [
+            object_assign_from_list(global_dict, [
                 "emit",
                 "getRow",
                 "isArray",
@@ -2474,19 +2476,107 @@ function jslint_phase2_lex(state) {
                 "start",
                 "sum",
                 "toJSON"
-            ].forEach(function (key) {
-                global_dict[key] = "CouchDb";
-            });
+            ], "CouchDb");
             break;
         case "devel":
-            [
+            object_assign_from_list(global_dict, [
                 "alert", "confirm", "console", "prompt"
-            ].forEach(function (key) {
-                global_dict[key] = "development";
-            });
+            ], "development");
+            break;
+
+// Assign standard ECMAScript global variables to global_dict.
+// /*jslint beta, node*/
+// import https from "https";
+// (async function () {
+//     let dict = {};
+//     let result = "";
+//     await new Promise(function (resolve) {
+//         https.get((
+//             "https://raw.githubusercontent.com/mdn/content/main/files/"
+//             + "en-us/web/javascript/reference/global_objects/index.html"
+//         ), function (res) {
+//             res.on("data", function (chunk) {
+//                 result += chunk;
+//             }).on("end", resolve).setEncoding("utf8");
+//         });
+//     });
+//     result.replace((
+//         /<li>\{\{JSxRef\("(?:Global_Objects\/)?([^"\/]+?)"/g
+//     ), function (ignore, key) {
+//         if (globalThis.hasOwnProperty(key)) {
+//             dict[key] = true;
+//         }
+//         return "";
+//     });
+//     console.log(JSON.stringify(Object.keys(dict).sort(), undefined, 4));
+// }());
+
+        case "ecma":
+            object_assign_from_list(global_dict, [
+                "Array",
+                "ArrayBuffer",
+                "Atomics",
+                "BigInt",
+                "BigInt64Array",
+                "BigUint64Array",
+                "Boolean",
+                "DataView",
+                "Date",
+                "Error",
+                "EvalError",
+                "Float32Array",
+                "Float64Array",
+                "Function",
+                "Infinity",
+                "Int16Array",
+                "Int32Array",
+                "Int8Array",
+                "Intl",
+                "JSON",
+                "Map",
+                "Math",
+                "NaN",
+                "Number",
+                "Object",
+                "Promise",
+                "Proxy",
+                "RangeError",
+                "ReferenceError",
+                "Reflect",
+                "RegExp",
+                "Set",
+                "SharedArrayBuffer",
+                "String",
+                "Symbol",
+                "SyntaxError",
+                "TypeError",
+                "URIError",
+                "Uint16Array",
+                "Uint32Array",
+                "Uint8Array",
+                "Uint8ClampedArray",
+                "WeakMap",
+                "WeakSet",
+                "WebAssembly",
+                "decodeURI",
+                "decodeURIComponent",
+                "encodeURI",
+                "encodeURIComponent",
+                "eval",
+                "globalThis",
+                "isFinite",
+                "isNaN",
+                "parseFloat",
+                "parseInt",
+                "undefined",
+
+// Misc.
+
+                "import"
+            ], "ECMAScript");
             break;
         case "node":
-            [
+            object_assign_from_list(global_dict, [
                 "Buffer",
                 "TextDecoder",
                 "TextEncoder",
@@ -2505,9 +2595,7 @@ function jslint_phase2_lex(state) {
                 "setImmediate",
                 "setInterval",
                 "setTimeout"
-            ].forEach(function (key) {
-                global_dict[key] = "Node.js";
-            });
+            ], "Node.js");
             break;
         }
         return true;
@@ -2694,96 +2782,7 @@ function jslint_phase2_lex(state) {
         }
         return the_token;
     }
-
-// Assign standard ECMAScript global variables to global_dict.
-// /*jslint beta, node*/
-// import https from "https";
-// (async function () {
-//     let dict = {};
-//     let result = "";
-//     await new Promise(function (resolve) {
-//         https.get((
-//             "https://raw.githubusercontent.com/mdn/content/main/files/"
-//             + "en-us/web/javascript/reference/global_objects/index.html"
-//         ), function (res) {
-//             res.on("data", function (chunk) {
-//                 result += chunk;
-//             }).on("end", resolve).setEncoding("utf8");
-//         });
-//     });
-//     result.replace((
-//         /<li>\{\{JSxRef\("(?:Global_Objects\/)?([^"\/]+?)"/g
-//     ), function (ignore, key) {
-//         if (globalThis.hasOwnProperty(key)) {
-//             dict[key] = true;
-//         }
-//         return "";
-//     });
-//     console.log(JSON.stringify(Object.keys(dict).sort(), undefined, 4));
-// }());
-
-    object_assign_from_list(global_dict, [
-        "Array",
-        "ArrayBuffer",
-        "Atomics",
-        "BigInt",
-        "BigInt64Array",
-        "BigUint64Array",
-        "Boolean",
-        "DataView",
-        "Date",
-        "Error",
-        "EvalError",
-        "Float32Array",
-        "Float64Array",
-        "Function",
-        "Infinity",
-        "Int16Array",
-        "Int32Array",
-        "Int8Array",
-        "Intl",
-        "JSON",
-        "Map",
-        "Math",
-        "NaN",
-        "Number",
-        "Object",
-        "Promise",
-        "Proxy",
-        "RangeError",
-        "ReferenceError",
-        "Reflect",
-        "RegExp",
-        "Set",
-        "SharedArrayBuffer",
-        "String",
-        "Symbol",
-        "SyntaxError",
-        "TypeError",
-        "URIError",
-        "Uint16Array",
-        "Uint32Array",
-        "Uint8Array",
-        "Uint8ClampedArray",
-        "WeakMap",
-        "WeakSet",
-        "WebAssembly",
-        "decodeURI",
-        "decodeURIComponent",
-        "encodeURI",
-        "encodeURIComponent",
-        "eval",
-        "globalThis",
-        "isFinite",
-        "isNaN",
-        "parseFloat",
-        "parseInt",
-        "undefined",
-
-// Misc.
-
-        "import"
-    ], "ECMAScript");
+    option_dict_set("ecma", true);
     Object.keys(option_dict).sort().forEach(function (key) {
         option_dict_set(key, option_dict[key] === true);
     });
