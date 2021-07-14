@@ -1548,7 +1548,7 @@ function jslint_phase2_lex(state) {
             the_comment.directive, body
         ] = Array.from(snippet.match(
             // rx_directive
-            /^(jslint|member|members|properties|property|global|globals)\s+(.*)$/
+            /^(jslint|property|global)\s+(.*)$/
         ) || []).slice(1);
         if (the_comment.directive === undefined) {
             return the_comment;
@@ -1588,12 +1588,10 @@ function jslint_phase2_lex(state) {
             ii += match0.length;
             switch (the_comment.directive) {
             case "global":
-            case "globals":
                 if (val) {
 
 // test_cause:
 // ["/*global aa:false*/", "lex_comment", "bad_option_a", "aa:false", 1]
-// ["/*globals aa:false*/", "lex_comment", "bad_option_a", "aa:false", 1]
 
                     warn("bad_option_a", the_comment, key + ":" + val);
                 }
@@ -1609,18 +1607,7 @@ function jslint_phase2_lex(state) {
                     warn("bad_option_a", the_comment, key);
                 }
                 break;
-            case "member":
-            case "members":
-            case "properties":
             case "property":
-
-// test_cause:
-// ["/*member aa*/", "lex_comment", "directive_property", "member", 0]
-// ["/*members aa*/", "lex_comment", "directive_property", "members", 0]
-// ["/*properties aa*/", "lex_comment", "directive_property", "properties", 0]
-// ["/*property aa*/", "lex_comment", "directive_property", "property", 0]
-
-                test_cause("directive_property", the_comment.directive);
                 state.mode_property = true;
                 tenure[key] = true;
                 break;
@@ -2433,17 +2420,11 @@ function jslint_phase2_lex(state) {
         case "variable":        // Allow unordered const and let declarations
                                 // ... that are not at top of function-scope.
         case "white":           // Allow messy whitespace.
-            break;
-        case "evil":            // Alias to 'eval'.
-            key = "eval";
-            break;
-        case "nomen":           // Alias to 'name'.
-            key = "name";
+            option_dict[key] = val;
             break;
         default:
             return false;
         }
-        option_dict[key] = val;
 
 // Initialize global-variables.
 
@@ -2764,16 +2745,12 @@ function jslint_phase2_lex(state) {
                 stop_at("unopened_enable", line);
             }
             line_disable = undefined;
-        } else if (
-            line_source.endsWith(" /*jslint-quiet*/")
-            || line_source.endsWith(" //jslint-quiet")
-        ) {
+        } else if (line_source.endsWith(" //jslint-quiet")) {
 
 // test_cause:
-// ["0 /*jslint-quiet*/", "read_line", "jslint_quiet", "0 /*jslint-quiet*/", 0]
-// ["0 //jslint-quiet", "read_line", "jslint_quiet", "0 //jslint-quiet", 0]
+// ["0 //jslint-quiet", "read_line", "jslint_quiet", "", 0]
 
-            test_cause("jslint_quiet", line_source);
+            test_cause("jslint_quiet");
             line_list[line].directive_quiet = true;
         }
         if (line_disable !== undefined) {
