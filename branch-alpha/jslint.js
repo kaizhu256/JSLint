@@ -2428,26 +2428,55 @@ function jslint_phase2_lex(state) {
 // Initialize global-variables.
 
         switch (val && key) {
+
+// Assign global browser variables to global_dict.
+// /*jslint beta, browser, devel*/
+// console.log(JSON.stringify(Array.from([
+//     ...
+// ]).filter(function (key) {
+//     return window.hasOwnProperty(key);
+// }), undefined, 4));
+
         case "browser":
             object_assign_from_list(global_dict, [
+
+// Shared with Node.js.
+
+                "AbortController",
+                "Event",
+                "EventTarget",
+                "MessageChannel",
+                "MessageEvent",
+                "MessagePort",
+                "TextDecoder",
+                "TextEncoder",
+                "URL",
+                "URLSearchParams",
+                "WebAssembly",
+                "atob",
+                "btoa",
+                "clearInterval",
+                "clearTimeout",
+                "console",
+                "performance",
+                "queueMicrotask",
+                "setInterval",
+                "setTimeout",
+
+// Browser only.
+
                 "CharacterData",
                 "DOMException",
                 "DocumentType",
                 "Element",
-                "Event",
                 "FileReader",
                 "FontFace",
                 "FormData",
                 "IntersectionObserver",
                 "MutationObserver",
                 "Storage",
-                "TextDecoder",
-                "TextEncoder",
-                "URL",
                 "Worker",
                 "XMLHttpRequest",
-                "clearInterval",
-                "clearTimeout",
                 "document",
                 "fetch",
                 "localStorage",
@@ -2455,8 +2484,6 @@ function jslint_phase2_lex(state) {
                 "navigator",
                 "screen",
                 "sessionStorage",
-                "setInterval",
-                "setTimeout",
                 "window"
             ], "browser");
             break;
