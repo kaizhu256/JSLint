@@ -2758,12 +2758,16 @@ function jslint_phase2_lex(state) {
                 stop_at("unopened_enable", line);
             }
             line_disable = undefined;
-        } else if (line_source.endsWith(" //jslint-quiet")) {
+        } else if (
+            line_source.endsWith(" /*jslint-quiet*/")
+            || line_source.endsWith(" //jslint-quiet")
+        ) {
 
 // test_cause:
-// ["0 //jslint-quiet", "read_line", "jslint_quiet", "", 0]
+// ["0 /*jslint-quiet*/", "read_line", "jslint_quiet", "0 /*jslint-quiet*/", 0]
+// ["0 //jslint-quiet", "read_line", "jslint_quiet", "0 //jslint-quiet", 0]
 
-            test_cause("jslint_quiet");
+            test_cause("jslint_quiet", line_source);
             line_list[line].directive_quiet = true;
         }
         if (line_disable !== undefined) {
