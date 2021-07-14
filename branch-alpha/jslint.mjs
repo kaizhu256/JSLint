@@ -617,7 +617,7 @@ function jslint(
             mm = `Redefinition of '${a}' from line ${b}.`;
             break;
         case "redefinition_global_a_b":
-            mm = `Redefinition of '${a}' from global ${b} variable.`;
+            mm = `Redefinition of global ${a} variable '${b}'.`;
             break;
         case "required_a_optional_b":
             mm = `Required parameter '${a}' after optional parameter '${b}'.`;
@@ -2408,7 +2408,7 @@ function jslint_phase2_lex(state) {
         case "eval":            // Allow eval().
         case "for":             // Allow for-statement.
         case "getset":          // Allow get() and set().
-        case "indent2":         // Allow 2-space indent.
+        case "indent2":         // Use 2-space indent.
         case "long":            // Allow long lines.
         case "name":            // Allow weird property names.
         case "node":            // Assume Node.js environment.
@@ -2468,25 +2468,37 @@ function jslint_phase2_lex(state) {
 
 // Browser only.
 
-                "CharacterData",
+                // "CharacterData",
                 "DOMException",
-                "DocumentType",
-                "Element",
+                // "DocumentType",
+                // "Element",
+                // "Event",
                 "FileReader",
-                "FontFace",
+                // "FontFace",
                 "FormData",
                 "IntersectionObserver",
                 "MutationObserver",
-                "Storage",
+                // "Storage",
+                // "TextDecoder",
+                // "TextEncoder",
+                // "URL",
                 "Worker",
                 "XMLHttpRequest",
+                // "caches",
+                // "clearInterval",
+                // "clearTimeout",
                 "document",
+                // "event",
                 "fetch",
+                // "history",
                 "localStorage",
                 "location",
+                // "name",
                 "navigator",
-                "screen",
+                // "screen",
                 "sessionStorage",
+                "setInterval",
+                "setTimeout",
                 "window"
             ], "browser");
             break;
@@ -2897,7 +2909,7 @@ function jslint_phase3_parse(state) {
         export_dict,
         function_list,
         function_stack,
-        //!! global_dict,
+        global_dict,
         import_list,
         is_equal,
         option_dict,
@@ -3457,14 +3469,11 @@ function jslint_phase3_parse(state) {
 
                 warn("redefinition_a_b", name, name.id, earlier.line);
             }
-        } else if (earlier) {
-            if (
-                (
-                    role !== "exception"
-                    || earlier.role !== "exception"
-                )
-                && role !== "parameter" && role !== "function"
-            ) {
+        } else if (
+            earlier
+            && (role !== "exception" || earlier.role !== "exception")
+            && role !== "parameter" && role !== "function"
+        ) {
 
 // test_cause:
 // ["
@@ -3472,8 +3481,14 @@ function jslint_phase3_parse(state) {
 // ", "enroll", "redefinition_a_b", "1", 31]
 // ["function aa(){var aa;}", "enroll", "redefinition_a_b", "1", 19]
 
-                warn("redefinition_a_b", name, name.id, earlier.line);
-            }
+            warn("redefinition_a_b", name, name.id, earlier.line);
+        } else if (global_dict[name.id] && role !== "parameter") {
+            warn(
+                "redefinition_global_a_b",
+                name,
+                global_dict[name.id],
+                name.id
+            );
         }
 
 // Enroll it.

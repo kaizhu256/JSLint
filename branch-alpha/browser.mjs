@@ -47,7 +47,7 @@
     warnings, width
 */
 
-import jslint from "./jslint.mjs?cc=hdg8";
+import jslint from "./jslint.mjs?cc=y3ba";
 
 // This is the web script companion file for JSLint. It includes code for
 // interacting with the browser and displaying the reports.
@@ -852,20 +852,25 @@ function jslint_ui_onresize() {
 /*global caches, indexedDb*/ //jslint-quiet
 
 import https from "https";
-import jslint from \u0022./jslint.mjs\u0022;
+import jslint from "./jslint.mjs?cc=y3ba";
+
+/*jslint-disable*/
+SYNTAX ERROR.
+/*jslint-enable*/
+
+eval("console.log(\\"hello world\\");"); //jslint-quiet
 
 // Optional directives.
 // .... /*jslint beta*/ .......... Enable experimental warnings.
 // .... /*jslint bitwise*/ ....... Allow bitwise operators.
 // .... /*jslint browser*/ ....... Assume browser environment.
 // .... /*jslint convert*/ ....... Allow conversion operators.
-// .... /*jslint couch*/ ......... Assume CouchDb environment.
 // .... /*jslint debug*/ ......... Include jslint stack-trace in warnings.
 // .... /*jslint devel*/ ......... Allow console.log() and friends.
 // .... /*jslint eval*/ .......... Allow eval().
 // .... /*jslint for*/ ........... Allow for-statement.
 // .... /*jslint getset*/ ........ Allow get() and set().
-// .... /*jslint indent2*/ ....... Allow 2-space indent.
+// .... /*jslint indent2*/ ....... Use 2-space indent.
 // .... /*jslint long*/ .......... Allow long lines.
 // .... /*jslint name*/ .......... Allow weird property names.
 // .... /*jslint node*/ .......... Assume Node.js environment.
@@ -876,16 +881,6 @@ import jslint from \u0022./jslint.mjs\u0022;
 // .... /*jslint variable*/ ...... Allow unordered const and let declarations
 // ................................... that are not at top of function-scope.
 // .... /*jslint white: true...... Allow messy whitespace.
-
-/*jslint-disable*/
-// TODO: jslint this code-block in future.
-console.log('hello world');
-/*jslint-enable*/
-
-// Suppress warnings on next-line.
-eval( //jslint-quiet
-    "console.log(\\"hello world\\");"
-);
 
 (async function () {
     let result;
