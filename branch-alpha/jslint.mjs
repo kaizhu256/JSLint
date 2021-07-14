@@ -3470,8 +3470,8 @@ function jslint_phase3_parse(state) {
             }
         } else if (
             earlier
-            && (role !== "exception" || earlier.role !== "exception")
             && role !== "parameter" && role !== "function"
+            && !(role === "exception" && earlier.role === "exception")
         ) {
 
 // test_cause:
