@@ -882,8 +882,7 @@ eval("console.log(\\"hello world\\");"); //jslint-quiet
 // .... /*jslint white: true...... Allow messy whitespace.
 
 (async function () {
-    let result;
-    result = await new Promise(function (resolve) {
+    let result = await new Promise(function (resolve) {
         https.request("https://www.jslint.com/jslint.mjs", function (res) {
             result = "";
             res.on("data", function (chunk) {
