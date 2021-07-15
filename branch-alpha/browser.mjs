@@ -47,7 +47,7 @@
     warnings, width
 */
 
-import jslint from "./jslint.mjs?cc=kdbb";
+import jslint from "./jslint.mjs?cc=qvmf";
 
 // This is the web script companion file for JSLint. It includes code for
 // interacting with the browser and displaying the reports.
@@ -178,7 +178,7 @@ function jslint_report_html({
 */
 /*csslint ignore:start*/
 @font-face {
-    font-display: optional;
+    font-display: swap;
     font-family: "Daley";
     src: url(
 "data:font/woff2;base64,d09GMgABAAAAABy4AA4AAAAAThwAABxiAAEAAAAAAAAAAAAA\
@@ -484,7 +484,10 @@ body {
     overflow-y: auto;
 }
 .JSLINT_ #JSLINT_REPORT_WARNINGS > legend {
-    background: indianred;
+/* Google Lighthouse Accessibility - Background and foreground colors do not */
+/* have a sufficient contrast ratio. */
+    /* background: indianred; */
+    background: #b44;
 }
 </style>
             `).trim();
