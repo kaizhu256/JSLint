@@ -47,7 +47,7 @@
     warnings, width
 */
 
-import jslint from "./jslint.mjs?cc=84eg";
+import jslint from "./jslint.mjs?cc=yz9d";
 
 // This is the web script companion file for JSLint. It includes code for
 // interacting with the browser and displaying the reports.
@@ -855,7 +855,7 @@ import https from "https";
 import jslint from \u0022./jslint.mjs\u0022;
 
 /*jslint-disable*/
-SYNTAX ERROR.
+    Syntax error.\u0020\u0020\u0020\u0020
 /*jslint-enable*/
 
 eval("console.log(\\"hello world\\");"); //jslint-quiet
