@@ -47,7 +47,7 @@
     warnings, width
 */
 
-import jslint from "./jslint.mjs?cc=q8bx";
+import jslint from "./jslint.mjs?cc=6had";
 
 // This is the web script companion file for JSLint. It includes code for
 // interacting with the browser and displaying the reports.
@@ -524,6 +524,7 @@ body {
 
     html += "<fieldset id=\"JSLINT_REPORT_PROPERTIES\">\n";
     html += "<legend>Report: Properties</legend>\n";
+    html += "<label>\n";
     html += "<textarea readonly>";
     html += "/*property";
     Object.keys(property).sort().forEach(function (key, ii) {
@@ -540,6 +541,7 @@ body {
     });
     html += "\n*/\n";
     html += "</textarea>\n";
+    html += "</label>\n";
     html += "</fieldset>\n";
 
 // Produce the HTML Function Report.
