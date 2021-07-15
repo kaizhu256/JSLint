@@ -8194,14 +8194,13 @@ function object_assign_from_list(dict, list, val) {
     return dict;
 }
 
+// Export jslint as commonjs/es-module.
+
 jslint_export = Object.freeze(Object.assign(jslint, {
     cli: Object.freeze(jslint_cli),
     edition: jslint_edition,
     jslint: Object.freeze(jslint.bind(undefined))
 }));
-
-// Export jslint as commonjs/es-module.
-
 // module.exports = jslint_export;
 export default Object.freeze(jslint_export);
 jslint_import_meta_url = import.meta.url;
