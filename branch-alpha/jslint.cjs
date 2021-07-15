@@ -1599,7 +1599,7 @@ function jslint_phase2_lex(state) {
                 state.mode_module = the_comment;
                 break;
             case "jslint":
-                if (!option_dict_set(key, val !== "false")) {
+                if (!option_set_item(key, val !== "false")) {
 
 // test_cause:
 // ["/*jslint undefined*/", "lex_comment", "bad_option_a", "undefined", 1]
@@ -2387,7 +2387,7 @@ function jslint_phase2_lex(state) {
         return token_create(snippet);
     }
 
-    function option_dict_set(key, val) {
+    function option_set_item(key, val) {
 
 // These are the options that are recognized in the option object or that may
 // appear in a /*jslint*/ directive. Most options will have a boolean value,
@@ -2857,9 +2857,12 @@ function jslint_phase2_lex(state) {
         }
         return the_token;
     }
-    option_dict_set("ecma", true);
+
+// Init global_dict and option_dict.
+
+    option_set_item("ecma", true);
     Object.keys(option_dict).sort().forEach(function (key) {
-        option_dict_set(key, option_dict[key] === true);
+        option_set_item(key, option_dict[key] === true);
     });
     object_assign_from_list(global_dict, global_list, "user-defined");
 
@@ -3479,7 +3482,11 @@ function jslint_phase3_parse(state) {
 // ["function aa(){var aa;}", "enroll", "redefinition_a_b", "1", 19]
 
             warn("redefinition_a_b", name, id, earlier.line);
-        } else if (global_dict[id] && role !== "parameter") {
+        } else if (
+            option_dict.beta
+            && global_dict[id]
+            && role !== "parameter"
+        ) {
 
 // test_cause:
 // ["let Array", "enroll", "redefinition_global_a_b", "Array", 5]
@@ -5793,10 +5800,7 @@ function jslint_phase3_parse(state) {
             ) {
 
 // test_cause:
-// ["
-// /*jslint beta*/
-// console.log();let aa=0;
-// ", "stmt_var", "var_on_top", "let", 15]
+// ["console.log();let aa=0;", "stmt_var", "var_on_top", "let", 15]
 // ["console.log();var aa=0;", "stmt_var", "var_on_top", "var", 15]
 // ["try{aa();}catch(aa){var aa=0;}", "stmt_var", "var_on_top", "var", 21]
 // ["while(0){var aa;}", "stmt_var", "var_on_top", "var", 10]
@@ -5969,18 +5973,9 @@ function jslint_phase3_parse(state) {
         ) {
 
 // test_cause:
-// ["
-// /*jslint beta*/
-// const bb=0;const aa=0;
-// ", "stmt_var", "expected_a_b_before_c_d", "aa", 12]
-// ["
-// /*jslint beta*/
-// let bb;let aa;
-// ", "stmt_var", "expected_a_b_before_c_d", "aa", 8]
-// ["
-// /*jslint beta*/
-// var bb;var aa;
-// ", "stmt_var", "expected_a_b_before_c_d", "aa", 8]
+// ["const bb=0;const aa=0;", "stmt_var", "expected_a_b_before_c_d", "aa", 12]
+// ["let bb;let aa;", "stmt_var", "expected_a_b_before_c_d", "aa", 8]
+// ["var bb;var aa;", "stmt_var", "expected_a_b_before_c_d", "aa", 8]
 
             warn(
                 "expected_a_b_before_c_d",
