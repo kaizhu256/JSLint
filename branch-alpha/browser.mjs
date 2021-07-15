@@ -47,7 +47,7 @@
     warnings, width
 */
 
-import jslint from "./jslint.mjs?cc=v8kh";
+import jslint from "./jslint.mjs?cc=kdbb";
 
 // This is the web script companion file for JSLint. It includes code for
 // interacting with the browser and displaying the reports.
@@ -178,7 +178,7 @@ function jslint_report_html({
 */
 /*csslint ignore:start*/
 @font-face {
-    font-display: swap;
+    font-display: optional;
     font-family: "Daley";
     src: url(
 "data:font/woff2;base64,d09GMgABAAAAABy4AA4AAAAAThwAABxiAAEAAAAAAAAAAAAA\
