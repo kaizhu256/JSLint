@@ -47,7 +47,7 @@
     warnings, width
 */
 
-import jslint from "./jslint.mjs?cc=l4sc";
+import jslint from "./jslint.mjs?cc=xiog";
 
 // This is the web script companion file for JSLint. It includes code for
 // interacting with the browser and displaying the reports.
