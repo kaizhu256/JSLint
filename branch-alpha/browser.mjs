@@ -47,7 +47,7 @@
     warnings, width
 */
 
-import jslint from "./jslint.mjs?cc=pes8";
+import jslint from "./jslint.mjs?cc=v8kh";
 
 // This is the web script companion file for JSLint. It includes code for
 // interacting with the browser and displaying the reports.
@@ -882,8 +882,7 @@ eval("console.log(\\"hello world\\");"); //jslint-quiet
 // .... /*jslint white: true...... Allow messy whitespace.
 
 (async function () {
-    let result;
-    result = await new Promise(function (resolve) {
+    let result = await new Promise(function (resolve) {
         https.request("https://www.jslint.com/jslint.mjs", function (res) {
             result = "";
             res.on("data", function (chunk) {
