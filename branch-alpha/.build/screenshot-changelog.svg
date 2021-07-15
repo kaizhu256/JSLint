@@ -185,13 +185,13 @@
     textLength="768"
     x="10"
     y="670"
->- jslint - add new beta-warning if functions are unordered.                                      </tspan>
+>- jslint - add new beta-warning against redefining global-variables.                             </tspan>
 <tspan
     lengthAdjust="spacingAndGlyphs"
     textLength="768"
     x="10"
     y="692"
->- jslint - add new warning against redefining global-variables.                                  </tspan>
+>- jslint - add new beta-warning if functions are unordered.                                      </tspan>
 <tspan
     lengthAdjust="spacingAndGlyphs"
     textLength="768"

@@ -1583,7 +1583,7 @@ function jslint_phase2_lex(state) {
                 return stop("bad_directive_a", the_comment, body.slice(ii));
             }
             if (match0 === "") {
-                return;
+                return "";
             }
             ii += match0.length;
             switch (the_comment.directive) {
