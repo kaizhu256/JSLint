@@ -484,7 +484,10 @@ body {
     overflow-y: auto;
 }
 .JSLINT_ #JSLINT_REPORT_WARNINGS > legend {
-    background: indianred;
+/* Google Lighthouse Accessibility - Background and foreground colors do not */
+/* have a sufficient contrast ratio. */
+    /* background: indianred; */
+    background: #b44;
 }
 </style>
             `).trim();

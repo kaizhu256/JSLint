@@ -12,7 +12,7 @@
 <meta name="author" content="Douglas Crockford"/>
 <link rel="icon" type="image/png" href="asset-image-jslint-512.svg"/>
 <title>JSLint:&nbsp;The&nbsp;JavaScript&nbsp;Code Quality Tool</title>
-<!-- Google PageSpeed - Reduce Largest Contentful Paint. -->
+<!-- Google Lighthouse Performance - Reduce Largest Contentful Paint. -->
 <link as="script" rel="preload" href="asset-codemirror-rollup.js">
 <link rel="modulepreload" href="browser.mjs">
 <link rel="modulepreload" href="jslint.mjs">
@@ -56,7 +56,7 @@
 }
 /*csslint ignore:end*/
 
-/* Google PageSpeed - Reduce Cumulative Layout Shift. */
+/* Google Lighthouse Performance - Reduce Cumulative Layout Shift. */
 .JSLINT_ #JSLINT_SOURCE textarea {
     height: 298px;
 }
@@ -78,6 +78,11 @@
 
 .JSLINT_ .CodeMirror {
     padding: 0;
+}
+.JSLINT_ .CodeMirror-linenumber {
+/* Google Lighthouse Accessibility - Background and foreground colors do not */
+/* have a sufficient contrast ratio. */
+    color: darkslategray;
 }
 .JSLINT_ .CodeMirror-lint-marker {
     background-position: 1px -1px;
