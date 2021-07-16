@@ -31,7 +31,8 @@
 
 /*property
     dom_style_report_unmatched,
-    slice,
+    indentLess, indentSelection,
+    slice, somethingSelected,
     CodeMirror, Pos, Tab, addEventListener, checked, click, closest, closure,
     column, context, ctrlKey, currentTarget, dispatchEvent, display, edition,
     editor, error, exports, extraKeys, filter, forEach, from, fromTextArea,
@@ -756,8 +757,13 @@ function jslint_ui_onresize() {
         "#JSLINT_SOURCE textarea"
     ), {
         extraKeys: {
-            Tab: function (editor) {
-                editor.replaceSelection("    ");
+            "Shift-Tab": "indentLess",
+            Tab: function (cm) {
+                if (cm.somethingSelected()) {
+                    cm.indentSelection("add");
+                    return;
+                }
+                cm.replaceSelection("    ");
             }
         },
         gutters: ["CodeMirror-lint-markers"],
