@@ -31,7 +31,7 @@
 
 /*property
     dom_style_report_unmatched,
-    indentLess, indentSelection,
+    indentSelection,
     slice, somethingSelected,
     CodeMirror, Pos, Tab, addEventListener, checked, click, closest, closure,
     column, context, ctrlKey, currentTarget, dispatchEvent, display, edition,
@@ -485,7 +485,10 @@ body {
     overflow-y: auto;
 }
 .JSLINT_ #JSLINT_REPORT_WARNINGS > legend {
-    background: indianred;
+/* Google Lighthouse Accessibility - Background and foreground colors do not */
+/* have a sufficient contrast ratio. */
+    /* background: indianred; */
+    background: #b44;
 }
 </style>
             `).trim();
@@ -522,6 +525,7 @@ body {
 
     html += "<fieldset id=\"JSLINT_REPORT_PROPERTIES\">\n";
     html += "<legend>Report: Properties</legend>\n";
+    html += "<label>\n";
     html += "<textarea readonly>";
     html += "/*property";
     Object.keys(property).sort().forEach(function (key, ii) {
@@ -538,6 +542,7 @@ body {
     });
     html += "\n*/\n";
     html += "</textarea>\n";
+    html += "</label>\n";
     html += "</fieldset>\n";
 
 // Produce the HTML Function Report.
@@ -888,8 +893,7 @@ eval("console.log(\\"hello world\\");"); //jslint-quiet
 // .... /*jslint white: true...... Allow messy whitespace.
 
 (async function () {
-    let result;
-    result = await new Promise(function (resolve) {
+    let result = await new Promise(function (resolve) {
         https.request("https://www.jslint.com/jslint.mjs", function (res) {
             result = "";
             res.on("data", function (chunk) {
