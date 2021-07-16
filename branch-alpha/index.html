@@ -13,9 +13,9 @@
 <link rel="icon" type="image/png" href="asset-image-jslint-512.svg"/>
 <title>JSLint:&nbsp;The&nbsp;JavaScript&nbsp;Code Quality Tool</title>
 <!-- Google Lighthouse Performance - Reduce Largest Contentful Paint. -->
-<link as="script" rel="preload" href="asset-codemirror-rollup.js?cc=7n2q">
-<link rel="modulepreload" href="browser.mjs?cc=7n2q">
-<link rel="modulepreload" href="jslint.mjs?cc=7n2q">
+<link as="script" rel="preload" href="asset-codemirror-rollup.js?cc=3j0a">
+<link rel="modulepreload" href="browser.mjs?cc=3j0a">
+<link rel="modulepreload" href="jslint.mjs?cc=3j0a">
 <style>
 /*jslint-disable*/
 /*
@@ -522,11 +522,6 @@ file none
 }
 /*csslint ignore:end*/
 
-.JSLINT_ #JSLINT_SOURCE textarea {
-/* Google Lighthouse Performance - Reduce Cumulative Layout Shift. */
-    height: 298px;
-}
-
 .JSLINT_ #JSLINT_BUTTONS button,
 .JSLINT_ #JSLINT_OPTIONS > div,
 .JSLINT_ #JSLINT_TITLEBOX {
@@ -540,6 +535,61 @@ file none
 .JSLINT_ #JSLINT_SOURCE .CodeMirror pre {
     font-family: monospace;
     font-size: 12px;
+}
+.skip-link {
+    background: darkslategray;
+    color: white;
+    left: 0;
+    opacity: 0.75;
+    padding: 4px;
+    position: absolute;
+    top: -40px;
+    z-index: 10;
+}
+.skip-link:focus {
+    top: 0;
+}
+#bannerFork1 {
+    height: 100px;
+    left: 0;
+    opacity: 0.75;
+    overflow: hidden;
+    position: absolute;
+    top: 0;
+    width: 200px;
+    z-index: 1;
+}
+#bannerFork1 a {
+    color: white;
+}
+#bannerFork1 div {
+    background: darkslategray;
+    font-size: 12px;
+    height: 20px;
+    line-height: 20px;
+    opacity: 0.75;
+    overflow: visible;
+    position: absolute;
+    right: 65px;
+    text-align: center;
+    top: 25px;
+    transform: rotate(-45deg);
+    width: 100%;
+}
+#uiLoader1 {
+    align-items: center;
+    background: lightslategray;
+    color: white;
+    display: flex;
+    height: 50px;
+    justify-content: center;
+    left: 50%;
+    margin: -50px 0 0 -100px;
+    opacity: 0.85;
+    position: fixed;
+    top: 40%;
+    width: 200px;
+    z-index: 1;
 }
 
 .JSLINT_ .CodeMirror {
@@ -555,19 +605,6 @@ file none
 }
 .JSLINT_ .CodeMirror-selected {
     background: wheat;
-}
-.JSLINT_ .skip-link {
-    background: darkslategray;
-    color: white;
-    left: 0;
-    opacity: 0.75;
-    padding: 4px;
-    position: absolute;
-    top: -40px;
-    z-index: 100;
-}
-.JSLINT_ .skip-link:focus {
-    top: 0;
 }
 .JSLINT_ .uiLoaderEllipsis span {
     animation: uiLoaderEllipsis1 1s infinite steps(1);
@@ -614,6 +651,10 @@ file none
     float: left;
     line-height: 20px;
     padding: 0 16px 16px 0;
+}
+.JSLINT_ #JSLINT_SOURCE textarea {
+/* Google Lighthouse Performance - Reduce Cumulative Layout Shift. */
+    height: 298px;
 }
 .JSLINT_ #JSLINT_TITLEBOX {
     color: darkslategray;
@@ -963,52 +1004,10 @@ body {
 <!-- Google Lighthouse Accessibility -->
 <!-- The page does not contain a heading, skip link, or landmark region -->
 <a class="skip-link" href="#JSLINT_INPUT">Skip to main</a>
-<div id="bannerFork1"
-style="
-    height: 100px;
-    left: 0;
-    opacity: 0.75;
-    overflow: hidden;
-    position: absolute;
-    top: 0;
-    width: 200px;
-    z-index: 1;
-">
-    <div
-style="
-    background: darkslategray;
-    font-size: 12px;
-    height: 20px;
-    line-height: 20px;
-    opacity: 0.75;
-    overflow: visible;
-    position: absolute;
-    right: 65px;
-    text-align: center;
-    top: 25px;
-    transform: rotate(-45deg);
-    width: 100%;
-">
-    <a href="https://github.com/jslint-org/jslint" style="color: white;">
-    Fork on github
-    </a>
-    </div>
+<div id="bannerFork1">
+    <div><a href="https://github.com/jslint-org/jslint">Fork on github</a></div>
 </div>
-<div id="uiLoader1" style="
-    align-items: center;
-    background: lightslategray;
-    color: white;
-    display: flex;
-    height: 50px;
-    justify-content: center;
-    left: 50%;
-    margin: -50px 0 0 -100px;
-    opacity: 0.85;
-    position: fixed;
-    top: 40%;
-    width: 200px;
-    z-index: 100;
-">
+<div id="uiLoader1">
     <div>Loading modules</div>
     &nbsp;
     <span class="uiLoaderEllipsis">
@@ -1112,8 +1111,8 @@ style="
 </fieldset>
 </main>
 <div id="JSLINT_REPORT_HTML"></div>
-<script defer src="asset-codemirror-rollup.js?cc=7n2q"></script>
-<script src="browser.mjs?cc=7n2q" type="module"></script>
+<script defer src="asset-codemirror-rollup.js?cc=3j0a"></script>
+<script src="browser.mjs?cc=3j0a" type="module"></script>
 <!-- coverage-hack -->
 <script>
 (function () {
