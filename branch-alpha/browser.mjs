@@ -31,7 +31,8 @@
 
 /*property
     dom_style_report_unmatched,
-    slice,
+    indentSelection,
+    slice, somethingSelected,
     CodeMirror, Pos, Tab, addEventListener, checked, click, closest, closure,
     column, context, ctrlKey, currentTarget, dispatchEvent, display, edition,
     editor, error, exports, extraKeys, filter, forEach, from, fromTextArea,
@@ -47,7 +48,7 @@
     warnings, width
 */
 
-import jslint from "./jslint.mjs?cc=h794";
+import jslint from "./jslint.mjs?cc=gicm";
 
 // This is the web script companion file for JSLint. It includes code for
 // interacting with the browser and displaying the reports.
@@ -702,6 +703,14 @@ async function jslint_ui_call() {
             setTimeout(resolve);
         });
 
+// Update jslint_option_dict from ui-inputs.
+
+        document.querySelectorAll(
+            "#JSLINT_OPTIONS input[type=checkbox]"
+        ).forEach(function (elem) {
+            jslint_option_dict[elem.value] = elem.checked;
+        });
+
 // Execute linter.
 
         editor.performLint();
@@ -761,8 +770,13 @@ function jslint_ui_onresize() {
         "#JSLINT_SOURCE textarea"
     ), {
         extraKeys: {
-            Tab: function (editor) {
-                editor.replaceSelection("    ");
+            "Shift-Tab": "indentLess",
+            Tab: function (cm) {
+                if (cm.somethingSelected()) {
+                    cm.indentSelection("add");
+                    return;
+                }
+                cm.replaceSelection("    ");
             }
         },
         gutters: ["CodeMirror-lint-markers"],
@@ -830,22 +844,17 @@ function jslint_ui_onresize() {
     };
     document.querySelector(
         "#JSLINT_OPTIONS"
-    ).onclick = function ({
-        target
-    }) {
+    ).onclick = function (evt) {
         let elem;
-        elem = target.closest(
+        elem = evt.target.closest(
             "#JSLINT_OPTIONS div[title]"
         );
         elem = elem && elem.querySelector("input[type=checkbox]");
-        if (elem && elem !== target) {
+        if (elem && elem !== evt.target) {
+            evt.preventDefault();
+            evt.stopPropagation();
             elem.checked = !elem.checked;
         }
-        document.querySelectorAll(
-            "#JSLINT_OPTIONS input[type=checkbox]"
-        ).forEach(function (elem) {
-            jslint_option_dict[elem.value] = elem.checked;
-        });
     };
     window.addEventListener("load", jslint_ui_onresize);
     window.addEventListener("resize", jslint_ui_onresize);
