@@ -48,7 +48,7 @@
     warnings, width
 */
 
-import jslint from "./jslint.mjs?cc=3j0a";
+import jslint from "./jslint.mjs?cc=carj";
 
 // This is the web script companion file for JSLint. It includes code for
 // interacting with the browser and displaying the reports.
@@ -143,10 +143,10 @@ function jslint_report_html({
         return (
             (Array.isArray(list) && list.length > 0)
             ? (
-                "<div>"
+                "<dl>"
                 + "<dt>" + entityify(title) + "</dt>"
                 + "<dd>" + list.join(", ") + "</dd>"
-                + "</div>"
+                + "</dl>"
             )
             : ""
         );
@@ -389,73 +389,73 @@ body {
     width: 100%;
     word-wrap: break-word;
 }
-.JSLINT_ #JSLINT_REPORT_FUNCTIONS dl {
+.JSLINT_ #JSLINT_REPORT_FUNCTIONS .level {
     background: cornsilk;
     padding: 8px 16px;
 }
-.JSLINT_ #JSLINT_REPORT_FUNCTIONS dl.level0 {
-    background: white;
-}
-.JSLINT_ #JSLINT_REPORT_FUNCTIONS dl.level1 {
-    /* yellow */
-    background: #ffffe0;
-    margin-left: 16px;
-}
-.JSLINT_ #JSLINT_REPORT_FUNCTIONS dl.level2 {
-    /* green */
-    background: #e0ffe0;
-    margin-left: 32px;
-}
-.JSLINT_ #JSLINT_REPORT_FUNCTIONS dl.level3 {
-    /* blue */
-    background: #D0D0ff;
-    margin-left: 48px;
-}
-.JSLINT_ #JSLINT_REPORT_FUNCTIONS dl.level4 {
-    /* purple */
-    background: #ffe0ff;
-    margin-left: 64px;
-}
-.JSLINT_ #JSLINT_REPORT_FUNCTIONS dl.level5 {
-    /* red */
-    background: #ffe0e0;
-    margin-left: 80px;
-}
-.JSLINT_ #JSLINT_REPORT_FUNCTIONS dl.level6 {
-    /* orange */
-    background: #ffe390;
-    margin-left: 96px;
-}
-.JSLINT_ #JSLINT_REPORT_FUNCTIONS dl.level7 {
-    /* gray */
-    background: #e0e0e0;
-    margin-left: 112px;
-}
-.JSLINT_ #JSLINT_REPORT_FUNCTIONS dl.level8 {
-    margin-left: 128px;
-}
-.JSLINT_ #JSLINT_REPORT_FUNCTIONS dl.level9 {
-    margin-left: 144px;
-}
-.JSLINT_ #JSLINT_REPORT_FUNCTIONS dl dd {
+.JSLINT_ #JSLINT_REPORT_FUNCTIONS .level dd {
     line-height: 20px;
     padding-left: 120px;
 }
-.JSLINT_ #JSLINT_REPORT_FUNCTIONS dl dfn {
+.JSLINT_ #JSLINT_REPORT_FUNCTIONS .level dfn {
     display: block;
     font-style: normal;
     font-weight: bold;
     line-height: 20px;
 }
-.JSLINT_ #JSLINT_REPORT_FUNCTIONS dl div {
+.JSLINT_ #JSLINT_REPORT_FUNCTIONS .level dl {
     position: relative
 }
-.JSLINT_ #JSLINT_REPORT_FUNCTIONS dl dt {
+.JSLINT_ #JSLINT_REPORT_FUNCTIONS .level dt {
     font-style: italic;
     line-height: 20px;
     position: absolute;
     text-align: right;
     width: 100px;
+}
+.JSLINT_ #JSLINT_REPORT_FUNCTIONS .level0 {
+    background: white;
+}
+.JSLINT_ #JSLINT_REPORT_FUNCTIONS .level1 {
+    /* yellow */
+    background: #ffffe0;
+    margin-left: 16px;
+}
+.JSLINT_ #JSLINT_REPORT_FUNCTIONS .level2 {
+    /* green */
+    background: #e0ffe0;
+    margin-left: 32px;
+}
+.JSLINT_ #JSLINT_REPORT_FUNCTIONS .level3 {
+    /* blue */
+    background: #D0D0ff;
+    margin-left: 48px;
+}
+.JSLINT_ #JSLINT_REPORT_FUNCTIONS .level4 {
+    /* purple */
+    background: #ffe0ff;
+    margin-left: 64px;
+}
+.JSLINT_ #JSLINT_REPORT_FUNCTIONS .level5 {
+    /* red */
+    background: #ffe0e0;
+    margin-left: 80px;
+}
+.JSLINT_ #JSLINT_REPORT_FUNCTIONS .level6 {
+    /* orange */
+    background: #ffe390;
+    margin-left: 96px;
+}
+.JSLINT_ #JSLINT_REPORT_FUNCTIONS .level7 {
+    /* gray */
+    background: #e0e0e0;
+    margin-left: 112px;
+}
+.JSLINT_ #JSLINT_REPORT_FUNCTIONS .level8 {
+    margin-left: 128px;
+}
+.JSLINT_ #JSLINT_REPORT_FUNCTIONS .level9 {
+    margin-left: 144px;
 }
 .JSLINT_ #JSLINT_REPORT_PROPERTIES {
     background: transparent;
@@ -575,11 +575,11 @@ body {
         : "global"
     );
     if (global.length + froms.length + exports.length > 0) {
-        html += "<dl class=level0>\n";
+        html += "<div class=\"level level0\">\n";
         html += detail(module, global);
         html += detail("import from", froms);
         html += detail("export", exports);
-        html += "</dl>\n";
+        html += "</div>\n";
     }
     functions.forEach(function (the_function) {
         let {
@@ -596,7 +596,7 @@ body {
         let list = Object.keys(context);
         let params;
         html += (
-            "<dl class=level" + entityify(level) + ">"
+            "<div class=\"level level" + entityify(level) + "\">"
             + "<address>" + entityify(line) + "</address>"
             + "<dfn>"
             + (
@@ -658,7 +658,7 @@ body {
         html += detail("label", list.filter(function (id) {
             return context[id].role === "label";
         }));
-        html += "</dl>\n";
+        html += "</div>\n";
     });
     html += "</div>\n";
     html += "</fieldset>\n";
