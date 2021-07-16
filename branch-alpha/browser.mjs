@@ -48,7 +48,7 @@
     warnings, width
 */
 
-import jslint from "./jslint.mjs?cc=carj";
+import jslint from "./jslint.mjs?cc=gdpm";
 
 // This is the web script companion file for JSLint. It includes code for
 // interacting with the browser and displaying the reports.
@@ -143,6 +143,10 @@ function jslint_report_html({
         return (
             (Array.isArray(list) && list.length > 0)
             ? (
+
+// Google Lighthouse Accessibility - <dl>'s do not contain only properly-ordered
+// <dt> and <dd> groups, <script>, <template> or <div> elements.
+
                 "<dl>"
                 + "<dt>" + entityify(title) + "</dt>"
                 + "<dd>" + list.join(", ") + "</dd>"
@@ -166,7 +170,10 @@ function jslint_report_html({
     }
 
 // Produce the HTML Error Report.
-// <cite><address>LINE_NUMBER</address>MESSAGE</cite>
+// <cite>
+//     <address>LINE_NUMBER</address>
+//     MESSAGE
+// </cite>
 // <samp>EVIDENCE</samp>
 
     html += "<div class=\"JSLINT_\" id=\"JSLINT_REPORT_HTML\">\n";
@@ -491,7 +498,7 @@ body {
     background: #b44;
 }
 </style>
-            `).trim();
+            `).trim() + "\n";
     html += "<fieldset id=\"JSLINT_REPORT_WARNINGS\">\n";
     html += "<legend>Report: Warnings</legend>\n";
     html += "<div>\n";
@@ -546,9 +553,14 @@ body {
     html += "</fieldset>\n";
 
 // Produce the HTML Function Report.
-// <dl class=LEVEL><address>LINE_NUMBER</address>FUNCTION_NAME_AND_SIGNATURE
-//     <dt>DETAIL</dt><dd>NAMES</dd>
-// </dl>
+// <div class=LEVEL>
+//     <address>LINE_NUMBER</address>
+//     <dfn>FUNCTION_NAME_AND_SIGNATURE</dfn>
+//     <dl>
+//         <dt>DETAIL</dt>
+//         <dd>NAMES</dd>
+//     </dl>
+// </div>
 
     html += "<fieldset id=\"JSLINT_REPORT_FUNCTIONS\">\n";
     html += "<legend>Report: Functions</legend>\n";
@@ -683,7 +695,7 @@ body {
     window.onresize = jslint_ui_onresize;
 }());
 </script>
-    `).trim();
+    `).trim() + "\n";
     html += "</div>\n";
     return html;
 }
@@ -913,7 +925,7 @@ eval("console.log(\\"hello world\\");"); //jslint-quiet
         console.error(formatted_message);
     });
 }());
-        `).trim());
+        `).trim() + "\n");
     }
     if (mode_debug) {
         document.querySelector(
