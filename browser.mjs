@@ -703,6 +703,14 @@ async function jslint_ui_call() {
             setTimeout(resolve);
         });
 
+// Update jslint_option_dict from ui-inputs.
+
+        document.querySelectorAll(
+            "#JSLINT_OPTIONS input[type=checkbox]"
+        ).forEach(function (elem) {
+            jslint_option_dict[elem.value] = elem.checked;
+        });
+
 // Execute linter.
 
         editor.performLint();
@@ -836,22 +844,17 @@ function jslint_ui_onresize() {
     };
     document.querySelector(
         "#JSLINT_OPTIONS"
-    ).onclick = function ({
-        target
-    }) {
+    ).onclick = function (evt) {
         let elem;
-        elem = target.closest(
+        elem = evt.target.closest(
             "#JSLINT_OPTIONS div[title]"
         );
         elem = elem && elem.querySelector("input[type=checkbox]");
-        if (elem && elem !== target) {
+        if (elem && elem !== evt.target) {
+            evt.preventDefault();
+            evt.stopPropagation();
             elem.checked = !elem.checked;
         }
-        document.querySelectorAll(
-            "#JSLINT_OPTIONS input[type=checkbox]"
-        ).forEach(function (elem) {
-            jslint_option_dict[elem.value] = elem.checked;
-        });
     };
     window.addEventListener("load", jslint_ui_onresize);
     window.addEventListener("resize", jslint_ui_onresize);
