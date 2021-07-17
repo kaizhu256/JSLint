@@ -432,7 +432,7 @@ import moduleUrl from "url";
         }
         data = await moduleFs.promises.readFile(file, "utf8");
         data.replace((
-            /\bhttps?:\/\/.*?(?:[\s")\]]|[.:]?$)/gm
+            /\bhttps?:\/\/.*?(?:[\s")\]]|\W?$)/gm
         ), function (url) {
             var req;
             url = url.slice(0, -1).replace((
@@ -447,9 +447,7 @@ import moduleUrl from "url";
                 process.env.GITHUB_REPOSITORY || "jslint-org/jslint"
             ).replace("/", ".github.io/"));
             if (url.startsWith("http://")) {
-                throw new Error(
-                    "shDirHttplinkValidate - insecure link " + url
-                );
+                throw new Error("shDirHttplinkValidate - insecure link " + url);
             }
             // ignore duplicate-link
             if (dict.hasOwnProperty(url)) {

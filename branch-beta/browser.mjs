@@ -31,7 +31,8 @@
 
 /*property
     dom_style_report_unmatched,
-    slice,
+    indentSelection,
+    slice, somethingSelected,
     CodeMirror, Pos, Tab, addEventListener, checked, click, closest, closure,
     column, context, ctrlKey, currentTarget, dispatchEvent, display, edition,
     editor, error, exports, extraKeys, filter, forEach, from, fromTextArea,
@@ -47,7 +48,7 @@
     warnings, width
 */
 
-import jslint from "./jslint.mjs?cc=iq7s";
+import jslint from "./jslint.mjs?cc=w50w";
 
 // This is the web script companion file for JSLint. It includes code for
 // interacting with the browser and displaying the reports.
@@ -142,10 +143,14 @@ function jslint_report_html({
         return (
             (Array.isArray(list) && list.length > 0)
             ? (
-                "<div>"
+
+// Google Lighthouse Accessibility - <dl>'s do not contain only properly-ordered
+// <dt> and <dd> groups, <script>, <template> or <div> elements.
+
+                "<dl>"
                 + "<dt>" + entityify(title) + "</dt>"
                 + "<dd>" + list.join(", ") + "</dd>"
-                + "</div>"
+                + "</dl>"
             )
             : ""
         );
@@ -165,7 +170,10 @@ function jslint_report_html({
     }
 
 // Produce the HTML Error Report.
-// <cite><address>LINE_NUMBER</address>MESSAGE</cite>
+// <cite>
+//     <address>LINE_NUMBER</address>
+//     MESSAGE
+// </cite>
 // <samp>EVIDENCE</samp>
 
     html += "<div class=\"JSLINT_\" id=\"JSLINT_REPORT_HTML\">\n";
@@ -388,73 +396,73 @@ body {
     width: 100%;
     word-wrap: break-word;
 }
-.JSLINT_ #JSLINT_REPORT_FUNCTIONS dl {
+.JSLINT_ #JSLINT_REPORT_FUNCTIONS .level {
     background: cornsilk;
     padding: 8px 16px;
 }
-.JSLINT_ #JSLINT_REPORT_FUNCTIONS dl.level0 {
-    background: white;
-}
-.JSLINT_ #JSLINT_REPORT_FUNCTIONS dl.level1 {
-    /* yellow */
-    background: #ffffe0;
-    margin-left: 16px;
-}
-.JSLINT_ #JSLINT_REPORT_FUNCTIONS dl.level2 {
-    /* green */
-    background: #e0ffe0;
-    margin-left: 32px;
-}
-.JSLINT_ #JSLINT_REPORT_FUNCTIONS dl.level3 {
-    /* blue */
-    background: #D0D0ff;
-    margin-left: 48px;
-}
-.JSLINT_ #JSLINT_REPORT_FUNCTIONS dl.level4 {
-    /* purple */
-    background: #ffe0ff;
-    margin-left: 64px;
-}
-.JSLINT_ #JSLINT_REPORT_FUNCTIONS dl.level5 {
-    /* red */
-    background: #ffe0e0;
-    margin-left: 80px;
-}
-.JSLINT_ #JSLINT_REPORT_FUNCTIONS dl.level6 {
-    /* orange */
-    background: #ffe390;
-    margin-left: 96px;
-}
-.JSLINT_ #JSLINT_REPORT_FUNCTIONS dl.level7 {
-    /* gray */
-    background: #e0e0e0;
-    margin-left: 112px;
-}
-.JSLINT_ #JSLINT_REPORT_FUNCTIONS dl.level8 {
-    margin-left: 128px;
-}
-.JSLINT_ #JSLINT_REPORT_FUNCTIONS dl.level9 {
-    margin-left: 144px;
-}
-.JSLINT_ #JSLINT_REPORT_FUNCTIONS dl dd {
+.JSLINT_ #JSLINT_REPORT_FUNCTIONS .level dd {
     line-height: 20px;
     padding-left: 120px;
 }
-.JSLINT_ #JSLINT_REPORT_FUNCTIONS dl dfn {
+.JSLINT_ #JSLINT_REPORT_FUNCTIONS .level dfn {
     display: block;
     font-style: normal;
     font-weight: bold;
     line-height: 20px;
 }
-.JSLINT_ #JSLINT_REPORT_FUNCTIONS dl div {
+.JSLINT_ #JSLINT_REPORT_FUNCTIONS .level dl {
     position: relative
 }
-.JSLINT_ #JSLINT_REPORT_FUNCTIONS dl dt {
+.JSLINT_ #JSLINT_REPORT_FUNCTIONS .level dt {
     font-style: italic;
     line-height: 20px;
     position: absolute;
     text-align: right;
     width: 100px;
+}
+.JSLINT_ #JSLINT_REPORT_FUNCTIONS .level0 {
+    background: white;
+}
+.JSLINT_ #JSLINT_REPORT_FUNCTIONS .level1 {
+    /* yellow */
+    background: #ffffe0;
+    margin-left: 16px;
+}
+.JSLINT_ #JSLINT_REPORT_FUNCTIONS .level2 {
+    /* green */
+    background: #e0ffe0;
+    margin-left: 32px;
+}
+.JSLINT_ #JSLINT_REPORT_FUNCTIONS .level3 {
+    /* blue */
+    background: #D0D0ff;
+    margin-left: 48px;
+}
+.JSLINT_ #JSLINT_REPORT_FUNCTIONS .level4 {
+    /* purple */
+    background: #ffe0ff;
+    margin-left: 64px;
+}
+.JSLINT_ #JSLINT_REPORT_FUNCTIONS .level5 {
+    /* red */
+    background: #ffe0e0;
+    margin-left: 80px;
+}
+.JSLINT_ #JSLINT_REPORT_FUNCTIONS .level6 {
+    /* orange */
+    background: #ffe390;
+    margin-left: 96px;
+}
+.JSLINT_ #JSLINT_REPORT_FUNCTIONS .level7 {
+    /* gray */
+    background: #e0e0e0;
+    margin-left: 112px;
+}
+.JSLINT_ #JSLINT_REPORT_FUNCTIONS .level8 {
+    margin-left: 128px;
+}
+.JSLINT_ #JSLINT_REPORT_FUNCTIONS .level9 {
+    margin-left: 144px;
 }
 .JSLINT_ #JSLINT_REPORT_PROPERTIES {
     background: transparent;
@@ -484,10 +492,13 @@ body {
     overflow-y: auto;
 }
 .JSLINT_ #JSLINT_REPORT_WARNINGS > legend {
-    background: indianred;
+/* Google Lighthouse Accessibility - Background and foreground colors do not */
+/* have a sufficient contrast ratio. */
+    /* background: indianred; */
+    background: #b44;
 }
 </style>
-            `).trim();
+            `).trim() + "\n";
     html += "<fieldset id=\"JSLINT_REPORT_WARNINGS\">\n";
     html += "<legend>Report: Warnings</legend>\n";
     html += "<div>\n";
@@ -521,6 +532,7 @@ body {
 
     html += "<fieldset id=\"JSLINT_REPORT_PROPERTIES\">\n";
     html += "<legend>Report: Properties</legend>\n";
+    html += "<label>\n";
     html += "<textarea readonly>";
     html += "/*property";
     Object.keys(property).sort().forEach(function (key, ii) {
@@ -537,12 +549,18 @@ body {
     });
     html += "\n*/\n";
     html += "</textarea>\n";
+    html += "</label>\n";
     html += "</fieldset>\n";
 
 // Produce the HTML Function Report.
-// <dl class=LEVEL><address>LINE_NUMBER</address>FUNCTION_NAME_AND_SIGNATURE
-//     <dt>DETAIL</dt><dd>NAMES</dd>
-// </dl>
+// <div class=LEVEL>
+//     <address>LINE_NUMBER</address>
+//     <dfn>FUNCTION_NAME_AND_SIGNATURE</dfn>
+//     <dl>
+//         <dt>DETAIL</dt>
+//         <dd>NAMES</dd>
+//     </dl>
+// </div>
 
     html += "<fieldset id=\"JSLINT_REPORT_FUNCTIONS\">\n";
     html += "<legend>Report: Functions</legend>\n";
@@ -569,11 +587,11 @@ body {
         : "global"
     );
     if (global.length + froms.length + exports.length > 0) {
-        html += "<dl class=level0>\n";
+        html += "<div class=\"level level0\">\n";
         html += detail(module, global);
         html += detail("import from", froms);
         html += detail("export", exports);
-        html += "</dl>\n";
+        html += "</div>\n";
     }
     functions.forEach(function (the_function) {
         let {
@@ -590,7 +608,7 @@ body {
         let list = Object.keys(context);
         let params;
         html += (
-            "<dl class=level" + entityify(level) + ">"
+            "<div class=\"level level" + entityify(level) + "\">"
             + "<address>" + entityify(line) + "</address>"
             + "<dfn>"
             + (
@@ -652,7 +670,7 @@ body {
         html += detail("label", list.filter(function (id) {
             return context[id].role === "label";
         }));
-        html += "</dl>\n";
+        html += "</div>\n";
     });
     html += "</div>\n";
     html += "</fieldset>\n";
@@ -677,7 +695,7 @@ body {
     window.onresize = jslint_ui_onresize;
 }());
 </script>
-    `).trim();
+    `).trim() + "\n";
     html += "</div>\n";
     return html;
 }
@@ -695,6 +713,14 @@ async function jslint_ui_call() {
 
         await new Promise(function (resolve) {
             setTimeout(resolve);
+        });
+
+// Update jslint_option_dict from ui-inputs.
+
+        document.querySelectorAll(
+            "#JSLINT_OPTIONS input[type=checkbox]"
+        ).forEach(function (elem) {
+            jslint_option_dict[elem.value] = elem.checked;
         });
 
 // Execute linter.
@@ -756,8 +782,13 @@ function jslint_ui_onresize() {
         "#JSLINT_SOURCE textarea"
     ), {
         extraKeys: {
-            Tab: function (editor) {
-                editor.replaceSelection("    ");
+            "Shift-Tab": "indentLess",
+            Tab: function (cm) {
+                if (cm.somethingSelected()) {
+                    cm.indentSelection("add");
+                    return;
+                }
+                cm.replaceSelection("    ");
             }
         },
         gutters: ["CodeMirror-lint-markers"],
@@ -825,22 +856,17 @@ function jslint_ui_onresize() {
     };
     document.querySelector(
         "#JSLINT_OPTIONS"
-    ).onclick = function ({
-        target
-    }) {
+    ).onclick = function (evt) {
         let elem;
-        elem = target.closest(
+        elem = evt.target.closest(
             "#JSLINT_OPTIONS div[title]"
         );
         elem = elem && elem.querySelector("input[type=checkbox]");
-        if (elem && elem !== target) {
+        if (elem && elem !== evt.target) {
+            evt.preventDefault();
+            evt.stopPropagation();
             elem.checked = !elem.checked;
         }
-        document.querySelectorAll(
-            "#JSLINT_OPTIONS input[type=checkbox]"
-        ).forEach(function (elem) {
-            jslint_option_dict[elem.value] = elem.checked;
-        });
     };
     window.addEventListener("load", jslint_ui_onresize);
     window.addEventListener("resize", jslint_ui_onresize);
@@ -882,8 +908,7 @@ eval("console.log(\\"hello world\\");"); //jslint-quiet
 // .... /*jslint white: true...... Allow messy whitespace.
 
 (async function () {
-    let result;
-    result = await new Promise(function (resolve) {
+    let result = await new Promise(function (resolve) {
         https.request("https://www.jslint.com/jslint.mjs", function (res) {
             result = "";
             res.on("data", function (chunk) {
@@ -900,7 +925,7 @@ eval("console.log(\\"hello world\\");"); //jslint-quiet
         console.error(formatted_message);
     });
 }());
-        `).trim());
+        `).trim() + "\n");
     }
     if (mode_debug) {
         document.querySelector(

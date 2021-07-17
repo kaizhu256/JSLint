@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <meta
     name="description"
     content="JSLint, The JavaScript Code Quality Tool. This file allows JSLint
@@ -11,10 +12,10 @@
 <meta name="author" content="Douglas Crockford"/>
 <link rel="icon" type="image/png" href="asset-image-jslint-512.svg"/>
 <title>JSLint:&nbsp;The&nbsp;JavaScript&nbsp;Code Quality Tool</title>
-<!-- Google PageSpeed - Reduce Largest Contentful Paint. -->
-<link as="script" rel="preload" href="asset-codemirror-rollup.js?cc=iq7s">
-<link rel="modulepreload" href="browser.mjs?cc=iq7s">
-<link rel="modulepreload" href="jslint.mjs?cc=iq7s">
+<!-- Google Lighthouse Performance - Reduce Largest Contentful Paint. -->
+<link as="script" rel="preload" href="asset-codemirror-rollup.js?cc=w50w">
+<link rel="modulepreload" href="browser.mjs?cc=w50w">
+<link rel="modulepreload" href="jslint.mjs?cc=w50w">
 <style>
 /*jslint-disable*/
 /*
@@ -521,11 +522,6 @@ file none
 }
 /*csslint ignore:end*/
 
-/* Google PageSpeed - Reduce Cumulative Layout Shift. */
-.JSLINT_ #JSLINT_SOURCE textarea {
-    height: 298px;
-}
-
 .JSLINT_ #JSLINT_BUTTONS button,
 .JSLINT_ #JSLINT_OPTIONS > div,
 .JSLINT_ #JSLINT_TITLEBOX {
@@ -540,9 +536,69 @@ file none
     font-family: monospace;
     font-size: 12px;
 }
+.skip-link {
+    background: darkslategray;
+    color: white;
+    left: 0;
+    opacity: 0.75;
+    padding: 4px;
+    position: absolute;
+    top: -40px;
+    z-index: 10;
+}
+.skip-link:focus {
+    top: 0;
+}
+#bannerFork1 {
+    height: 100px;
+    left: 0;
+    opacity: 0.75;
+    overflow: hidden;
+    position: absolute;
+    top: 0;
+    width: 200px;
+    z-index: 1;
+}
+#bannerFork1 a {
+    color: white;
+}
+#bannerFork1 div {
+    background: darkslategray;
+    font-size: 12px;
+    height: 20px;
+    line-height: 20px;
+    opacity: 0.75;
+    overflow: visible;
+    position: absolute;
+    right: 65px;
+    text-align: center;
+    top: 25px;
+    transform: rotate(-45deg);
+    width: 100%;
+}
+#uiLoader1 {
+    align-items: center;
+    background: lightslategray;
+    color: white;
+    display: flex;
+    height: 50px;
+    justify-content: center;
+    left: 50%;
+    margin: -50px 0 0 -100px;
+    opacity: 0.85;
+    position: fixed;
+    top: 40%;
+    width: 200px;
+    z-index: 1;
+}
 
 .JSLINT_ .CodeMirror {
     padding: 0;
+}
+.JSLINT_ .CodeMirror-linenumber {
+/* Google Lighthouse Accessibility - Background and foreground colors do not */
+/* have a sufficient contrast ratio. */
+    color: darkslategray;
 }
 .JSLINT_ .CodeMirror-lint-marker {
     background-position: 1px -1px;
@@ -583,25 +639,28 @@ file none
     cursor: pointer;
     user-select: none;
 }
-.JSLINT_ #JSLINT_OPTIONS div[title] {
-    padding: 0 4px;
-}
 .JSLINT_ #JSLINT_OPTIONS div[title] input {
+    margin: 0 4px 1px 0;
     vertical-align: middle;
+    zoom: 1.1;
 }
 .JSLINT_ #JSLINT_OPTIONS label {
-    padding-left: 4px;
+    padding: 4px;
 }
 .JSLINT_ #JSLINT_OPTIONS > div > div {
     float: left;
     line-height: 20px;
     padding: 0 16px 16px 0;
 }
+.JSLINT_ #JSLINT_SOURCE textarea {
+/* Google Lighthouse Performance - Reduce Cumulative Layout Shift. */
+    height: 298px;
+}
 .JSLINT_ #JSLINT_TITLEBOX {
     color: darkslategray;
 }
 .JSLINT_ #JSLINT_TITLEBOX ul li {
-    line-height: 20px;
+    line-height: 28px;
 }
 .JSLINT_ #JSLINT_TITLEBOX ul li a:link {
     color: black;
@@ -838,73 +897,73 @@ body {
     width: 100%;
     word-wrap: break-word;
 }
-.JSLINT_ #JSLINT_REPORT_FUNCTIONS dl {
+.JSLINT_ #JSLINT_REPORT_FUNCTIONS .level {
     background: cornsilk;
     padding: 8px 16px;
 }
-.JSLINT_ #JSLINT_REPORT_FUNCTIONS dl.level0 {
-    background: white;
-}
-.JSLINT_ #JSLINT_REPORT_FUNCTIONS dl.level1 {
-    /* yellow */
-    background: #ffffe0;
-    margin-left: 16px;
-}
-.JSLINT_ #JSLINT_REPORT_FUNCTIONS dl.level2 {
-    /* green */
-    background: #e0ffe0;
-    margin-left: 32px;
-}
-.JSLINT_ #JSLINT_REPORT_FUNCTIONS dl.level3 {
-    /* blue */
-    background: #D0D0ff;
-    margin-left: 48px;
-}
-.JSLINT_ #JSLINT_REPORT_FUNCTIONS dl.level4 {
-    /* purple */
-    background: #ffe0ff;
-    margin-left: 64px;
-}
-.JSLINT_ #JSLINT_REPORT_FUNCTIONS dl.level5 {
-    /* red */
-    background: #ffe0e0;
-    margin-left: 80px;
-}
-.JSLINT_ #JSLINT_REPORT_FUNCTIONS dl.level6 {
-    /* orange */
-    background: #ffe390;
-    margin-left: 96px;
-}
-.JSLINT_ #JSLINT_REPORT_FUNCTIONS dl.level7 {
-    /* gray */
-    background: #e0e0e0;
-    margin-left: 112px;
-}
-.JSLINT_ #JSLINT_REPORT_FUNCTIONS dl.level8 {
-    margin-left: 128px;
-}
-.JSLINT_ #JSLINT_REPORT_FUNCTIONS dl.level9 {
-    margin-left: 144px;
-}
-.JSLINT_ #JSLINT_REPORT_FUNCTIONS dl dd {
+.JSLINT_ #JSLINT_REPORT_FUNCTIONS .level dd {
     line-height: 20px;
     padding-left: 120px;
 }
-.JSLINT_ #JSLINT_REPORT_FUNCTIONS dl dfn {
+.JSLINT_ #JSLINT_REPORT_FUNCTIONS .level dfn {
     display: block;
     font-style: normal;
     font-weight: bold;
     line-height: 20px;
 }
-.JSLINT_ #JSLINT_REPORT_FUNCTIONS dl div {
+.JSLINT_ #JSLINT_REPORT_FUNCTIONS .level dl {
     position: relative
 }
-.JSLINT_ #JSLINT_REPORT_FUNCTIONS dl dt {
+.JSLINT_ #JSLINT_REPORT_FUNCTIONS .level dt {
     font-style: italic;
     line-height: 20px;
     position: absolute;
     text-align: right;
     width: 100px;
+}
+.JSLINT_ #JSLINT_REPORT_FUNCTIONS .level0 {
+    background: white;
+}
+.JSLINT_ #JSLINT_REPORT_FUNCTIONS .level1 {
+    /* yellow */
+    background: #ffffe0;
+    margin-left: 16px;
+}
+.JSLINT_ #JSLINT_REPORT_FUNCTIONS .level2 {
+    /* green */
+    background: #e0ffe0;
+    margin-left: 32px;
+}
+.JSLINT_ #JSLINT_REPORT_FUNCTIONS .level3 {
+    /* blue */
+    background: #D0D0ff;
+    margin-left: 48px;
+}
+.JSLINT_ #JSLINT_REPORT_FUNCTIONS .level4 {
+    /* purple */
+    background: #ffe0ff;
+    margin-left: 64px;
+}
+.JSLINT_ #JSLINT_REPORT_FUNCTIONS .level5 {
+    /* red */
+    background: #ffe0e0;
+    margin-left: 80px;
+}
+.JSLINT_ #JSLINT_REPORT_FUNCTIONS .level6 {
+    /* orange */
+    background: #ffe390;
+    margin-left: 96px;
+}
+.JSLINT_ #JSLINT_REPORT_FUNCTIONS .level7 {
+    /* gray */
+    background: #e0e0e0;
+    margin-left: 112px;
+}
+.JSLINT_ #JSLINT_REPORT_FUNCTIONS .level8 {
+    margin-left: 128px;
+}
+.JSLINT_ #JSLINT_REPORT_FUNCTIONS .level9 {
+    margin-left: 144px;
 }
 .JSLINT_ #JSLINT_REPORT_PROPERTIES {
     background: transparent;
@@ -934,60 +993,21 @@ body {
     overflow-y: auto;
 }
 .JSLINT_ #JSLINT_REPORT_WARNINGS > legend {
-    background: indianred;
+/* Google Lighthouse Accessibility - Background and foreground colors do not */
+/* have a sufficient contrast ratio. */
+    /* background: indianred; */
+    background: #b44;
 }
 </style>
 </head>
 <body class="JSLINT_">
-<div id="bannerFork1"
-style="
-    height: 100px;
-    left: 0;
-    opacity: 0.75;
-    overflow: hidden;
-    position: absolute;
-    top: 0;
-    width: 200px;
-    z-index: 99;
-">
-    <div
-style="
-    background: darkslategray;
-    font-size: 12px;
-    height: 20px;
-    line-height: 20px;
-    opacity: 0.75;
-    overflow: visible;
-    position: absolute;
-    right: 65px;
-    text-align: center;
-    top: 25px;
-    transform: rotate(-45deg);
-    width: 100%;
-">
-    <a
-        href="https://github.com/jslint-org/jslint"
-        style="color: white;"
-    >
-    fork on github
-    </a>
-    </div>
+<!-- Google Lighthouse Accessibility -->
+<!-- The page does not contain a heading, skip link, or landmark region -->
+<a class="skip-link" href="#JSLINT_INPUT">Skip to main</a>
+<div id="bannerFork1">
+    <div><a href="https://github.com/jslint-org/jslint">Fork on github</a></div>
 </div>
-<div id="uiLoader1" style="
-    align-items: center;
-    background: lightslategray;
-    color: white;
-    display: flex;
-    height: 50px;
-    justify-content: center;
-    left: 50%;
-    margin: -50px 0 0 -100px;
-    opacity: 0.85;
-    position: fixed;
-    top: 40%;
-    width: 200px;
-    z-index: 99;
-">
+<div id="uiLoader1">
     <div>Loading modules</div>
     &nbsp;
     <span class="uiLoaderEllipsis">
@@ -996,13 +1016,13 @@ style="
         <span>.</span>
     </span>
 </div>
-<div id="JSLINT_INPUT">
+<main id="JSLINT_INPUT">
 <div id="JSLINT_TITLEBOX">
     <div style="float: left; margin-bottom: 16px;">
     <div style="font-size: 50px;">JSLint</div>
     <div id="JSLINT_EDITION" style="font-size: 14px;">&nbsp;</div>
     </div>
-    <ul style="float: right; font-size: 16px;">
+    <ul style="float: right; font-size: 14.5px; margin-top: -10px;">
     <li><a href="help.html">Read the instructions.</a></li>
     <li><a href="https://www.amazon.com/dp/1949815005/wrrrldwideweb"><i>How JavaScript Works</i> by Douglas Crockford.</a></li>
     <li><a href="https://github.com/jslint-org/jslint/issues">Report a bug or issue.</a></li>
@@ -1022,63 +1042,63 @@ style="
     <div>
     <div>Env...
         <div title="Assume browser environment.">
-        <input type="checkbox" value="browser"><label>browser</label>
+        <label><input type="checkbox" value="browser">browser</label>
         </div>
         <div title="Include jslint stack-trace in warnings.">
-        <input type="checkbox" value="debug"><label>debug</label>
+        <label><input type="checkbox" value="debug">debug</label>
         </div>
         <div title="Allow console.log() and friends.">
-        <input type="checkbox" value="devel"><label>devel</label>
+        <label><input type="checkbox" value="devel">devel</label>
         </div>
         <div title="Assume Node.js environment.">
-        <input type="checkbox" value="node"><label>node</label>
+        <label><input type="checkbox" value="node">node</label>
         </div>
     </div>
     <div>Allow...
         <div title="Enable experimental warnings.">
-        <input type="checkbox" value="beta"><label>beta</label>
+        <label><input type="checkbox" value="beta">beta</label>
         </div>
         <div title="Allow bitwise operators.">
-        <input type="checkbox" value="bitwise"><label>bitwise</label>
+        <label><input type="checkbox" value="bitwise">bitwise</label>
         </div>
         <div title="Allow conversion operators.">
-        <input type="checkbox" value="convert"><label>convert</label>
+        <label><input type="checkbox" value="convert">convert</label>
         </div>
         <div title="Allow for-statement.">
-        <input type="checkbox" value="for"><label>for</label>
+        <label><input type="checkbox" value="for">for</label>
         </div>
     </div>
     <div>&nbsp;
         <div title="Allow get() and set().">
-        <input type="checkbox" value="getset"><label>getset</label>
+        <label><input type="checkbox" value="getset">getset</label>
         </div>
         <div title="Use 2-space indent.">
-        <input type="checkbox" value="indent2"><label>indent2</label>
+        <label><input type="checkbox" value="indent2">indent2</label>
         </div>
         <div title="Allow long lines.">
-        <input type="checkbox" value="long"><label>long</label>
+        <label><input type="checkbox" value="long">long</label>
         </div>
         <div title="Allow weird property names.">
-        <input type="checkbox" value="name"><label>name</label>
+        <label><input type="checkbox" value="name">name</label>
         </div>
     </div>
     <div>&nbsp;
         <div title="Allow single-quote strings.">
-        <input type="checkbox" value="single"><label>single</label>
+        <label><input type="checkbox" value="single">single</label>
         </div>
         <div title="Allow 'this'.">
-        <input type="checkbox" value="this"><label>this</label>
+        <label><input type="checkbox" value="this">this</label>
         </div>
         <div title="Allow unordered cases, params, properties, and variables.">
-        <input type="checkbox" value="unordered"><label>unordered</label>
+        <label><input type="checkbox" value="unordered">unordered</label>
         </div>
         <div title="Allow unordered const and let declarations that are not at top of function-scope.">
-        <input type="checkbox" value="variable"><label>variable</label>
+        <label><input type="checkbox" value="variable">variable</label>
         </div>
     </div>
     <div>&nbsp;
         <div title="Allow messy whitespace.">
-        <input type="checkbox" value="white"><label>white</label>
+        <label><input type="checkbox" value="white">white</label>
         </div>
     </div>
     <textarea
@@ -1089,10 +1109,10 @@ style="
     ></textarea>
     </div>
 </fieldset>
-</div>
+</main>
 <div id="JSLINT_REPORT_HTML"></div>
-<script defer src="asset-codemirror-rollup.js?cc=iq7s"></script>
-<script src="browser.mjs?cc=iq7s" type="module"></script>
+<script defer src="asset-codemirror-rollup.js?cc=w50w"></script>
+<script src="browser.mjs?cc=w50w" type="module"></script>
 <!-- coverage-hack -->
 <script>
 (function () {
